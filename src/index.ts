@@ -1,2 +1,2 @@
-/// <reference path="../global.d.ts" />
+// / <reference path="../global.d.ts" />
 export * from './core/';

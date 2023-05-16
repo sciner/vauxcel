@@ -1,6 +1,6 @@
 import { BoundingBox } from './BoundingBox';
 
-import type { ICanvas } from '@pixi/settings';
+import type { ICanvas } from '@vaux/settings';
 
 function checkRow(data: Uint8ClampedArray, width: number, y: number)
 {

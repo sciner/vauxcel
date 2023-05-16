@@ -1,5 +1,3 @@
-// / <reference path="../global.d.ts" />
-
 /**
  * Generalized convenience utilities for PIXI.
  * @example
@@ -46,7 +44,7 @@ import './settings';
  * @property {boolean} windows.tablet - `true` if any Windows tablet
  * @property {boolean} windows.phone - `true` if any Windows phone
  */
-export { isMobile } from '@pixi/settings';
+export { isMobile } from '@vaux/settings';
 
 /**
  * A high performance event emitter
@@ -54,7 +52,7 @@ export { isMobile } from '@pixi/settings';
  * @memberof PIXI.utils
  * @class EventEmitter
  */
-export { default as EventEmitter } from 'eventemitter3';
+export { EventEmitter } from './event_emitter';
 
 /**
  * A polygon triangulation library
@@ -66,7 +64,7 @@ export { default as EventEmitter } from 'eventemitter3';
  * @param {number} [dimensions=2] - The number of coordinates per vertex in the input array
  * @returns {number[]} Triangulated polygon
  */
-export { default as earcut } from 'earcut';
+export { earcut } from './earcut';
 
 /**
  * Node.js compatible URL utilities.

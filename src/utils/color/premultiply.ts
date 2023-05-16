@@ -1,5 +1,5 @@
-import { Color } from '@pixi/color';
-import { BLEND_MODES } from '@pixi/constants';
+import { Color } from '@vaux/color';
+import { BLEND_MODES } from '@vaux/constants';
 import { deprecation } from '../logging/deprecation';
 
 /**

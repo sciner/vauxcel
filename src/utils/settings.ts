@@ -1,4 +1,4 @@
-import { settings } from '@pixi/settings';
+import { settings } from '@vaux/settings';
 
 /**
  * The prefix that denotes a URL is for a retina asset.

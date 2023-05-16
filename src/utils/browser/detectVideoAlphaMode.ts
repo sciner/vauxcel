@@ -1,4 +1,4 @@
-import { ALPHA_MODES } from '@pixi/constants';
+import { ALPHA_MODES } from '@vaux/constants';
 
 let promise: Promise<ALPHA_MODES> | undefined;
 

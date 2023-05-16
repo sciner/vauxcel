@@ -1,4 +1,4 @@
-import { settings } from '@pixi/settings';
+import { settings } from '@vaux/settings';
 
 function assertPath(path: string)
 {

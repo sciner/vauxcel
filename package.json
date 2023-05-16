@@ -1,0 +1,59 @@
+{
+  "name": "vauxcel",
+  "version": "0.1.0",
+  "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
+  "author": "Ivan Popelyshev",
+  "contributors": [
+    "Ivan Popelyshev <ivan.popelyshev@gmail.com>"
+  ],
+  "main": "./lib/index.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
+  "extensionConfig": {
+    "lint": ["src"],
+    "namespace": "VAUX",
+    "docsName": "Vauxcel",
+    "docsCopyright": "Copyright &copy; 2023 - 2023 Ivan Popelyshev",
+    "docsTitle": "Vauxcel API Documentation",
+    "docsDescription": "Documentation for Vauxcel rendering library",
+    "docsKeyword": "webgpu, rendering, voxel, shader"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "http://madcraft.io/",
+  "bugs": "https://github.com/sciner/vauxcel/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sciner/vauxcel.git"
+  },
+  "scripts": {
+    "clean": "xs clean",
+    "start": "xs serve",
+    "watch": "xs watch",
+    "build": "xs build",
+    "lint": "xs lint",
+    "lint:fix": "xs lint --fix",
+    "types": "xs types",
+    "release": "xs release",
+    "docs": "xs docs",
+    "deploy": "xs deploy",
+    "test": "xs build,docs"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "global.d.ts"
+  ],
+  "devDependencies": {
+    "@pixi/extension-scripts": "=1.8.1"
+  }
+}

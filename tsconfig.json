@@ -1,0 +1,16 @@
+{
+    "extends": "@pixi/extension-scripts/lib/configs/tsconfig.json",
+    "compilerOptions": {
+        "strict": false,
+        "preserveConstEnums": true,
+        "baseUrl": "./",
+        "paths": {
+            "VAUX/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

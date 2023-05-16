@@ -5,7 +5,7 @@
         "preserveConstEnums": true,
         "baseUrl": "./",
         "paths": {
-            "VAUX/*": [
+            "@vaux/*": [
                 "./src/*"
             ]
         }

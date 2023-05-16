@@ -2,6 +2,7 @@
     "extends": ["@pixi/eslint-config"],
     "rules": {
         "linebreak-style": ["off", "linux"],
-        "camelcase": ["off"]
+        "camelcase": ["off"],
+        "@typescript-eslint/triple-slash-reference": [1, { "path": "always" }]
     }
 }

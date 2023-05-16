@@ -1,3 +1,2 @@
-export class MainClass 
-{
-}
+/// <reference path="../global.d.ts" />
+export * from './core/';

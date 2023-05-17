@@ -282,7 +282,7 @@ export class StateSystem implements ISystem
         this.forceState(this.defaultState);
 
         this._blendEq = true;
-        this.blendMode = -1;
+        this.blendMode = -1 as any;
         this.setBlendMode(0);
     }
 

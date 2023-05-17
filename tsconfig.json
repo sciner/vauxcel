@@ -1,8 +1,14 @@
 {
-    "extends": "@pixi/extension-scripts/lib/configs/tsconfig.json",
     "compilerOptions": {
+        "sourceMap": true,
+        "module": "ESNext",
+        "target": "ES2020",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "noImplicitAny": true,
         "strict": false,
         "preserveConstEnums": true,
+        "downlevelIteration": true,
         "baseUrl": "./",
         "paths": {
             "@vaux/*": [

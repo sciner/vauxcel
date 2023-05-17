@@ -203,12 +203,11 @@ export class EventEmitter<EventTypes extends ValidEventTypes = string | symbol,
      */
     emit<T extends EventNames<EventTypes>>(
         event: T,
-        a1?: EventArgs<EventTypes, T>,
-        a2?: EventArgs<EventTypes, T>,
-        a3?: EventArgs<EventTypes, T>,
-        a4?: EventArgs<EventTypes, T>,
-        a5?: EventArgs<EventTypes, T>,
-        ..._rest: EventArgs<EventTypes, T>
+        a1?: any, // EventArgs<EventTypes, T>,
+        a2?: any, // EventArgs<EventTypes, T>,
+        a3?: any, // EventArgs<EventTypes, T>,
+        a4?: any, // EventArgs<EventTypes, T>,
+        a5?: any, // EventArgs<EventTypes, T>
     ): boolean
     {
         var evt = event;

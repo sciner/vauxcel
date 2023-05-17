@@ -273,10 +273,10 @@ export class Renderer extends SystemManager<Renderer> implements IRenderer
      * Create renderer if WebGL is available. Overrideable
      * by the **@vaux/canvas-renderer** package to allow fallback.
      * throws error if WebGL is not available.
-     * @param options
+     * @param _options
      * @private
      */
-    static test(options?: Partial<IRendererOptions>): boolean
+    static test(_options?: Partial<IRendererOptions>): boolean
     {
         return isWebGLSupported();
     }

@@ -3,6 +3,7 @@
     "rules": {
         "linebreak-style": ["off", "linux"],
         "camelcase": ["off"],
-        "@typescript-eslint/triple-slash-reference": [1, { "path": "always" }]
+        "@typescript-eslint/triple-slash-reference": [1, { "path": "always" }],
+        "spaced-comment": [1, "always", { "markers": ["/"] }]
     }
 }

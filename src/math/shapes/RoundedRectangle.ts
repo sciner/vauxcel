@@ -110,7 +110,7 @@ export class RoundedRectangle
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:RoundedRectangle x=${this.x} y=${this.y}`
+        return `[vauxcel:RoundedRectangle x=${this.x} y=${this.y}`
             + `width=${this.width} height=${this.height} radius=${this.radius}]`;
     }
     // #endif

@@ -89,7 +89,7 @@ export class Point implements IPoint
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Point x=${this.x} y=${this.y}]`;
+        return `[vauxcel:Point x=${this.x} y=${this.y}]`;
     }
     // #endif
 }

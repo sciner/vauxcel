@@ -170,7 +170,7 @@ export class State
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/core:State `
+        return `[vauxcel:State `
             + `blendMode=${this.blendMode} `
             + `clockwiseFrontFace=${this.clockwiseFrontFace} `
             + `culling=${this.culling} `

@@ -67,16 +67,6 @@ export { EventEmitter } from './event_emitter';
 export { earcut } from './earcut';
 
 /**
- * Node.js compatible URL utilities.
- * @see https://www.npmjs.com/package/url
- * @memberof PIXI.utils
- * @name url
- * @member {object}
- * @deprecated since 7.3.0
- */
-export * from './url';
-
-/**
  * Browser and Node.js compatible path utilities.
  * All paths that are passed in will become normalized to have posix separators.
  * @memberof PIXI.utils

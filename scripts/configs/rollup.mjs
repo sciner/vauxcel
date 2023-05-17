@@ -1,11 +1,12 @@
 import path from 'node:path';
-import rename from '@pixi/rollup-plugin-rename-node-modules';
+// import rename from '@pixi/rollup-plugin-rename-node-modules';
 import esbuild from 'rollup-plugin-esbuild';
 import replace from '@rollup/plugin-replace';
 import { extensionConfig, packageInfo as pkg } from '../extensionConfig.mjs';
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import typescriptPaths from 'rollup-plugin-typescript-paths';
+import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';
+import { string } from 'rollup-plugin-string';
 
 const compiled = (new Date()).toUTCString().replace(/GMT/g, 'UTC');
 const banner = [
@@ -38,14 +39,20 @@ const globals = {
 };
 
 const basePlugins = [
-    commonjs(),
+    typescript(),
     resolve(),
+    json(),
+    string({
+        include: [
+            '**/*.frag',
+            '**/*.vert',
+        ],
+    }),
     replace({
         preventAssignment: true,
         delimiters: ['__', '__'],
         VERSION: pkg.version,
     }),
-    typescriptPaths(),
 ];
 
 // Plugins for browser-based bundles
@@ -57,7 +64,7 @@ const browserPlugins = [
 // Plugins for module-based output
 const modulePlugins = [
     ...basePlugins,
-    rename(),
+    // rename(),
     esbuild({ target: 'ES2020' })
 ];
 

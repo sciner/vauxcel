@@ -115,7 +115,7 @@ export class Transform
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Transform `
+        return `[vauxcel:Transform `
             + `position=(${this.position.x}, ${this.position.y}) `
             + `rotation=${this.rotation} `
             + `scale=(${this.scale.x}, ${this.scale.y}) `

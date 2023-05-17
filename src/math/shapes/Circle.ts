@@ -81,7 +81,7 @@ export class Circle
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Circle x=${this.x} y=${this.y} radius=${this.radius}]`;
+        return `[vauxcel:Circle x=${this.x} y=${this.y} radius=${this.radius}]`;
     }
     // #endif
 }

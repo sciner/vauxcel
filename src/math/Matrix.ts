@@ -451,7 +451,7 @@ export class Matrix
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Matrix a=${this.a} b=${this.b} c=${this.c} d=${this.d} tx=${this.tx} ty=${this.ty}]`;
+        return `[vauxcel:Matrix a=${this.a} b=${this.b} c=${this.c} d=${this.d} tx=${this.tx} ty=${this.ty}]`;
     }
     // #endif
 

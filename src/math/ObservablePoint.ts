@@ -112,7 +112,7 @@ export class ObservablePoint<T = any> implements IPoint
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:ObservablePoint x=${0} y=${0} scope=${this.scope}]`;
+        return `[vauxcel:ObservablePoint x=${0} y=${0} scope=${this.scope}]`;
     }
     // #endif
 

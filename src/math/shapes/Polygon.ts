@@ -101,7 +101,7 @@ export class Polygon
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Polygon`
+        return `[vauxcel:Polygon`
             + `closeStroke=${this.closeStroke}`
             + `points=${this.points.reduce((pointsDesc, currentPoint) => `${pointsDesc}, ${currentPoint}`, '')}]`;
     }

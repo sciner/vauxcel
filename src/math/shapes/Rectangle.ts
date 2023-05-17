@@ -326,7 +326,7 @@ export class Rectangle
     // #if _DEBUG
     toString(): string
     {
-        return `[@vaux/math:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
+        return `[vauxcel:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
     }
     // #endif
 }

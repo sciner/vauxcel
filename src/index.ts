@@ -11,6 +11,7 @@ export * from './runner';
 
 export * from './display';
 export * from './sprite';
+export * from './spritesheet';
 export * from './mesh';
 export * from './text';
 export * from './text-bitmap';

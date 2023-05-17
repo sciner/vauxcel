@@ -278,11 +278,6 @@ export class Renderer extends SystemManager<Renderer> implements IRenderer
      */
     static test(options?: Partial<IRendererOptions>): boolean
     {
-        if (options?.forceCanvas)
-        {
-            return false;
-        }
-
         return isWebGLSupported();
     }
 

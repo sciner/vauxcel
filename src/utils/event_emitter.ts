@@ -203,11 +203,11 @@ export class EventEmitter<EventTypes extends ValidEventTypes = string | symbol,
      */
     emit<T extends EventNames<EventTypes>>(
         event: T,
-        a1: EventArgs<EventTypes, T>,
-        a2: EventArgs<EventTypes, T>,
-        a3: EventArgs<EventTypes, T>,
-        a4: EventArgs<EventTypes, T>,
-        a5: EventArgs<EventTypes, T>,
+        a1?: EventArgs<EventTypes, T>,
+        a2?: EventArgs<EventTypes, T>,
+        a3?: EventArgs<EventTypes, T>,
+        a4?: EventArgs<EventTypes, T>,
+        a5?: EventArgs<EventTypes, T>,
         ..._rest: EventArgs<EventTypes, T>
     ): boolean
     {
@@ -427,9 +427,12 @@ export class EventEmitter<EventTypes extends ValidEventTypes = string | symbol,
     //
     // Alias methods names because people roll like that.
     //
-    off(event: EventNames<EventTypes>)
+    off<T extends EventNames<EventTypes>>(event: EventNames<EventTypes>,
+        fn?: EventListener<EventTypes, T>,
+        context?: Context,
+        once?: boolean)
     {
-        return this.removeListener(event);
+        return this.removeListener(event, fn, context, once);
     }
 
     addListener<T extends EventNames<EventTypes>>(

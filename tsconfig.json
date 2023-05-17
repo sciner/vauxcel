@@ -17,7 +17,13 @@
             "vauxcel": [
                 "./src"
             ]
-        }
+        },
+        "plugins": [
+            // Source Transformer: 'type' defaults to 'program'
+            {
+                "transform": "ts-transform-paths"
+            }
+        ]
     },
     "include": [
         "src/**/*"

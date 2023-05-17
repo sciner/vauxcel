@@ -114,7 +114,7 @@ export default [
         ],
     }],
     // Browser bundle (iife)
-    ...!extensionConfig.environments.includes('browser') ? [] : [{
+    ...!extensionConfig.environments.includes('browser') ? [] : [/*{
         external,
         plugins: browserPlugins,
         input: extensionConfig.bundleSource ?? source,
@@ -129,7 +129,7 @@ export default [
             globals,
             exports: extensionConfig.bundleExports,
         },
-    },
+    },*/
     // Module browser bundle (esm)
     {
         external,

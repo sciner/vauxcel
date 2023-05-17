@@ -1,6 +1,6 @@
 {
   "name": "vauxcel",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
   "contributors": [
@@ -43,6 +43,7 @@
   },
   "scripts": {
     "clean": "node scripts/xs.mjs clean",
+    "prepare": "ts-patch install -s",
     "start": "node scripts/xs.mjs serve",
     "watch": "node scripts/xs.mjs watch",
     "build": "node scripts/xs.mjs build",
@@ -78,6 +79,8 @@
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-typescript-paths": "^1.4.0",
     "semver": "^7.5.1",
+    "ts-patch": "=3.0.0-beta3",
+    "ts-transform-paths": "=3.0.0",
     "typescript": "~5.0.4"
   }
 }

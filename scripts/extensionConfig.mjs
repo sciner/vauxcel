@@ -55,5 +55,6 @@ export const extensionConfig = {
     silent: false,
     source: 'src/index.ts',
     tsconfig: 'tsconfig.json',
+    mainLib: false,
     ...pkg.extensionConfig,
 };

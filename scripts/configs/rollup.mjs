@@ -17,7 +17,8 @@ const banner = [
     ` * ${pkg.name} is licensed under the MIT License.`,
     ` * http://www.opensource.org/licenses/mit-license`,
     ` * `,
-    ` * Copyright ${(new Date()).getFullYear()}, ${pkg.author}, All Rights Reserved`,
+    ` * Derivative of PixiJS project`,
+    ` * Copyright ${(new Date()).getFullYear()}, ${pkg.author}, All Lefts Reversed`,
     ` */`,
 ].join('\n');
 
@@ -74,16 +75,16 @@ const bundle = path.join(process.cwd(), extensionConfig.bundle);
 const bundleModule = path.join(process.cwd(), extensionConfig.bundleModule);
 const mainDir = path.dirname(path.join(process.cwd(), pkg.main));
 const moduleDir = path.dirname(path.join(process.cwd(), pkg.module));
-let { namespace } = extensionConfig;
+let { namespace, mainLib } = extensionConfig;
 let footer;
 
 // If we're adding to the main PIXI namespace, we need to
 // make sure we don't override the PIXI global, so we'll do this
 // to insert the output of the extension into the PIXI global
-if (namespace === 'PIXI')
+if (namespace === 'VAUX' && !mainLib)
 {
     namespace = pkg.name.replace(/[^a-z-]/ig, '_').replace(/-/g, '');
-    footer = `Object.assign(PIXI, ${namespace});`;
+    footer = `Object.assign(VAUX, ${namespace});`;
 }
 
 export default [

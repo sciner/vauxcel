@@ -24,8 +24,9 @@
       "src"
     ],
     "namespace": "VAUX",
+    "mainLib": true,
     "docsName": "Vauxcel",
-    "docsCopyright": "Copyright &copy; 2023 - 2023 Ivan Popelyshev",
+    "docsCopyright": "Copyright &copy; 2023 - 2023 Ivan Popelyshev, derived from PixiJS",
     "docsTitle": "Vauxcel API Documentation",
     "docsDescription": "Documentation for Vauxcel rendering library",
     "docsKeyword": "webgpu, rendering, voxel, shader"

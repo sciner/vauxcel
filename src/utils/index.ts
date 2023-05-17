@@ -44,7 +44,7 @@ import './settings';
  * @property {boolean} windows.tablet - `true` if any Windows tablet
  * @property {boolean} windows.phone - `true` if any Windows phone
  */
-export { isMobile } from '@vaux/settings';
+export { isMobile } from './is_mobile';
 
 /**
  * A high performance event emitter

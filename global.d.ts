@@ -183,3 +183,87 @@ declare namespace GlobalMixins
         TARGET_FPMS: number;
     }
 }
+
+// display
+
+declare namespace GlobalMixins
+{
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface DisplayObject
+    {
+
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Container
+    {
+
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface DisplayObjectEvents
+    {
+
+    }
+
+    interface Settings
+    {
+        /** @deprecated since 7.1.0 */
+        SORTABLE_CHILDREN: boolean;
+    }
+}
+
+// Sprite
+
+declare namespace GlobalMixins
+{
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Sprite
+    {
+
+    }
+}
+
+// mesh
+
+declare namespace GlobalMixins
+{
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Mesh
+    {
+
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface MeshMaterial
+    {
+
+    }
+}
+
+// BitmapText
+
+declare namespace GlobalMixins
+{
+    interface IBitmapFontResource
+    {
+        bitmapFont: import('vauxcel').BitmapFont;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface LoaderResource extends Partial<IBitmapFontResource>
+    {
+
+    }
+
+    interface IBitmapFontResourceMetadata
+    {
+        pageFile: string;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface IResourceMetadata extends Partial<IBitmapFontResourceMetadata>
+    {
+
+    }
+}

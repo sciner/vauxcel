@@ -1,4 +1,5 @@
-import { isMobile, settings } from '@vaux/settings';
+import { settings } from '@vaux/settings';
+import { isMobile } from '@vaux/utils';
 
 /**
  * The maximum recommended texture units to use.

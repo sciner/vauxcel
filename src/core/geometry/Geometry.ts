@@ -8,6 +8,7 @@ import { interleaveTypedArrays } from './utils/interleaveTypedArrays';
 import type { TYPES } from '@vaux/constants';
 import type { Dict } from '@vaux/utils';
 import type { IArrayBuffer } from './Buffer';
+import type { Program } from '../shader/Program';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 let UID = 0;
@@ -20,6 +21,24 @@ const map: Dict<any> = {
     Uint8Array: Uint8Array,
     Uint16Array: Uint16Array,
 };
+
+export class GeometryPerGL
+{
+    /**
+     * 0 or 1 whether buffers are ref-counted
+     */
+    bufRefCount = 0;
+    lastVao: WebGLVertexArrayObject = null;
+    lastProgram: Program = null;
+    lastSignature: string = null;
+    hasSecondInstance = false;
+    bySignature: {[key: string]: WebGLVertexArrayObject} = {};
+
+    constructor(public CONTEXT_UID: number)
+    {
+
+    }
+}
 
 /* eslint-disable max-len */
 
@@ -45,6 +64,7 @@ export class Geometry
     public buffers: Array<Buffer>;
     public indexBuffer: Buffer;
     public attributes: {[key: string]: Attribute};
+    public attributeDirty = true;
     public id: number;
 
     /** Whether the geometry is instanced. */
@@ -60,8 +80,12 @@ export class Geometry
      * A map of renderer IDs to webgl VAOs
      * @type {object}
      */
-    glVertexArrayObjects: {[key: number]: {[key: string]: WebGLVertexArrayObject}};
+    glVertexArrayObjects: {[key: number]: GeometryPerGL};
     disposeRunner: Runner;
+    /**
+     * stores invalid vao's
+     */
+    invalidVao: Array<number>;
 
     /** Count of existing (not destroyed) meshes that reference this geometry. */
     refCount: number;
@@ -326,6 +350,37 @@ export class Geometry
         }
 
         return geometry;
+    }
+
+    detachBuffers()
+    {
+        const { buffers } = this;
+
+        for (const uid in this.glVertexArrayObjects)
+        {
+            const glGeom = this.glVertexArrayObjects[uid];
+
+            if (glGeom.bufRefCount > 0)
+            {
+                for (let i = 0; i < buffers.length; i++)
+                {
+                    buffers[i]._glBuffers[uid].refCount -= glGeom.bufRefCount;
+                }
+                glGeom.bufRefCount = 0;
+            }
+        }
+    }
+
+    swapBuffer(ind: number, newBuffer: Buffer)
+    {
+        const { buffers } = this;
+
+        if (!buffers[ind])
+        {
+            throw new Error('buffer not found');
+        }
+        this.detachBuffers();
+        this.buffers[ind] = newBuffer;
     }
 
     /**

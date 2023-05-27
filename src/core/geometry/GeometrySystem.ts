@@ -12,6 +12,7 @@ import type { Shader } from '../shader/Shader';
 import type { ISystem } from '../system/ISystem';
 import type { Geometry } from './Geometry';
 import type { GLBuffer } from './GLBuffer';
+import { GeometryPerGL } from './Geometry';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 
@@ -149,24 +150,27 @@ export class GeometrySystem implements ISystem
     {
         shader = shader || this.renderer.shader.shader;
 
-        const { gl } = this;
+        const { gl, CONTEXT_UID } = this;
 
         // not sure the best way to address this..
         // currently different shaders require different VAOs for the same geometry
         // Still mulling over the best way to solve this one..
         // will likely need to modify the shader attribute locations at run time!
-        let vaos = geometry.glVertexArrayObjects[this.CONTEXT_UID];
-        let incRefCount = false;
+        let glGeom = geometry.glVertexArrayObjects[CONTEXT_UID];
 
-        if (!vaos)
+        if (!glGeom)
         {
             this.managedGeometries[geometry.id] = geometry;
             geometry.disposeRunner.add(this);
-            geometry.glVertexArrayObjects[this.CONTEXT_UID] = vaos = {};
-            incRefCount = true;
+            geometry.glVertexArrayObjects[CONTEXT_UID] = glGeom = new GeometryPerGL(CONTEXT_UID);
+        }
+        else
+        if (glGeom.bufRefCount === 0)
+        {
+            this.regenVao(geometry, glGeom);
         }
 
-        const vao = vaos[shader.program.id] || this.initGeometryVao(geometry, shader, incRefCount);
+        const vao = glGeom.bySignature[shader.program.id] || this.initGeometryVao(geometry, shader, glGeom);
 
         this._activeGeometry = geometry;
 
@@ -263,7 +267,7 @@ export class GeometrySystem implements ISystem
      * @param shader - Instance of the shader.
      * @param incRefCount - Increment refCount of all geometry buffers.
      */
-    protected initGeometryVao(geometry: Geometry, shader: Shader, incRefCount = true): WebGLVertexArrayObject
+    protected initGeometryVao(geometry: Geometry, shader: Shader, glGeom: GeometryPerGL): WebGLVertexArrayObject
     {
         const gl = this.gl;
         const CONTEXT_UID = this.CONTEXT_UID;
@@ -279,18 +283,57 @@ export class GeometrySystem implements ISystem
 
         const signature = this.getSignature(geometry, program);
 
-        const vaoObjectHash = geometry.glVertexArrayObjects[this.CONTEXT_UID];
-
-        let vao = vaoObjectHash[signature];
+        let vao = glGeom.bySignature[signature];
 
         if (vao)
         {
             // this will give us easy access to the vao
-            vaoObjectHash[program.id] = vao;
+            glGeom.bySignature[program.id] = vao;
 
             return vao;
         }
 
+        if (geometry.attributeDirty)
+        {
+            this.checkAttributes(geometry, program);
+        }
+
+        // @TODO: We don't know if VAO is supported.
+        vao = gl.createVertexArray();
+
+        gl.bindVertexArray(vao);
+
+        // TODO - maybe make this a data object?
+        // lets wait to see if we need to first!
+
+        this.activateVao(geometry, program);
+        this.addRefBuffers(geometry, glGeom);
+
+        // add it to the cache!
+        if (glGeom.lastProgram)
+        {
+            glGeom.hasSecondInstance = true;
+        }
+        glGeom.bySignature[program.id] = vao;
+        glGeom.bySignature[signature] = vao;
+        glGeom.lastVao = vao;
+        glGeom.lastProgram = program;
+        glGeom.lastSignature = signature;
+
+        gl.bindVertexArray(null);
+        bufferSystem.unbind(BUFFER_TYPE.ARRAY_BUFFER);
+
+        return vao;
+    }
+
+    checkAttributes(geometry: Geometry, program: Program)
+    {
+        if (!geometry.attributeDirty)
+        {
+            return;
+        }
+
+        geometry.attributeDirty = false;
         const buffers = geometry.buffers;
         const attributes = geometry.attributes;
         const tempStride: Dict<number> = {};
@@ -340,39 +383,65 @@ export class GeometrySystem implements ISystem
                 tempStart[attribute.buffer] += attribSize * byteSizeMap[attribute.type];
             }
         }
+    }
 
-        // @TODO: We don't know if VAO is supported.
-        vao = gl.createVertexArray();
+    regenVao(geometry: Geometry, glGeom: GeometryPerGL)
+    {
+        if (glGeom.bufRefCount > 0)
+        {
+            return;
+        }
+
+        const { gl } = this.renderer;
+        const vao = glGeom.lastVao;
 
         gl.bindVertexArray(vao);
+        this.activateVao(geometry, glGeom.lastProgram);
+        this.addRefBuffers(geometry, glGeom);
+        if (!glGeom.hasSecondInstance)
+        {
+            return;
+        }
 
-        // first update - and create the buffers!
-        // only create a gl buffer if it actually gets
+        const old = glGeom.bySignature;
+
+        glGeom.hasSecondInstance = false;
+        glGeom.bySignature = {};
+        for (const sig in old)
+        {
+            if (old[sig] === vao)
+            {
+                glGeom.bySignature[sig] = vao;
+                continue;
+            }
+            if (sig[0] === 'g')
+            {
+                gl.deleteVertexArray(glGeom.bySignature[sig]);
+            }
+        }
+    }
+
+    addRefBuffers(geometry: Geometry, glGeom: GeometryPerGL)
+    {
+        if (glGeom.bufRefCount > 0)
+        {
+            return;
+        }
+
+        const bufferSystem = this.renderer?.buffer;
+        const buffers = geometry.buffers;
+
+        glGeom.bufRefCount++;
         for (let i = 0; i < buffers.length; i++)
         {
             const buffer = buffers[i];
 
-            bufferSystem.bind(buffer);
-
-            if (incRefCount)
+            if (!buffer._glBuffers[glGeom.CONTEXT_UID])
             {
-                buffer._glBuffers[CONTEXT_UID].refCount++;
+                bufferSystem.bind(buffer);
             }
+            buffer._glBuffers[glGeom.CONTEXT_UID].refCount++;
         }
-
-        // TODO - maybe make this a data object?
-        // lets wait to see if we need to first!
-
-        this.activateVao(geometry, program);
-
-        // add it to the cache!
-        vaoObjectHash[program.id] = vao;
-        vaoObjectHash[signature] = vao;
-
-        gl.bindVertexArray(null);
-        bufferSystem.unbind(BUFFER_TYPE.ARRAY_BUFFER);
-
-        return vao;
     }
 
     /**
@@ -413,7 +482,7 @@ export class GeometrySystem implements ISystem
                 // my be null as context may have changed right before the dispose is called
                 if (buf)
                 {
-                    buf.refCount--;
+                    buf.refCount -= vaos.bufRefCount;
                     if (buf.refCount === 0 && !contextLost)
                     {
                         bufferSystem.dispose(buffers[i], contextLost);
@@ -429,7 +498,7 @@ export class GeometrySystem implements ISystem
                 // delete only signatures, everything else are copies
                 if (vaoId[0] === 'g')
                 {
-                    const vao = vaos[vaoId];
+                    const vao = vaos.bySignature[vaoId];
 
                     if (this._activeVao === vao)
                     {

@@ -235,7 +235,17 @@ export abstract class DisplayObject extends utils.EventEmitter<DisplayObjectEven
      *
      * Only affects recursive calls from parent. You can ask for bounds or call updateTransform manually.
      */
-    public visible: boolean;
+    get visible()
+    {
+        return this._visible;
+    }
+
+    set visible(val: boolean)
+    {
+        this._visible = val;
+    }
+
+    _visible: boolean;
 
     /**
      * Can this object be rendered, if false the object will not be drawn but the updateTransform
@@ -364,7 +374,7 @@ export abstract class DisplayObject extends utils.EventEmitter<DisplayObjectEven
         // TODO: need to create Transform from factory
         this.transform = new Transform();
         this.alpha = 1;
-        this.visible = true;
+        this._visible = true;
         this.renderable = true;
         this.cullable = false;
         this.cullArea = null;
@@ -931,7 +941,7 @@ export abstract class DisplayObject extends utils.EventEmitter<DisplayObjectEven
 
         do
         {
-            if (!item.visible)
+            if (!item._visible)
             {
                 return false;
             }

@@ -151,17 +151,27 @@ export class BufferSystem implements ISystem
 
         gl.bindBuffer(buffer.type, glBuffer.buffer);
 
-        if (glBuffer.byteLength >= buffer.data.byteLength)
+        if (buffer.data)
         {
-            // offset is always zero for now!
-            gl.bufferSubData(buffer.type, 0, buffer.data);
+            if (glBuffer.byteLength >= buffer.data.byteLength)
+            {
+                // offset is always zero for now!
+                gl.bufferSubData(buffer.type, 0, buffer.data);
+            }
+            else
+            {
+                const drawType = buffer.static ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
+
+                glBuffer.byteLength = buffer.data.byteLength;
+                gl.bufferData(buffer.type, buffer.data, drawType);
+            }
         }
-        else
+        else if (glBuffer.byteLength !== buffer.byteLength)
         {
             const drawType = buffer.static ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
 
             glBuffer.byteLength = buffer.data.byteLength;
-            gl.bufferData(buffer.type, buffer.data, drawType);
+            gl.bufferData(buffer.type, buffer.byteLength, drawType);
         }
     }
 

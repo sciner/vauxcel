@@ -443,7 +443,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
         {
             const child = this.children[i];
 
-            if (child.visible)
+            if (child._visible)
             {
                 child.updateTransform();
             }
@@ -466,7 +466,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
         {
             const child = this.children[i];
 
-            if (!child.visible || !child.renderable)
+            if (!child._visible || !child.renderable)
             {
                 continue;
             }
@@ -522,7 +522,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
             {
                 const child = this.children[i];
 
-                if (child.visible)
+                if (child._visible)
                 {
                     child.updateTransform();
                 }
@@ -649,7 +649,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
     render(renderer: Renderer): void
     {
         // if the object is not visible or the alpha is 0 then no need to render this element
-        if (!this.visible || this.worldAlpha <= 0 || !this.renderable)
+        if (!this._visible || this.worldAlpha <= 0 || !this.renderable)
         {
             return;
         }

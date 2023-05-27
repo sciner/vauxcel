@@ -44,6 +44,23 @@ export class Buffer
     public data: ITypedArray;
 
     /**
+     * Instead of data, you can specify byte length
+     * might be 0 if data is specified
+     */
+    public byteLength: number;
+
+    /**
+     * In case data source is another buffer
+     * Does not work with multiple GL contexts!
+     */
+    public dataCopyFromBuffer: Buffer = null;
+
+    /**
+     * Should be disposed after data is copied to another buffer
+     */
+    public disposeAfterCopy = false;
+
+    /**
      * The type of buffer this is, one of:
      * + ELEMENT_ARRAY_BUFFER - used as an index buffer
      * + ARRAY_BUFFER - used as an attribute buffer
@@ -72,6 +89,7 @@ export class Buffer
     {
         this.data = (data || new Float32Array(1)) as ITypedArray;
 
+        this.byteLength = 0;
         this._glBuffers = {};
         this._updateID = 0;
 

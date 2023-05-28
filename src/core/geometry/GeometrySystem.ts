@@ -556,11 +556,10 @@ export class GeometrySystem implements ISystem
 
             if (program.attributeData[j])
             {
-                if (lastBuffer !== glBuffer)
+                if (!glBuffer || lastBuffer !== glBuffer)
                 {
                     bufferSystem.bind(buffer);
-
-                    lastBuffer = glBuffer;
+                    lastBuffer = buffer._glBuffers[CONTEXT_UID];
                 }
 
                 const location = program.attributeData[j].location;

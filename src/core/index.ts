@@ -47,6 +47,7 @@ export * from './geometry/BufferSystem';
 export * from './geometry/Geometry';
 export * from './geometry/GeometrySystem';
 export * from './geometry/ViewableBuffer';
+export * from './geometry/BufferCopyOperation';
 export * from './IRenderer';
 export * from './IRenderer';
 export * from './mask/MaskData';

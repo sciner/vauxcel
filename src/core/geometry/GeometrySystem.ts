@@ -13,6 +13,8 @@ import type { ISystem } from '../system/ISystem';
 import type { Geometry } from './Geometry';
 import type { GLBuffer } from './GLBuffer';
 import { GeometryPerGL } from './Geometry';
+import { Buffer } from './Buffer';
+import { BufferCopyOperation, IBufferCopier } from '@vaux/core/geometry/BufferCopyOperation';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 
@@ -39,6 +41,11 @@ export class GeometrySystem implements ISystem
      * @readonly
      */
     public hasInstance: boolean;
+
+    /**
+     * instance for copy handler, used for swapAndCopyBuffer
+     */
+    public copier: IBufferCopier;
 
     /**
      * `true` if support `gl.UNSIGNED_INT` in `gl.drawElements` or `gl.drawElementsInstanced`.
@@ -356,7 +363,10 @@ export class GeometrySystem implements ISystem
                 console.warn(`PIXI Geometry attribute '${j}' size cannot be determined (likely the bound shader does not have the attribute)`);  // eslint-disable-line
             }
 
-            tempStride[attributes[j].buffer] += attributes[j].size * byteSizeMap[attributes[j].type];
+            const bufIndex = attributes[j].buffer;
+
+            tempStride[bufIndex] += attributes[j].size * byteSizeMap[attributes[j].type];
+            geometry.bufferStride[bufIndex] = tempStride[bufIndex];
         }
 
         for (const j in attributes)
@@ -513,6 +523,29 @@ export class GeometrySystem implements ISystem
     }
 
     /**
+     * swaps buffer to new one, saves contents
+     * @param geometry
+     * @param bufInd
+     * @param newBuffer
+     * @param copier
+     */
+    swapAndCopyBuffer(geometry: Geometry, bufInd: number, newBuffer: Buffer, copier: IBufferCopier = this.copier)
+    {
+        const oldBuffer = geometry.buffers[bufInd];
+        const stride = geometry.bufferStride[bufInd];
+
+        geometry.swapBuffer(bufInd, newBuffer);
+
+        if (stride && oldBuffer.byteLength)
+        {
+            const bco = new BufferCopyOperation();
+
+            bco.count = oldBuffer.byteLength / stride;
+            copier.doCopy(this.renderer, oldBuffer, newBuffer, [bco], stride);
+        }
+    }
+
+    /**
      * Dispose all WebGL resources of all managed geometries.
      * @param [contextLost=false] - If context was lost, we suppress `gl.delete` calls
      */
@@ -647,7 +680,7 @@ export class GeometrySystem implements ISystem
     }
 
     /** Unbind/reset everything. */
-    protected unbind(): void
+    public unbind(): void
     {
         this.gl.bindVertexArray(null);
         this._activeVao = null;

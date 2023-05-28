@@ -62,6 +62,7 @@ export class GeometryPerGL
 export class Geometry
 {
     public buffers: Array<Buffer>;
+    public bufferStride: Array<number>;
     public indexBuffer: Buffer;
     public attributes: {[key: string]: Attribute};
     public attributeDirty = true;
@@ -97,6 +98,8 @@ export class Geometry
     constructor(buffers: Array<Buffer> = [], attributes: {[key: string]: Attribute} = {})
     {
         this.buffers = buffers;
+
+        this.bufferStride = [];
 
         this.indexBuffer = null;
 

@@ -17,3 +17,5 @@ export * from './text';
 export * from './text-bitmap';
 export * from './text-html';
 export * from './graphics';
+
+export * from './hacks';

@@ -4,9 +4,9 @@ import type { Renderer } from '../Renderer';
 
 export class BufferCopyOperation implements PoolItem
 {
-    src: number;
-    dst: number;
-    count: number;
+    src = 0;
+    dst = 0;
+    count = 0;
 
     reset()
     {

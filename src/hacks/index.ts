@@ -1,1 +1,1 @@
-export * from './TFBufferCopier64';
+export * from './TFBufferCopier';

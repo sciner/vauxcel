@@ -26,11 +26,13 @@ export interface IBaseTextureOptions<RO = any>
     scaleMode?: SCALE_MODES;
     width?: number;
     height?: number;
+    depth?: number;
     wrapMode?: WRAP_MODES;
     format?: FORMATS;
     type?: TYPES;
     target?: TARGETS;
     resolution?: number;
+    depthResolution?: number;
     multisample?: MSAA_QUALITY;
     resourceOptions?: RO;
     pixiIdPrefix?: string;
@@ -61,11 +63,22 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
     public height: number;
 
     /**
+     * Depth, is bigger than 1 for texture arrays
+     * @readonly
+     */
+    public depth: number;
+
+    /**
      * The resolution / device pixel ratio of the texture
      * @readonly
      * @default PIXI.settings.RESOLUTION
      */
     public resolution: number;
+
+    /**
+     * Special resolution that makes sense only for 3d textures
+     */
+    public depthResolution: number;
 
     /**
      * How to treat premultiplied alpha, see {@link PIXI.ALPHA_MODES}.
@@ -248,6 +261,8 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
          * @default PIXI.TYPES.UNSIGNED_BYTE
          */
         type: TYPES.UNSIGNED_BYTE,
+
+        depthResolution: 1,
     };
 
     /**
@@ -277,7 +292,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
 
         const {
             alphaMode, mipmap, anisotropicLevel, scaleMode, width, height,
-            wrapMode, format, type, target, resolution, resourceOptions
+            depth, depthResolution, wrapMode, format, type, target, resolution, resourceOptions
         } = options;
 
         // Convert the resource to a Resource object
@@ -287,9 +302,13 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
             resource.internal = true;
         }
 
-        this.resolution = resolution || settings.RESOLUTION;
+        const defaultResolution = (depth && depth > 1) ? 1 : settings.RESOLUTION;
+
+        this.resolution = resolution || defaultResolution;
+        this.depthResolution = depthResolution;
         this.width = Math.round((width || 0) * this.resolution) / this.resolution;
         this.height = Math.round((height || 0) * this.resolution) / this.resolution;
+        this.depth = Math.round((depth || 0) * this.depthResolution) / this.depthResolution;
         this._mipmap = mipmap;
         this.anisotropicLevel = anisotropicLevel;
         this._wrapMode = wrapMode;
@@ -373,6 +392,11 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
     get realHeight(): number
     {
         return Math.round(this.height * this.resolution);
+    }
+
+    get realDepth(): number
+    {
+        return Math.round(this.depth * this.resolution);
     }
 
     /**
@@ -483,6 +507,19 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
         this.width = Math.round(realWidth) / this.resolution;
         this.height = Math.round(realHeight) / this.resolution;
         this._refreshPOT();
+        this.update();
+
+        return this;
+    }
+
+    setRealSize3D(realWidth: number, realHeight: number, realDepth: number, pixelSize?: number): this
+    {
+        this.resolution = pixelSize ? 1.0 : 1.0 / pixelSize;
+        this.depthResolution = this.resolution;
+        this.width = realWidth * pixelSize;
+        this.height = realHeight * pixelSize;
+        this.depth = realDepth * pixelSize;
+        this.isPowerOfTwo = false;
         this.update();
 
         return this;

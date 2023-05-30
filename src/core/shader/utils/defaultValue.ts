@@ -40,6 +40,9 @@ export function defaultValue(
         case 'uint':
         case 'sampler2D':
         case 'sampler2DArray':
+        case 'sampler3D':
+        case 'isampler2D':
+        case 'isampler3D':
             return 0;
 
         case 'ivec2':

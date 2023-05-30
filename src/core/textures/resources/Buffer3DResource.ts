@@ -204,7 +204,7 @@ export class Buffer3DResource extends Resource
     style(renderer: Renderer, baseTexture: BaseTexture, _glTexture: GLTexture): boolean
     {
         const { gl } = renderer;
-        const target = gl.TEXTURE_3D;
+        const target = baseTexture.target;
         const sm = baseTexture.scaleMode === SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST;
 
         gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, sm);

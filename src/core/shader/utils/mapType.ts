@@ -30,6 +30,8 @@ const GL_TO_GLSL_TYPES: Dict<string> = {
     SAMPLER_2D:              'sampler2D',
     INT_SAMPLER_2D:          'sampler2D',
     UNSIGNED_INT_SAMPLER_2D: 'sampler2D',
+    SAMPLER_3D:              'sampler2D',
+    INT_SAMPLER_3D:          'sampler2D',
     SAMPLER_CUBE:              'samplerCube',
     INT_SAMPLER_CUBE:          'samplerCube',
     UNSIGNED_INT_SAMPLER_CUBE: 'samplerCube',

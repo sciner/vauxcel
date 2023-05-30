@@ -38,3 +38,10 @@ export interface ISize
     width: number;
     height: number;
 }
+
+export interface ISize3D
+{
+    width: number;
+    height: number;
+    depth: number;
+}

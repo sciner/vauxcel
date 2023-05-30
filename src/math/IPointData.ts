@@ -4,6 +4,11 @@ export interface IPointData extends GlobalMixins.IPointData
     y: number;
 }
 
+export interface IPointData3D extends IPointData
+{
+    z: number;
+}
+
 /**
  * Common interface for points. Both Point and ObservablePoint implement it
  * @memberof PIXI

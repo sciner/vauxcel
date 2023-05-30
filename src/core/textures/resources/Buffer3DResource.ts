@@ -1,12 +1,13 @@
 import { Resource } from './Resource';
 
-import type { ISize } from '@vaux/math';
+import type { ISize3D } from '@vaux/math';
 import type { Renderer } from '../../Renderer';
 import type { BaseTexture } from '../BaseTexture';
 import type { GLTexture } from '../GLTexture';
 import type { BufferType } from './BufferResource';
 import { Runner } from '@vaux/runner';
 import { FORMATS, SCALE_MODES, TARGETS } from '@vaux/constants';
+import { Texture3D } from '../Texture3D';
 
 export function formatToCount(f: FORMATS)
 {
@@ -27,7 +28,7 @@ export function formatToCount(f: FORMATS)
  * Constructor options for BufferResource.
  * @memberof PIXI
  */
-export interface IBuffer3DResourceOptions extends ISize
+export interface IBuffer3DResourceOptions extends ISize3D
 {
     depth: number;
     pixelSize?: number;
@@ -50,7 +51,7 @@ export class Buffer3DResource extends Resource
     public useSubRegions: boolean;
     protected onResize3D: Runner;
 
-    public regionsToUpdate: Array<any> = [];
+    public regionsToUpdate: Array<Texture3D> = [];
 
     /**
      * @param source - Source buffer
@@ -132,7 +133,7 @@ export class Buffer3DResource extends Resource
             {
                 console.warn('Texture3D resize fail');
 
-                return;
+                return true;
             }
         }
         if (this.useSubRegions)
@@ -191,8 +192,8 @@ export class Buffer3DResource extends Resource
             if (!region.isEmpty)
             {
                 gl.texSubImage3D(target, 0,
-                    region.offset.x / pixelSize, region.offset.y / pixelSize, region.offset.z / pixelSize,
-                    region.width / pixelSize, region.height / pixelSize, region.depth / pixelSize,
+                    region.layout.x / pixelSize, region.layout.y / pixelSize, region.layout.z / pixelSize,
+                    region.layout.width / pixelSize, region.layout.height / pixelSize, region.layout.depth / pixelSize,
                     format, type, region.data);
                 region.data = null;
             }

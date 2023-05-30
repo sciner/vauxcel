@@ -89,6 +89,8 @@ export * from './textures/TextureGCSystem';
 export * from './textures/TextureMatrix';
 export * from './textures/TextureSystem';
 export * from './textures/TextureUvs';
+export * from './textures/Texture3D';
+export * from './textures/Texture3DLayout';
 export * from './transformFeedback/TransformFeedback';
 export * from './transformFeedback/TransformFeedbackSystem';
 export * from './utils/Quad';

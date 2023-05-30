@@ -26,6 +26,7 @@ export * from './AbstractMultiResource';
 export * from './ArrayResource';
 export * from './autoDetectResource';
 export * from './BufferResource';
+export * from './Buffer3DResource';
 export * from './CanvasResource';
 export * from './CubeResource';
 export * from './ImageBitmapResource';

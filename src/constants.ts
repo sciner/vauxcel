@@ -397,6 +397,11 @@ export enum TARGETS
      * @default 3553
      */
     TEXTURE_2D = 3553,
+
+    /**
+     * 3D texture
+     */
+    TEXTURE_3D = 0x806F,
     /**
      * A cube-mapped texture. When using a WebGL 2 context, the following values are available additionally:
      * - gl.TEXTURE_3D: A three-dimensional texture.
@@ -440,7 +445,6 @@ export enum TARGETS
      */
     TEXTURE_CUBE_MAP_NEGATIVE_Z = 34074,
 }
-
 /**
  * Various GL data format types.
  * @memberof PIXI

@@ -30,6 +30,8 @@ export class GLTexture
     /** Type of sampler corresponding to this texture. See {@link PIXI.SAMPLER_TYPES} */
     public samplerType: number;
 
+    public dataLength: number;
+
     /** Texture contents dirty flag. */
     dirtyId: number;
 
@@ -47,6 +49,7 @@ export class GLTexture
         this.wrapMode = 33071;
         this.type = TYPES.UNSIGNED_BYTE;
         this.internalFormat = FORMATS.RGBA;
+        this.dataLength = 0;
 
         this.samplerType = 0;
     }

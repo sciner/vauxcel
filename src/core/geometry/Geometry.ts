@@ -9,6 +9,10 @@ import type { TYPES } from '@vaux/constants';
 import type { Dict } from '@vaux/utils';
 import type { IArrayBuffer } from './Buffer';
 import type { Program } from '../shader/Program';
+import {
+    AttributeBaseCallbackStruct,
+    generateAttribSyncForGeom
+} from './utils/generateAttributeSync';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 let UID = 0;
@@ -33,6 +37,7 @@ export class GeometryPerGL
     lastSignature: string = null;
     hasSecondInstance = false;
     bySignature: {[key: string]: WebGLVertexArrayObject} = {};
+    baseInstance = 0;
 
     constructor(public CONTEXT_UID: number)
     {
@@ -67,15 +72,17 @@ export class Geometry
     public attributes: {[key: string]: Attribute};
     public attributeDirty = true;
     public id: number;
-
     /** Whether the geometry is instanced. */
     public instanced: boolean;
+
+    private _attributeBaseCallback: AttributeBaseCallbackStruct;
 
     /**
      * Number of instances in this geometry, pass it to `GeometrySystem.draw()`.
      * @default 1
      */
     public instanceCount: number;
+    public : string;
 
     /**
      * A map of renderer IDs to webgl VAOs
@@ -488,5 +495,15 @@ export class Geometry
         }
 
         return geometryOut;
+    }
+
+    getAttributeBaseCallback()
+    {
+        if (!this._attributeBaseCallback)
+        {
+            this._attributeBaseCallback = generateAttribSyncForGeom(this);
+        }
+
+        return this._attributeBaseCallback;
     }
 }

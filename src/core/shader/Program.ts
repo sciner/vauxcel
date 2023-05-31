@@ -79,6 +79,8 @@ export class Program
     /** Assigned when a program is first bound to the shader system. */
     uniformData: {[key: string]: IUniformData};
 
+    locationByAttribSignature: Record<string, number[]> = {};
+
     extra: IProgramExtraData = {};
 
     /**

@@ -51,5 +51,8 @@ export interface WebGLExtensions
     pvrtc?: WEBGL_compressed_texture_pvrtc;
     atc?: WEBGL_compressed_texture_atc;
     astc?: WEBGL_compressed_texture_astc;
+
+    md?: WEBGL_multi_draw;
+    md_bvbi?: any
 }
 /* eslint-enable camelcase */

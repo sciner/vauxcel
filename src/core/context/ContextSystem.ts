@@ -337,7 +337,9 @@ export class ContextSystem implements ISystem<ContextSystemOptions>
         {
             Object.assign(this.extensions, common, {
                 // Floats and half-floats
-                colorBufferFloat: gl.getExtension('EXT_color_buffer_float')
+                colorBufferFloat: gl.getExtension('EXT_color_buffer_float'),
+                md: gl.getExtension('WEBGL_multi_draw'),
+                md_bvbi: gl.getExtension('multiDrawArraysInstancedBaseInstanceWEBGL'),
             });
         }
     }

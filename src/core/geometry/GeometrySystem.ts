@@ -57,7 +57,6 @@ export class GeometrySystem implements ISystem
     protected gl: IRenderingContext;
     protected _activeGeometry: Geometry;
     protected _activeVao: WebGLVertexArrayObject;
-    protected _boundBuffer: GLBuffer;
 
     /** Cache for all geometries by id, used in case renderer gets destroyed or for profiling. */
     readonly managedGeometries: {[key: number]: Geometry};
@@ -601,12 +600,21 @@ export class GeometrySystem implements ISystem
                 // we can optimise this for older devices that have no VAOs
                 gl.enableVertexAttribArray(location);
 
-                gl.vertexAttribPointer(location,
-                    attribute.size,
-                    attribute.type || gl.FLOAT,
-                    attribute.normalized,
-                    attribute.stride,
-                    attribute.start);
+                if (attribute.int) {
+                    gl.vertexAttribIPointer(location,
+                        attribute.size,
+                        attribute.type || gl.INT,
+                        attribute.stride,
+                        attribute.start);
+                }
+                else {
+                    gl.vertexAttribPointer(location,
+                        attribute.size,
+                        attribute.type || gl.FLOAT,
+                        attribute.normalized,
+                        attribute.stride,
+                        attribute.start);
+                }
 
                 if (attribute.instance)
                 {

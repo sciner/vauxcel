@@ -32,16 +32,27 @@ export class GeometryPerGL
      * 0 or 1 whether buffers are ref-counted
      */
     bufRefCount = 0;
-    lastVao: WebGLVertexArrayObject = null;
+    lastGPS: GeometryPerShader = null;
     lastProgram: Program = null;
     lastSignature: string = null;
     hasSecondInstance = false;
-    bySignature: {[key: string]: WebGLVertexArrayObject} = {};
-    baseInstance = 0;
+    bySignature: {[key: string]: GeometryPerShader} = {};
 
     constructor(public CONTEXT_UID: number)
     {
 
+    }
+}
+
+export class GeometryPerShader
+{
+    vao: WebGLVertexArrayObject;
+    instLocations: number[] = null;
+    baseInstance = 0;
+
+    constructor(vao: WebGLVertexArrayObject)
+    {
+        this.vao = vao;
     }
 }
 

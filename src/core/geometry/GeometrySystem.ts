@@ -11,8 +11,7 @@ import type { Program } from '../shader/Program';
 import type { Shader } from '../shader/Shader';
 import type { ISystem } from '../system/ISystem';
 import type { Geometry } from './Geometry';
-import type { GLBuffer } from './GLBuffer';
-import { GeometryPerGL } from './Geometry';
+import {GeometryPerGL, GeometryPerShader} from './Geometry';
 import { Buffer } from './Buffer';
 import { BufferCopyOperation, IBufferCopier } from '@vaux/core/geometry/BufferCopyOperation';
 
@@ -56,7 +55,7 @@ export class GeometrySystem implements ISystem
     protected CONTEXT_UID: number;
     protected gl: IRenderingContext;
     protected _activeGeometry: Geometry;
-    protected _activeVao: WebGLVertexArrayObject;
+    protected _activeGPS: GeometryPerShader;
 
     /** Cache for all geometries by id, used in case renderer gets destroyed or for profiling. */
     readonly managedGeometries: {[key: number]: Geometry};
@@ -69,7 +68,7 @@ export class GeometrySystem implements ISystem
     {
         this.renderer = renderer;
         this._activeGeometry = null;
-        this._activeVao = null;
+        this._activeGPS = null;
 
         this.hasVao = true;
         this.hasInstance = true;
@@ -180,9 +179,9 @@ export class GeometrySystem implements ISystem
 
         this._activeGeometry = geometry;
 
-        if (this._activeVao !== vao)
+        if (this._activeGPS !== vao)
         {
-            this._activeVao = vao;
+            this._activeGPS = vao;
 
             if (this.hasVao)
             {
@@ -273,7 +272,7 @@ export class GeometrySystem implements ISystem
      * @param shader - Instance of the shader.
      * @param incRefCount - Increment refCount of all geometry buffers.
      */
-    protected initGeometryVao(geometry: Geometry, shader: Shader, glGeom: GeometryPerGL): WebGLVertexArrayObject
+    protected initGeometryVao(geometry: Geometry, shader: Shader, glGeom: GeometryPerGL): GeometryPerShader
     {
         const gl = this.gl;
         const CONTEXT_UID = this.CONTEXT_UID;
@@ -289,14 +288,14 @@ export class GeometrySystem implements ISystem
 
         const signature = this.getSignature(geometry, program);
 
-        let vao = glGeom.bySignature[signature];
+        let gps = glGeom.bySignature[signature];
 
-        if (vao)
+        if (gps)
         {
             // this will give us easy access to the vao
-            glGeom.bySignature[program.id] = vao;
+            glGeom.bySignature[program.id] = gps;
 
-            return vao;
+            return gps;
         }
 
         if (geometry.attributeDirty)
@@ -305,9 +304,9 @@ export class GeometrySystem implements ISystem
         }
 
         // @TODO: We don't know if VAO is supported.
-        vao = gl.createVertexArray();
+        gps = new GeometryPerShader(gl.createVertexArray());
 
-        gl.bindVertexArray(vao);
+        gl.bindVertexArray(gps);
 
         // TODO - maybe make this a data object?
         // lets wait to see if we need to first!
@@ -320,16 +319,16 @@ export class GeometrySystem implements ISystem
         {
             glGeom.hasSecondInstance = true;
         }
-        glGeom.bySignature[program.id] = vao;
-        glGeom.bySignature[signature] = vao;
-        glGeom.lastVao = vao;
+        glGeom.bySignature[program.id] = gps;
+        glGeom.bySignature[signature] = gps;
+        glGeom.lastGPS = gps;
         glGeom.lastProgram = program;
         glGeom.lastSignature = signature;
 
         gl.bindVertexArray(null);
         bufferSystem.unbind(BUFFER_TYPE.ARRAY_BUFFER);
 
-        return vao;
+        return gps;
     }
 
     checkAttributes(geometry: Geometry, program: Program)
@@ -402,9 +401,9 @@ export class GeometrySystem implements ISystem
         }
 
         const { gl } = this.renderer;
-        const vao = glGeom.lastVao;
+        const gps = glGeom.lastGPS;
 
-        gl.bindVertexArray(vao);
+        gl.bindVertexArray(gps.vao);
         this.activateVao(geometry, glGeom.lastProgram);
         this.addRefBuffers(geometry, glGeom);
         if (!glGeom.hasSecondInstance)
@@ -418,9 +417,9 @@ export class GeometrySystem implements ISystem
         glGeom.bySignature = {};
         for (const sig in old)
         {
-            if (old[sig] === vao)
+            if (old[sig] === gps.vao)
             {
-                glGeom.bySignature[sig] = vao;
+                glGeom.bySignature[sig] = new GeometryPerShader(gps.vao);
                 continue;
             }
             if (sig[0] === 'g')
@@ -509,7 +508,7 @@ export class GeometrySystem implements ISystem
                 {
                     const vao = vaos.bySignature[vaoId];
 
-                    if (this._activeVao === vao)
+                    if (this._activeGPS === vao)
                     {
                         this.unbind();
                     }
@@ -691,7 +690,7 @@ export class GeometrySystem implements ISystem
     public unbind(): void
     {
         this.gl.bindVertexArray(null);
-        this._activeVao = null;
+        this._activeGPS = null;
         this._activeGeometry = null;
     }
 

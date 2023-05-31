@@ -3,8 +3,10 @@ import type { Attribute } from '../Attribute';
 import type { Buffer } from '../Buffer';
 import type { Geometry } from '../Geometry';
 import { IRenderingContext } from '../../IRenderer';
+import { BufferSystem } from '../BufferSystem';
 
-export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], byteOffset: number, buffers?: Buffer[], lastBuffer?: Buffer)
+export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], byteOffset: number,
+    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer)
 => Buffer;
 
 export type AttributeBaseCallbackStruct = { syncFunc: AttributeBaseCallback, bufSyncCount: number };
@@ -75,7 +77,7 @@ if (lastBuffer !== buffers[${bufInd}]) {
     else
     {
         // eslint-disable-next-line no-new-func,max-len
-        syncFunc = new Function('gl', 'locations', 'byteOffset', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
+        syncFunc = new Function('gl', 'locations', 'byteOffset', 'bufferSystem', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
     }
 
     return {

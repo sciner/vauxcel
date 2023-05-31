@@ -60,4 +60,9 @@ export class Texture3D
             this.data = data;
         }
     }
+
+    castToBaseTexture()
+    {
+        return this.source;
+    }
 }

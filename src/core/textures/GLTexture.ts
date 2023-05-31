@@ -15,6 +15,9 @@ export class GLTexture
     /** Height of texture that was used in texImage2D. */
     public height: number;
 
+    /** Height of texture that was used in texImage3D. */
+    public depth: number;
+
     /** Whether mip levels has to be generated. */
     public mipmap: boolean;
 
@@ -43,6 +46,7 @@ export class GLTexture
         this.texture = texture;
         this.width = -1;
         this.height = -1;
+        this.depth = 1;
         this.dirtyId = -1;
         this.dirtyStyleId = -1;
         this.mipmap = false;

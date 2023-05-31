@@ -516,9 +516,9 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
     {
         this.resolution = pixelSize ? 1.0 : 1.0 / pixelSize;
         this.depthResolution = this.resolution;
-        this.width = realWidth * pixelSize;
-        this.height = realHeight * pixelSize;
-        this.depth = realDepth * pixelSize;
+        this.width = realWidth * this.resolution;
+        this.height = realHeight * this.resolution;
+        this.depth = realDepth * this.resolution;
         this.isPowerOfTwo = false;
         this.update();
 

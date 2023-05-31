@@ -401,7 +401,7 @@ export enum TARGETS
     /**
      * 3D texture
      */
-    TEXTURE_3D = 0x806F,
+    TEXTURE_3D = 32879,
     /**
      * A cube-mapped texture. When using a WebGL 2 context, the following values are available additionally:
      * - gl.TEXTURE_3D: A three-dimensional texture.

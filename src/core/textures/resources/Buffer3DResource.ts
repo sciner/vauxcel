@@ -82,7 +82,7 @@ export class Buffer3DResource extends Resource
 
     bind(baseTexture: BaseTexture): void
     {
-        this.onResize.add(baseTexture);
+        this.onResize3D.add(baseTexture);
         this.onUpdate.add(baseTexture);
         this.onError.add(baseTexture);
 
@@ -114,6 +114,9 @@ export class Buffer3DResource extends Resource
         const { target, type, format } = baseTexture;
         const { internalFormat } = glTexture;
 
+        glTexture.width = this.width;
+        glTexture.height = this.height;
+        glTexture.depth = this.depth;
         if (this.useFixedSize)
         {
             if (glTexture.dataLength === 0)
@@ -122,6 +125,7 @@ export class Buffer3DResource extends Resource
                     width, height, depth);
                 if (data)
                 {
+                    gl.texSubImage3D(target, 0, 0, 0, 0, width, height, depth, format, type, data);
                     glTexture.dataLength = data.length;
                 }
                 else

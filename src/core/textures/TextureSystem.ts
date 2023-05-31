@@ -11,6 +11,7 @@ import type { IRenderingContext } from '../IRenderer';
 import type { Renderer } from '../Renderer';
 import type { ISystem } from '../system/ISystem';
 import type { Texture } from './Texture';
+import type { Texture3D } from './Texture3D';
 
 /**
  * System plugin to the renderer to manage textures.
@@ -137,7 +138,7 @@ export class TextureSystem implements ISystem
      * @param texture - Texture to bind
      * @param [location=0] - Location to bind at
      */
-    bind(texture: Texture | BaseTexture, location = 0): void
+    bind(texture: Texture | BaseTexture | Texture3D, location = 0): void
     {
         const { gl } = this;
 

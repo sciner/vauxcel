@@ -517,4 +517,38 @@ export class Geometry
 
         return this._attributeBaseCallback;
     }
+
+    getInstancedAttributes()
+    {
+        const instAttribs: Attribute[] = [];
+
+        for (const i in this.attributes)
+        {
+            const attr = this.attributes[i];
+
+            if (attr.instance)
+            {
+                instAttribs.push(attr);
+            }
+        }
+
+        return instAttribs;
+    }
+
+    getInstancedAttributeNames()
+    {
+        const instAttribs: string[] = [];
+
+        for (const i in this.attributes)
+        {
+            const attr = this.attributes[i];
+
+            if (attr.instance)
+            {
+                instAttribs.push(i);
+            }
+        }
+
+        return instAttribs;
+    }
 }

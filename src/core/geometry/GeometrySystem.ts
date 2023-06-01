@@ -11,9 +11,9 @@ import type { Program } from '../shader/Program';
 import type { Shader } from '../shader/Shader';
 import type { ISystem } from '../system/ISystem';
 import type { Geometry } from './Geometry';
-import {GeometryPerGL, GeometryPerShader} from './Geometry';
+import { GeometryPerGL, GeometryPerShader } from './Geometry';
 import { Buffer } from './Buffer';
-import { BufferCopyOperation, IBufferCopier } from '@vaux/core/geometry/BufferCopyOperation';
+import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 
@@ -175,17 +175,17 @@ export class GeometrySystem implements ISystem
             this.regenVao(geometry, glGeom);
         }
 
-        const vao = glGeom.bySignature[shader.program.id] || this.initGeometryVao(geometry, shader, glGeom);
+        const gps = glGeom.bySignature[shader.program.id] || this.initGeometryVao(geometry, shader, glGeom);
 
         this._activeGeometry = geometry;
 
-        if (this._activeGPS !== vao)
+        if (this._activeGPS !== gps)
         {
-            this._activeGPS = vao;
+            this._activeGPS = gps;
 
             if (this.hasVao)
             {
-                gl.bindVertexArray(vao);
+                gl.bindVertexArray(gps.vao);
             }
             else
             {
@@ -268,9 +268,9 @@ export class GeometrySystem implements ISystem
      * Creates or gets Vao with the same structure as the geometry and stores it on the geometry.
      * If vao is created, it is bound automatically. We use a shader to infer what and how to set up the
      * attribute locations.
-     * @param geometry - Instance of geometry to to generate Vao for.
+     * @param geometry - Instance of geometry to generate Vao for.
      * @param shader - Instance of the shader.
-     * @param incRefCount - Increment refCount of all geometry buffers.
+     * @param glGeom - geometry-gl object
      */
     protected initGeometryVao(geometry: Geometry, shader: Shader, glGeom: GeometryPerGL): GeometryPerShader
     {
@@ -306,7 +306,7 @@ export class GeometrySystem implements ISystem
         // @TODO: We don't know if VAO is supported.
         gps = new GeometryPerShader(gl.createVertexArray());
 
-        gl.bindVertexArray(gps);
+        gl.bindVertexArray(gps.vao);
 
         // TODO - maybe make this a data object?
         // lets wait to see if we need to first!
@@ -527,7 +527,7 @@ export class GeometrySystem implements ISystem
      * @param newBuffer
      * @param copier
      */
-    swapAndCopyBuffer(geometry: Geometry, bufInd: number, newBuffer: Buffer, copier: IBufferCopier = this.copier)
+    swapAndCopyBuffer(geometry: Geometry, bufInd: number, newBuffer: Buffer, copier: IBufferCopier = this.copier): void
     {
         const oldBuffer = geometry.buffers[bufInd];
         const stride = geometry.bufferStride[bufInd];
@@ -599,14 +599,16 @@ export class GeometrySystem implements ISystem
                 // we can optimise this for older devices that have no VAOs
                 gl.enableVertexAttribArray(location);
 
-                if (attribute.int) {
+                if (attribute.int)
+                {
                     gl.vertexAttribIPointer(location,
                         attribute.size,
                         attribute.type || gl.INT,
                         attribute.stride,
                         attribute.start);
                 }
-                else {
+                else
+                {
                     gl.vertexAttribPointer(location,
                         attribute.size,
                         attribute.type || gl.FLOAT,
@@ -684,6 +686,62 @@ export class GeometrySystem implements ISystem
         }
 
         return this;
+    }
+
+    multiDrawArraysBVBI(type: DRAW_MODES, firsts: Int32Array, counts: Int32Array,
+        instanceCounts: Int32Array, instanceOffsets: Uint32Array, rangeCount: number): void
+    {
+        const { renderer } = this;
+        const { gl } = renderer;
+        const geometry = this._activeGeometry;
+        const gps = this._activeGPS;
+        const program = this.renderer.shader.shader.program;
+
+        const { md_bvbi } = renderer.context.extensions;
+
+        if (md_bvbi)
+        {
+            md_bvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
+                type,
+                firsts, 0,
+                counts, 0,
+                instanceCounts, 0,
+                instanceOffsets, 0,
+                rangeCount,
+            );
+        }
+        else
+        {
+            const attribSync = geometry.getAttributeBaseCallback();
+
+            if (!gps.instLocations)
+            {
+                gps.instLocations = program.getLocationListByAttributes(geometry.getInstancedAttributeNames());
+            }
+
+            if (attribSync.bufSyncCount === 0)
+            {
+                renderer.buffer.bind(geometry.buffers[attribSync.bufFirstIndex]);
+                for (let i = 0; i < rangeCount; i++)
+                {
+                    attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
+                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                }
+            }
+            else
+            {
+                const buffers = geometry.buffers;
+                const bufferSystem = renderer.buffer;
+                let lastBuffer = null;
+
+                for (let i = 0; i < rangeCount; i++)
+                {
+                    lastBuffer = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
+                        bufferSystem, buffers, lastBuffer);
+                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                }
+            }
+        }
     }
 
     /** Unbind/reset everything. */

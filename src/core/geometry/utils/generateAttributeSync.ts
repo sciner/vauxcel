@@ -6,10 +6,11 @@ import { IRenderingContext } from '../../IRenderer';
 import { BufferSystem } from '../BufferSystem';
 
 export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], byteOffset: number,
-    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer)
-=> Buffer;
+    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer | null)
+=> Buffer | null;
 
-export type AttributeBaseCallbackStruct = { syncFunc: AttributeBaseCallback, bufSyncCount: number };
+export type AttributeBaseCallbackStruct = { syncFunc: AttributeBaseCallback, bufSyncCount: number,
+    bufFirstIndex: number, stride: number};
 
 export const attribSyncCache: Record<string, AttributeBaseCallbackStruct> = {};
 
@@ -58,12 +59,12 @@ if (lastBuffer !== buffers[${bufInd}]) {
         if (attr.int)
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribIPointer(locations[i], ${attr.size}, ${type}, ${attr.stride}, byteOffset + ${attr.start})`);
+            funcFragments.push(`gl.vertexAttribIPointer(locations[${i}], ${attr.size}, ${type}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})`);
         }
         else
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribPointer(locations[i], ${attr.size}, ${type}, ${attr.normalized}, ${attr.stride}, byteOffset + ${attr.start})\n`);
+            funcFragments.push(`gl.vertexAttribPointer(locations[${i}], ${attr.size}, ${type}, ${attr.normalized}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})\n`);
         }
     }
     let syncFunc: AttributeBaseCallback;
@@ -72,17 +73,19 @@ if (lastBuffer !== buffers[${bufInd}]) {
     {
         funcFragments.push(`return lastBuffer;`);
         // eslint-disable-next-line no-new-func
-        syncFunc = new Function('gl', 'locations', 'byteOffset', funcFragments.join('\n')) as AttributeBaseCallback;
+        syncFunc = new Function('gl', 'locations', 'instOffset', funcFragments.join('\n')) as AttributeBaseCallback;
     }
     else
     {
         // eslint-disable-next-line no-new-func,max-len
-        syncFunc = new Function('gl', 'locations', 'byteOffset', 'bufferSystem', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
+        syncFunc = new Function('gl', 'locations', 'instOffset', 'bufferSystem', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
     }
 
     return {
         syncFunc,
-        bufSyncCount
+        bufSyncCount,
+        bufFirstIndex: attributes[0].buffer,
+        stride: attributes[0].stride
     };
 }
 

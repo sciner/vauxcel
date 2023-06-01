@@ -79,8 +79,6 @@ export class Program
     /** Assigned when a program is first bound to the shader system. */
     uniformData: {[key: string]: IUniformData};
 
-    locationByAttribSignature: Record<string, number[]> = {};
-
     extra: IProgramExtraData = {};
 
     /**
@@ -134,6 +132,24 @@ export class Program
         this.glPrograms = {};
 
         this.syncUniforms = null;
+    }
+
+    getLocationListByAttributes(names: Array<string>)
+    {
+        // returns locations
+        const res: Array<number> = [];
+
+        for (let i = 0; i < names.length; i++)
+        {
+            const attribData = this.attributeData[names[i]];
+
+            if (attribData)
+            {
+                res.push(attribData.location);
+            }
+        }
+
+        return res;
     }
 
     /**

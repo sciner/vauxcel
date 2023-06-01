@@ -1,3 +1,5 @@
+#version 100
+
 varying vec2 vTextureCoord;
 uniform vec4 uColor;
 

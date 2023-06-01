@@ -2,13 +2,14 @@ import { PRECISION } from '@vaux/constants';
 import { isMobile, ProgramCache } from '@vaux/utils';
 import defaultFragment from './defaultProgram.frag';
 import defaultVertex from './defaultProgram.vert';
-import { getMaxFragmentPrecision, setPrecision } from './utils';
 
 import type { GLProgram } from './GLProgram';
 
-let UID = 0;
+import { ensurePrecision } from './program/ensurePrecision';
+import { setProgramName } from './program/setProgramName';
+import { setProgramVersion } from './program/setProgramVersion';
 
-const nameCache: { [key: string]: number } = {};
+let UID = 0;
 
 export interface IAttributeData
 {
@@ -34,6 +35,19 @@ export interface IProgramExtraData
         names: string[],
         bufferMode: 'separate' | 'interleaved'
     }
+}
+
+const processes: Record<string, ((source: string, options: any, flag?: boolean) => string)> = {
+    ensurePrecision,
+    setProgramName,
+    setProgramVersion
+};
+
+export interface GlProgramOptions
+{
+    fragment?: string;
+    vertex?: string;
+    name?: string;
 }
 
 /**
@@ -64,10 +78,12 @@ export class Program
     public id: number;
 
     /** Source code for the vertex shader. */
-    public vertexSrc: string;
+    public vertex: string;
 
     /** Source code for the fragment shader. */
-    public fragmentSrc: string;
+    public fragment: string;
+
+    protected key: string;
 
     nameCache: any;
     glPrograms: { [ key: number ]: GLProgram};
@@ -87,45 +103,40 @@ export class Program
      * @param name - Name for shader
      * @param extra - Extra data for shader
      */
-    constructor(vertexSrc?: string, fragmentSrc?: string, name = 'pixi-shader', extra: IProgramExtraData = {})
+    constructor({ fragment, vertex, name }: GlProgramOptions, extra: IProgramExtraData = {})
     {
         this.id = UID++;
-        this.vertexSrc = vertexSrc || Program.defaultVertexSrc;
-        this.fragmentSrc = fragmentSrc || Program.defaultFragmentSrc;
 
-        this.vertexSrc = this.vertexSrc.trim();
-        this.fragmentSrc = this.fragmentSrc.trim();
+        const options: Record<string, any> = {
+            ensurePrecision: {
+                requestedPrecision: 'highp',
+                maxSupportedPrecision: 'highp',
+            },
+            setProgramName: {
+                name,
+            },
+            setProgramVersion: {
+                version: '300 es',
+            }
+        };
+
+        Object.keys(processes).forEach((processKey) =>
+        {
+            const processOptions = options[processKey] ?? {};
+
+            fragment = processes[processKey](fragment, processOptions, true);
+            vertex = processes[processKey](vertex, processOptions, false);
+        });
+
+        this.fragment = fragment;
+        this.vertex = vertex;
+
+        this.key = `${this.vertex}:${this.fragment}`;
+
+        this.vertex = vertex || Program.defaultVertexSrc;
+        this.fragment = fragment || Program.defaultFragmentSrc;
 
         this.extra = extra;
-
-        if (this.vertexSrc.substring(0, 8) !== '#version')
-        {
-            name = name.replace(/\s+/g, '-');
-
-            if (nameCache[name])
-            {
-                nameCache[name]++;
-                name += `-${nameCache[name]}`;
-            }
-            else
-            {
-                nameCache[name] = 1;
-            }
-
-            this.vertexSrc = `#define SHADER_NAME ${name}\n${this.vertexSrc}`;
-            this.fragmentSrc = `#define SHADER_NAME ${name}\n${this.fragmentSrc}`;
-
-            this.vertexSrc = setPrecision(
-                this.vertexSrc,
-                Program.defaultVertexPrecision,
-                PRECISION.HIGH
-            );
-            this.fragmentSrc = setPrecision(
-                this.fragmentSrc,
-                Program.defaultFragmentPrecision,
-                getMaxFragmentPrecision()
-            );
-        }
 
         // currently this does not extract structs only default types
         // this is where we store shader references..
@@ -181,13 +192,13 @@ export class Program
      */
     static from(vertexSrc?: string, fragmentSrc?: string, name?: string): Program
     {
-        const key = vertexSrc + fragmentSrc;
+        const key = `${vertexSrc}:${fragmentSrc}`;
 
         let program = ProgramCache[key];
 
         if (!program)
         {
-            ProgramCache[key] = program = new Program(vertexSrc, fragmentSrc, name);
+            ProgramCache[key] = program = new Program({ vertex: vertexSrc, fragment: fragmentSrc, name });
         }
 
         return program;

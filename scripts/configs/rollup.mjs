@@ -59,7 +59,7 @@ const basePlugins = [
 // Plugins for browser-based bundles
 const browserPlugins = [
     ...basePlugins,
-    esbuild({ target: 'ES2017', minify: true })
+    esbuild({ target: 'ES2017' })
 ];
 
 // Plugins for module-based output

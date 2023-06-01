@@ -1,3 +1,5 @@
+#version 100
+
 varying vec2 vTextureCoord;
 varying vec4 vColor;
 varying float vTextureId;

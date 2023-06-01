@@ -41,9 +41,9 @@ export class Attribute
         this.start = start;
         this.instance = instance;
         this.divisor = divisor;
-        this.int = type === TYPES.INT || type === TYPES.UNSIGNED_INT
+        this.int = !normalized && (type === TYPES.INT || type === TYPES.UNSIGNED_INT
             || type === TYPES.SHORT || type === TYPES.UNSIGNED_SHORT
-            || type === TYPES.BYTE || type === TYPES.UNSIGNED_BYTE;
+            || type === TYPES.BYTE || type === TYPES.UNSIGNED_BYTE);
     }
 
     /** Destroys the Attribute. */

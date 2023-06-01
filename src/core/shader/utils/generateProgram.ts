@@ -16,8 +16,8 @@ import type { Program } from '../Program';
  */
 export function generateProgram(gl: IRenderingContext, program: Program): GLProgram
 {
-    const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertexSrc);
-    const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragmentSrc);
+    const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertex);
+    const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragment);
 
     const webGLProgram = gl.createProgram();
 
@@ -59,7 +59,7 @@ export function generateProgram(gl: IRenderingContext, program: Program): GLProg
     // GLSL 1.00: bind attributes sorted by name in ascending order
     // GLSL 3.00: don't change the attribute locations that where chosen by the compiler
     //            or assigned by the layout specifier in the shader source code
-    if (!(/^[ \t]*#[ \t]*version[ \t]+300[ \t]+es[ \t]*$/m).test(program.vertexSrc))
+    if (!(/^[ \t]*#[ \t]*version[ \t]+300[ \t]+es[ \t]*$/m).test(program.vertex))
     {
         const keys = Object.keys(program.attributeData);
 

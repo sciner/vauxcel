@@ -96,7 +96,7 @@ export class TFBufferCopier implements IBufferCopier
         const vertex = genVertex(this.elemSize, this.elemCount);
         const tfNames = genVaryings(this.elemCount);
 
-        this.program = new Program(vertex, fragment, 'silly tf', {
+        this.program = new Program({ vertex, fragment, name: 'silly tf' }, {
             transformFeedbackVaryings: {
                 names: tfNames,
                 bufferMode: 'interleaved'

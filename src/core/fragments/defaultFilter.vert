@@ -1,3 +1,5 @@
+#version 100
+
 attribute vec2 aVertexPosition;
 
 uniform mat3 projectionMatrix;

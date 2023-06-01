@@ -1,3 +1,5 @@
+#version 100
+
 attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;
 

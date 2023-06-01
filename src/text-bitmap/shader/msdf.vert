@@ -1,3 +1,5 @@
+#version 100
+
 // Mesh material default fragment
 attribute vec2 aVertexPosition;
 attribute vec2 aTextureCoord;

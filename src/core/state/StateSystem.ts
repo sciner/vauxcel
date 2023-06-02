@@ -36,7 +36,8 @@ export class StateSystem implements ISystem
      * Polygon offset
      * @readonly
      */
-    public polygonOffset: number;
+    public polygonOffsetScale: number;
+    public polygonOffsetValue: number;
 
     /**
      * Blend mode
@@ -80,7 +81,8 @@ export class StateSystem implements ISystem
         this.gl = null;
 
         this.stateId = 0;
-        this.polygonOffset = 0;
+        this.polygonOffsetScale = 0;
+        this.polygonOffsetValue = 1;
         this.blendMode = BLEND_MODES.NONE;
 
         this._blendEq = false;
@@ -326,7 +328,7 @@ export class StateSystem implements ISystem
      */
     private static checkPolygonOffset(system: StateSystem, state: State): void
     {
-        system.setPolygonOffset(1, state.polygonOffset);
+        system.setPolygonOffset(state.polygonOffsetValue, state.polygonOffsetScale);
     }
 
     /**

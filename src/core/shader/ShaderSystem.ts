@@ -17,6 +17,7 @@ import type { UniformsSyncCallback } from './utils';
 import { ensurePrecision } from './program/ensurePrecision';
 import { setProgramName } from './program/setProgramName';
 import { setProgramVersion } from './program/setProgramVersion';
+import { fallbackFlat } from './program/fallbackFlat';
 
 let UID = 0;
 // default sync data so we don't create a new one each time!
@@ -37,7 +38,8 @@ export class ShaderSystem implements ISystem
     processes: Record<string, ((source: string, options: any, isFragment?: boolean) => string)> = {
         ensurePrecision,
         setProgramName,
-        setProgramVersion
+        setProgramVersion,
+        fallbackFlat
     };
 
     options: Record<string, any> = {
@@ -46,6 +48,9 @@ export class ShaderSystem implements ISystem
             maxSupportedPrecision: 'highp',
         },
         setProgramName: {
+        },
+        fallbackFlat: {
+            disable: false
         },
         setProgramVersion: {
             version: '300 es',
@@ -105,6 +110,14 @@ export class ShaderSystem implements ISystem
     {
         this.gl = gl;
         this.reset();
+
+        const provokeExt = gl.getExtension('WEBGL_provoking_vertex');
+
+        if (provokeExt)
+        {
+            provokeExt.provokingVertexWEBGL(provokeExt.FIRST_VERTEX_CONVENTION_WEBGL);
+            this.options.fallbackFlat.disable = true;
+        }
     }
 
     /**

@@ -14,6 +14,10 @@ import type { Shader } from './Shader';
 import type { UniformGroup } from './UniformGroup';
 import type { UniformsSyncCallback } from './utils';
 
+import { ensurePrecision } from './program/ensurePrecision';
+import { setProgramName } from './program/setProgramName';
+import { setProgramVersion } from './program/setProgramVersion';
+
 let UID = 0;
 // default sync data so we don't create a new one each time!
 const defaultSyncData = { textureCount: 0, uboCount: 0 };
@@ -28,6 +32,24 @@ export class ShaderSystem implements ISystem
     static extension: ExtensionMetadata = {
         type: ExtensionType.RendererSystem,
         name: 'shader',
+    };
+
+    processes: Record<string, ((source: string, options: any, isFragment?: boolean) => string)> = {
+        ensurePrecision,
+        setProgramName,
+        setProgramVersion
+    };
+
+    options: Record<string, any> = {
+        ensurePrecision: {
+            requestedPrecision: 'highp',
+            maxSupportedPrecision: 'highp',
+        },
+        setProgramName: {
+        },
+        setProgramVersion: {
+            version: '300 es',
+        }
     };
 
     /**
@@ -303,6 +325,27 @@ export class ShaderSystem implements ISystem
     {
         const gl = this.gl;
         const program = shader.program;
+
+        if (!program.vertexProcessed)
+        {
+            const { processes, options } = this;
+            let { vertex, fragment } = program;
+
+            Object.keys(processes).forEach((processKey) =>
+            {
+                let processOptions = options[processKey] ?? {};
+
+                if (program.options[processKey])
+                {
+                    processOptions = Object.assign({}, processOptions, program.options[processKey]);
+                }
+                vertex = processes[processKey](vertex, processOptions, false);
+                fragment = processes[processKey](fragment, processOptions, true);
+            });
+
+            program.vertexProcessed = vertex;
+            program.fragmentProcessed = fragment;
+        }
 
         const glProgram = generateProgram(gl, program);
 

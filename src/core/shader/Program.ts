@@ -5,10 +5,6 @@ import defaultVertex from './defaultProgram.vert';
 
 import type { GLProgram } from './GLProgram';
 
-import { ensurePrecision } from './program/ensurePrecision';
-import { setProgramName } from './program/setProgramName';
-import { setProgramVersion } from './program/setProgramVersion';
-
 let UID = 0;
 
 export interface IAttributeData
@@ -36,12 +32,6 @@ export interface IProgramExtraData
         bufferMode: 'separate' | 'interleaved'
     }
 }
-
-const processes: Record<string, ((source: string, options: any, flag?: boolean) => string)> = {
-    ensurePrecision,
-    setProgramName,
-    setProgramVersion
-};
 
 export interface GlProgramOptions
 {
@@ -83,6 +73,12 @@ export class Program
     /** Source code for the fragment shader. */
     public fragment: string;
 
+    public vertexProcessed: string | null = null;
+
+    public fragmentProcessed: string | null = null;
+
+    public options: Record<string, any> = {};
+
     protected key: string;
 
     nameCache: any;
@@ -98,8 +94,8 @@ export class Program
     extra: IProgramExtraData = {};
 
     /**
-     * @param vertexSrc - The source of the vertex shader.
-     * @param fragmentSrc - The source of the fragment shader.
+     * @param vertex - The source of the vertex shader.
+     * @param fragment - The source of the fragment shader.
      * @param name - Name for shader
      * @param extra - Extra data for shader
      */
@@ -107,29 +103,9 @@ export class Program
     {
         this.id = UID++;
 
-        const options: Record<string, any> = {
-            ensurePrecision: {
-                requestedPrecision: 'highp',
-                maxSupportedPrecision: 'highp',
-            },
-            setProgramName: {
-                name,
-            },
-            setProgramVersion: {
-                version: '300 es',
-            }
-        };
-
-        Object.keys(processes).forEach((processKey) =>
-        {
-            const processOptions = options[processKey] ?? {};
-
-            fragment = processes[processKey](fragment, processOptions, true);
-            vertex = processes[processKey](vertex, processOptions, false);
-        });
-
         this.fragment = fragment;
         this.vertex = vertex;
+        this.options.setProgramName = { name };
 
         this.key = `${this.vertex}:${this.fragment}`;
 
@@ -143,6 +119,8 @@ export class Program
         this.glPrograms = {};
 
         this.syncUniforms = null;
+        this.vertexProcessed = '';
+        this.fragmentProcessed = '';
     }
 
     getLocationListByAttributes(names: Array<string>)

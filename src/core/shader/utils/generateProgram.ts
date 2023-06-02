@@ -16,8 +16,8 @@ import type { Program } from '../Program';
  */
 export function generateProgram(gl: IRenderingContext, program: Program): GLProgram
 {
-    const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertex);
-    const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragment);
+    const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertexProcessed || program.vertex);
+    const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragmentProcessed || program.fragment);
 
     const webGLProgram = gl.createProgram();
 

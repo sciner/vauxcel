@@ -15,7 +15,8 @@ import { GeometryPerGL, GeometryPerShader } from './Geometry';
 import { Buffer } from './Buffer';
 import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation';
 
-const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
+const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1,
+    5125: 4, 5124: 4, 5122: 2, 5120: 1 };
 
 /**
  * System plugin to the renderer to manage geometry.

@@ -195,6 +195,8 @@ export class ShaderSystem implements ISystem
     {
         const syncFunc = group.syncUniforms[this.shader.program.id] || this.createSyncGroups(group);
 
+        group.manualSync?.(glProgram.uniformData, group.uniforms, this.renderer, syncData);
+
         syncFunc(glProgram.uniformData, group.uniforms, this.renderer, syncData);
     }
 

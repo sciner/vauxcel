@@ -122,6 +122,29 @@ export const uniformParsers: IUniformParser[] = [
                 }
             `,
     },
+    {
+        test: (data: any, uniform: any): boolean =>
+            data.type === 'vec3' && data.size === 1 && !data.isArray && uniform.x !== undefined && uniform.z !== undefined,
+        code: (name: string): string =>
+            `
+                cv = ud["${name}"].value;
+                v = uv["${name}"];
+
+                if(cv[0] !== v.x || cv[1] !== v.y || cv[2] !== v.z)
+                {
+                    cv[0] = v.x;
+                    cv[1] = v.y;
+                    cv[2] = v.z;
+                    gl.uniform2f(ud["${name}"].location, v.x, v.y, v.z);
+                }`,
+        codeUbo: (name: string): string =>
+            `
+                v = uv.${name};
+
+                data[offset] = v.x;
+                data[offset+1] = v.y;
+            `
+    },
     // upload a pixi rectangle as a vec4 with caching layer
     {
         test: (data: any, uniform: any): boolean =>

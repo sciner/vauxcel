@@ -3,6 +3,7 @@ import { Buffer } from '../geometry/Buffer';
 
 import type { Dict } from '@vaux/utils';
 import type { UniformsSyncCallback } from './utils';
+import type { Renderer } from '../Renderer';
 
 let UID = 0;
 
@@ -70,6 +71,7 @@ export class UniformGroup<LAYOUT = Dict<any>>
      */
     public id: number;
     syncUniforms: Dict<UniformsSyncCallback>;
+    manualSync: (ud: Dict<any>, uv: Dict<any>, renderer: Renderer, syncData?: any) => void = null;
 
     /**
      * Dirty version

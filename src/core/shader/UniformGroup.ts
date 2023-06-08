@@ -63,7 +63,7 @@ export class UniformGroup<LAYOUT = Dict<any>>
      * Its a group and not a single uniforms.
      * @default true
      */
-    public readonly group: boolean;
+    public readonly isGroup: boolean;
 
     /**
      * unique id
@@ -94,7 +94,7 @@ export class UniformGroup<LAYOUT = Dict<any>>
      */
     constructor(uniforms: LAYOUT | Buffer, isStatic?: boolean, isUbo?: boolean)
     {
-        this.group = true;
+        this.isGroup = true;
 
         // lets generate this when the shader ?
         this.syncUniforms = {};

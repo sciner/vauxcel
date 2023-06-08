@@ -144,11 +144,13 @@ export class ShaderSystem implements ISystem
             this.gl.useProgram(glProgram.program);
         }
 
+
         if (!dontSync)
         {
             defaultSyncData.textureCount = 0;
             defaultSyncData.uboCount = 0;
 
+            shader.manualSync?.(glProgram.uniformData, this.renderer, defaultSyncData);
             this.syncUniformGroup(shader.uniformGroup, defaultSyncData);
         }
 

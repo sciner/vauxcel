@@ -1,6 +1,7 @@
 import { Runner } from '@vaux/runner';
 import { Program } from './Program';
 import { UniformGroup } from './UniformGroup';
+import { Renderer } from '../Renderer';
 
 import type { Dict } from '@vaux/utils';
 
@@ -21,6 +22,8 @@ export class Shader
     uniformBindCount = 0;
 
     disposeRunner: Runner;
+
+    manualSync?: (ud: Dict<any>, renderer: Renderer, syncData: any) => void = null;
 
     /**
      * @param program - The program the shader will use.
@@ -63,7 +66,7 @@ export class Shader
         {
             const uniform = group.uniforms[i];
 
-            if (uniform.group)
+            if (uniform.isGroup)
             {
                 if (this.checkUniformExists(name, uniform))
                 {

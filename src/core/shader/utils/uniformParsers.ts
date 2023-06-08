@@ -135,7 +135,7 @@ export const uniformParsers: IUniformParser[] = [
                     cv[0] = v.x;
                     cv[1] = v.y;
                     cv[2] = v.z;
-                    gl.uniform2f(ud["${name}"].location, v.x, v.y, v.z);
+                    gl.uniform3f(ud["${name}"].location, v.x, v.y, v.z);
                 }`,
         codeUbo: (name: string): string =>
             `

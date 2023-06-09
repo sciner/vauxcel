@@ -141,7 +141,7 @@ export class TFBufferCopier implements IBufferCopier
         renderer.shader.bind(this.shader);
         renderer.geometry.bind(this.geom);
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf);
-        for (let i = 0; i < copies.length; i++)
+        for (let i = 0; i < copyCount; i++)
         {
             const op = copies[i];
 

@@ -144,7 +144,6 @@ export class ShaderSystem implements ISystem
             this.gl.useProgram(glProgram.program);
         }
 
-
         if (!dontSync)
         {
             defaultSyncData.textureCount = 0;

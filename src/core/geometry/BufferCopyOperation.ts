@@ -18,5 +18,6 @@ export class BufferCopyOperation implements PoolItem
 
 export interface IBufferCopier
 {
-    doCopy(renderer: Renderer, src: Buffer, target: Buffer, copies: Array<BufferCopyOperation>, strideBytes: number): void;
+    doCopy(renderer: Renderer, src: Buffer, target: Buffer, strideBytes: number,
+        copies: Array<BufferCopyOperation>, copyCount?: number): void;
 }

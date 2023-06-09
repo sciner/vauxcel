@@ -540,7 +540,7 @@ export class GeometrySystem implements ISystem
             const bco = new BufferCopyOperation();
 
             bco.count = oldBuffer.byteLength / stride;
-            copier.doCopy(this.renderer, oldBuffer, newBuffer, [bco], stride);
+            copier.doCopy(this.renderer, oldBuffer, newBuffer, stride, [bco]);
         }
     }
 

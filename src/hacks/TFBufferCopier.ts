@@ -113,7 +113,8 @@ export class TFBufferCopier implements IBufferCopier
         genAttribs(this.geom, this.tempBuffer, this.elemSize, this.elemCount);
     }
 
-    doCopy(renderer: Renderer, src: Buffer, target: Buffer, copies: Array<BufferCopyOperation>, strideBytes: number): void
+    doCopy(renderer: Renderer, src: Buffer, target: Buffer, strideBytes: number,
+        copies: Array<BufferCopyOperation>, copyCount = copies.length): void
     {
         // TODO: pooled array here!
         if (strideBytes % this.strideBytes !== 0)

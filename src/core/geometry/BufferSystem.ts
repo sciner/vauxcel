@@ -170,7 +170,7 @@ export class BufferSystem implements ISystem
         {
             const drawType = buffer.static ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
 
-            glBuffer.byteLength = buffer.data.byteLength;
+            glBuffer.byteLength = buffer.byteLength;
             gl.bufferData(buffer.type, buffer.byteLength, drawType);
         }
     }

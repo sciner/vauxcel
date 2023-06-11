@@ -85,6 +85,12 @@ export class Geometry
     public id: number;
     /** Whether the geometry is instanced. */
     public instanced: boolean;
+    /**
+     * in case instance is virtual
+     * those are params for multidraw
+     */
+    public vertexPerInstance = 1;
+    public indexPerInstance = 1;
 
     private _attributeBaseCallback: AttributeBaseCallbackStruct;
 
@@ -550,5 +556,35 @@ export class Geometry
         }
 
         return instAttribs;
+    }
+
+    /**
+     * if buffer is used in instanced attribs, returns 1
+     * otherwise, returns number of vertices per instance
+     * @param bufInd
+     */
+    getVertexPerInstance(bufInd: number)
+    {
+        if (this.vertexPerInstance === 1)
+        {
+            return 1;
+        }
+        for (const key in this.attributes)
+        {
+            if (this.attributes[key].buffer === bufInd)
+            {
+                if (!this.attributes[key].instance)
+                {
+                    return this.instanced ? 1 : this.vertexPerInstance;
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    getInstanceBufferStride(bufInd: number)
+    {
+        return this.bufferStride[bufInd] * this.getVertexPerInstance(bufInd);
     }
 }

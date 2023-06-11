@@ -531,7 +531,8 @@ export class GeometrySystem implements ISystem
     swapAndCopyBuffer(geometry: Geometry, bufInd: number, newBuffer: Buffer, copier: IBufferCopier = this.copier): void
     {
         const oldBuffer = geometry.buffers[bufInd];
-        const stride = geometry.bufferStride[bufInd];
+        // TODO : find out whether its instanced buffer!
+        const stride = geometry.getInstanceBufferStride(bufInd);
 
         geometry.swapBuffer(bufInd, newBuffer);
 

@@ -19,3 +19,5 @@ export * from './text-html';
 export * from './graphics';
 
 export * from './hacks';
+
+export * from './layers';

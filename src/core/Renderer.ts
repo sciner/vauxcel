@@ -36,6 +36,7 @@ import type { TextureGCSystem } from './textures/TextureGCSystem';
 import type { TextureSystem } from './textures/TextureSystem';
 import type { TransformFeedbackSystem } from './transformFeedback/TransformFeedbackSystem';
 import type { ViewSystem } from './view/ViewSystem';
+import type { PassSystem } from '@vaux/layers';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Renderer extends GlobalMixins.Renderer {}
@@ -268,6 +269,12 @@ export class Renderer extends SystemManager<Renderer> implements IRenderer
      * @readonly
      */
     public readonly startup: StartupSystem;
+
+    /**
+     * render pass instance
+     * @readonly
+     */
+    public readonly pass: PassSystem;
 
     /**
      * Create renderer if WebGL is available. Overrideable

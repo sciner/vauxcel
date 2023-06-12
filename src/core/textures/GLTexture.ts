@@ -24,10 +24,13 @@ export class GLTexture
     /** WrapMode copied from baseTexture. */
     public wrapMode: number;
 
-    /** Type copied from baseTexture. */
+    /** GL Texture format */
+    public format: number;
+
+    /** GL Texture type */
     public type: number;
 
-    /** Type copied from baseTexture. */
+    /** GL Texture internal format */
     public internalFormat: number;
 
     /** Type of sampler corresponding to this texture. See {@link PIXI.SAMPLER_TYPES} */

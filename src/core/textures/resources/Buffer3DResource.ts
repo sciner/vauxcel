@@ -111,8 +111,8 @@ export class Buffer3DResource extends Resource
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 
         const { data, width, height, depth } = this;
-        const { target, type, format } = baseTexture;
-        const { internalFormat } = glTexture;
+        const { target } = baseTexture;
+        const { internalFormat, type, format } = glTexture;
 
         glTexture.width = this.width;
         glTexture.height = this.height;
@@ -170,8 +170,8 @@ export class Buffer3DResource extends Resource
         const { gl } = renderer;
 
         const { pixelSize, depth, width, height } = this;
-        const { target, type, format } = baseTexture;
-        const { internalFormat } = glTexture;
+        const { target } = baseTexture;
+        const { internalFormat, type, format } = glTexture;
 
         const sz = width * height * depth * formatToCount(format);
 

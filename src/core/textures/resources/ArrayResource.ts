@@ -99,7 +99,7 @@ export class ArrayResource extends AbstractMultiResource
                 this._height,
                 length,
                 0,
-                texture.format,
+                glTexture.format,
                 glTexture.type,
                 null
             );
@@ -123,7 +123,7 @@ export class ArrayResource extends AbstractMultiResource
                         item.resource.width,
                         item.resource.height,
                         1,
-                        texture.format,
+                        glTexture.format,
                         glTexture.type,
                         (item.resource as BaseImageResource).source
                     );

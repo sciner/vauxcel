@@ -1,10 +1,9 @@
-import { MIPMAP_MODES, SAMPLER_TYPES, SCALE_MODES, TYPES, WRAP_MODES } from '@vaux/constants';
+import { MIPMAP_MODES, SAMPLER_TYPES, SCALE_MODES, WRAP_MODES } from '@vaux/constants';
 import { extensions, ExtensionType } from '@vaux/extensions';
 import { removeItems } from '@vaux/utils';
 import { BaseTexture } from './BaseTexture';
 import { GLTexture } from './GLTexture';
 import { mapInternalFormatToSamplerType } from './utils/mapInternalFormatToSamplerType';
-import { mapTypeAndFormatToInternalFormat } from './utils/mapTypeAndFormatToInternalFormat';
 
 import type { ExtensionMetadata } from '@vaux/extensions';
 import type { IRenderingContext } from '../IRenderer';
@@ -12,6 +11,9 @@ import type { Renderer } from '../Renderer';
 import type { ISystem } from '../system/ISystem';
 import type { Texture } from './Texture';
 import type { Texture3D } from './Texture3D';
+import { mapFormatToGlInternalFormat } from '@vaux/core/textures/utils/mapFormatToGlInternalFormat';
+import { mapFormatToGlType } from '@vaux/core/textures/utils/mapFormatToGlType';
+import { mapFormatToGlFormat } from '@vaux/core/textures/utils/mapFormatToGlFormat';
 
 /**
  * System plugin to the renderer to manage textures.
@@ -41,7 +43,9 @@ export class TextureSystem implements ISystem
     protected hasIntegerTextures: boolean;
     protected CONTEXT_UID: number;
     protected gl: IRenderingContext;
-    protected internalFormats: { [type: number]: { [format: number]: number } };
+    protected formats: Record<string, number>;
+    protected internalFormats: Record<string, number>;
+    protected types: Record<string, number>;
     protected samplerTypes: Record<number, SAMPLER_TYPES>;
     protected webGLVersion: number;
 
@@ -92,7 +96,9 @@ export class TextureSystem implements ISystem
 
         this.webGLVersion = this.renderer.context.webGLVersion;
 
-        this.internalFormats = mapTypeAndFormatToInternalFormat(gl);
+        this.internalFormats = mapFormatToGlInternalFormat(gl);
+        this.formats = mapFormatToGlFormat(gl);
+        this.types = mapFormatToGlType(gl);
         this.samplerTypes = mapInternalFormatToSamplerType(gl);
 
         const maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
@@ -295,19 +301,10 @@ export class TextureSystem implements ISystem
 
     initTextureType(texture: BaseTexture, glTexture: GLTexture): void
     {
-        glTexture.internalFormat = this.internalFormats[texture.type]?.[texture.format] ?? texture.format;
+        glTexture.format = this.formats[texture.format];
+        glTexture.type = this.types[texture.format];
+        glTexture.internalFormat = this.internalFormats[texture.format];
         glTexture.samplerType = this.samplerTypes[glTexture.internalFormat] ?? SAMPLER_TYPES.FLOAT;
-
-        if (this.webGLVersion === 2 && texture.type === TYPES.HALF_FLOAT)
-        {
-            // TYPES.HALF_FLOAT is WebGL1 HALF_FLOAT_OES
-            // we have to convert it to WebGL HALF_FLOAT
-            glTexture.type = this.gl.HALF_FLOAT;
-        }
-        else
-        {
-            glTexture.type = texture.type;
-        }
     }
 
     /**
@@ -355,7 +352,7 @@ export class TextureSystem implements ISystem
                     width,
                     height,
                     0,
-                    texture.format,
+                    glTexture.format,
                     glTexture.type,
                     null);
             }
@@ -416,7 +413,7 @@ export class TextureSystem implements ISystem
             return;
         }
 
-        if ((texture.mipmap === MIPMAP_MODES.POW2 || this.webGLVersion !== 2) && !texture.isPowerOfTwo)
+        if ((texture.mipmap === MIPMAP_MODES.POW2) && !texture.isPowerOfTwo)
         {
             glTexture.mipmap = false;
         }
@@ -425,7 +422,7 @@ export class TextureSystem implements ISystem
             glTexture.mipmap = texture.mipmap >= 1;
         }
 
-        if (this.webGLVersion !== 2 && !texture.isPowerOfTwo)
+        if (!texture.isPowerOfTwo)
         {
             glTexture.wrapMode = WRAP_MODES.CLAMP;
         }

@@ -1,4 +1,4 @@
-import { FORMATS, MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES, TYPES } from '@vaux/constants';
+import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@vaux/constants';
 import { Runner } from '@vaux/runner';
 import { BaseTexture } from '../textures/BaseTexture';
 
@@ -119,8 +119,7 @@ export class Framebuffer
             width: this.width,
             height: this.height,
             mipmap: MIPMAP_MODES.OFF,
-            format: FORMATS.DEPTH_COMPONENT,
-            type: TYPES.UNSIGNED_SHORT,
+            format: 'depth32float',
         });
 
         this.dirtyId++;

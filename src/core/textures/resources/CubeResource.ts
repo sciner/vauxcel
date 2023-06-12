@@ -161,7 +161,7 @@ export class CubeResource extends AbstractMultiResource
                         _baseTexture.realWidth,
                         _baseTexture.realHeight,
                         0,
-                        _baseTexture.format,
+                        glTexture.format,
                         glTexture.type,
                         null);
                     dirty[i] = -1;

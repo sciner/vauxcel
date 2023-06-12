@@ -78,7 +78,7 @@ export class BufferResource extends Resource
                 0,
                 width,
                 height,
-                baseTexture.format,
+                glTexture.format,
                 glTexture.type,
                 this.data
             );
@@ -95,7 +95,7 @@ export class BufferResource extends Resource
                 width,
                 height,
                 0,
-                baseTexture.format,
+                glTexture.format,
                 glTexture.type,
                 this.data
             );

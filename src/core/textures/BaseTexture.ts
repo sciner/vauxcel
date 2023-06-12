@@ -1,4 +1,5 @@
-import { ALPHA_MODES, FORMATS, MIPMAP_MODES, SCALE_MODES, TARGETS, TYPES, WRAP_MODES } from '@vaux/constants';
+import { ALPHA_MODES, MIPMAP_MODES, SCALE_MODES,
+    TARGETS,  WRAP_MODES, TEXTURE_FORMATS } from '@vaux/constants';
 import { settings } from '@vaux/settings';
 import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@vaux/utils';
 import { autoDetectResource } from './resources/autoDetectResource';
@@ -28,8 +29,7 @@ export interface IBaseTextureOptions<RO = any>
     height?: number;
     depth?: number;
     wrapMode?: WRAP_MODES;
-    format?: FORMATS;
-    type?: TYPES;
+    format?: TEXTURE_FORMATS;
     target?: TARGETS;
     resolution?: number;
     depthResolution?: number;
@@ -98,13 +98,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      * The pixel format of the texture
      * @default PIXI.FORMATS.RGBA
      */
-    public format: FORMATS;
-
-    /**
-     * The type of resource data
-     * @default PIXI.TYPES.UNSIGNED_BYTE
-     */
-    public type: TYPES;
+    public format: TEXTURE_FORMATS;
 
     /**
      * The target type
@@ -250,17 +244,11 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
          */
         target: TARGETS.TEXTURE_2D,
         /**
-         * GL format type
+         * texture format type
          * @type {PIXI.FORMATS}
          * @default PIXI.FORMATS.RGBA
          */
-        format: FORMATS.RGBA,
-        /**
-         * GL data type
-         * @type {PIXI.TYPES}
-         * @default PIXI.TYPES.UNSIGNED_BYTE
-         */
-        type: TYPES.UNSIGNED_BYTE,
+        format: 'rgba8unorm',
 
         depthResolution: 1,
     };
@@ -292,7 +280,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
 
         const {
             alphaMode, mipmap, anisotropicLevel, scaleMode, width, height,
-            depth, depthResolution, wrapMode, format, type, target, resolution, resourceOptions
+            depth, depthResolution, wrapMode, format, target, resolution, resourceOptions
         } = options;
 
         // Convert the resource to a Resource object
@@ -314,7 +302,6 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
         this._wrapMode = wrapMode;
         this._scaleMode = scaleMode;
         this.format = format;
-        this.type = type;
         this.target = target;
         this.alphaMode = alphaMode;
 
@@ -746,46 +733,38 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
         buffer = buffer || new Float32Array(width * height * 4);
 
         const resource = new BufferResource(buffer, { width, height, ...options?.resourceOptions });
-        let format: FORMATS;
-        let type: TYPES;
+        let format: TEXTURE_FORMATS;
 
         if (buffer instanceof Float32Array)
         {
-            format = FORMATS.RGBA;
-            type = TYPES.FLOAT;
+            format = 'rgba8unorm';
         }
         else if (buffer instanceof Int32Array)
         {
-            format = FORMATS.RGBA_INTEGER;
-            type = TYPES.INT;
+            format = 'rgba32sint';
         }
         else if (buffer instanceof Uint32Array)
         {
-            format = FORMATS.RGBA_INTEGER;
-            type = TYPES.UNSIGNED_INT;
+            format = 'rgba32uint';
         }
         else if (buffer instanceof Int16Array)
         {
-            format = FORMATS.RGBA_INTEGER;
-            type = TYPES.SHORT;
+            format = 'rgba16sint';
         }
         else if (buffer instanceof Uint16Array)
         {
-            format = FORMATS.RGBA_INTEGER;
-            type = TYPES.UNSIGNED_SHORT;
+            format = 'rgba16uint';
         }
         else if (buffer instanceof Int8Array)
         {
-            format = FORMATS.RGBA;
-            type = TYPES.BYTE;
+            format = 'rgba8sint';
         }
         else
         {
-            format = FORMATS.RGBA;
-            type = TYPES.UNSIGNED_BYTE;
+            format = 'rgba8unorm';
         }
 
-        return new BaseTexture(resource, Object.assign({}, defaultBufferOptions, { type, format }, options));
+        return new BaseTexture(resource, Object.assign({}, defaultBufferOptions, { format }, options));
     }
 
     /**

@@ -2,7 +2,7 @@ import { ISize, Matrix } from '@vaux/math';
 import { Renderer } from '@vaux/core';
 import { LayerTextureCache } from '@vaux/layers/LayerTextureCache';
 
-interface ILayerPassOptions
+export interface ILayerPassOptions
 {
     bgColor?: ArrayLike<number>;
     clearDepth?: boolean;

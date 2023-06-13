@@ -1,6 +1,7 @@
 import { BaseTexture } from './BaseTexture';
 import { Texture3DLayout, TextureLayout3DOptions } from './Texture3DLayout';
 import type { BufferType } from './resources/BufferResource';
+import type { Buffer3DResource } from '@vaux/core';
 
 let UID = 0;
 
@@ -25,8 +26,7 @@ export class Texture3D
     constructor({ source, layout, label, data = null }: Texture3DOptions)
     {
         this.label = label;
-        this.data = data;
-        this.dirty = !!data;
+        this.data = null;
         if (!source && !layout)
         {
             throw Error('For Texture3D source or layout is needed');
@@ -50,10 +50,21 @@ export class Texture3D
                 offset: { x: 0, y: 0, z: 0 }
             });
         }
+        if (data)
+        {
+            this.update(data);
+        }
     }
 
     update(data: BufferType)
     {
+        const rs = (this.source.resource as Buffer3DResource);
+
+        if (!this.dirty && rs.useSubRegions)
+        {
+            rs.regionsToUpdate.push(this);
+            this.source.update();
+        }
         this.dirty = true;
         if (data)
         {

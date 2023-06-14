@@ -501,11 +501,12 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
 
     setRealSize3D(realWidth: number, realHeight: number, realDepth: number, pixelSize?: number): this
     {
-        this.resolution = pixelSize ? 1.0 : 1.0 / pixelSize;
+        pixelSize = pixelSize || 1;
+        this.resolution = 1.0 / pixelSize;
         this.depthResolution = this.resolution;
-        this.width = realWidth * this.resolution;
-        this.height = realHeight * this.resolution;
-        this.depth = realDepth * this.resolution;
+        this.width = realWidth * pixelSize;
+        this.height = realHeight * pixelSize;
+        this.depth = realDepth * pixelSize;
         this.isPowerOfTwo = false;
         this.update();
 

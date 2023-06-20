@@ -49,6 +49,8 @@ export function mapWebGLBlendModesToPixi(gl: WebGLRenderingContextBase, array: n
 
     // SUBTRACT from flash
     array[BLEND_MODES.SUBTRACT] = [gl.ONE, gl.ONE, gl.ONE, gl.ONE, gl.FUNC_REVERSE_SUBTRACT, gl.FUNC_ADD];
+    // special inverse functions
+    array[BLEND_MODES.INVERSE] = [gl.ONE_MINUS_DST_COLOR, gl.ONE_MINUS_SRC_COLOR, gl.ZERO, gl.ONE];
 
     return array;
 }

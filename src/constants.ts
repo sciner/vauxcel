@@ -270,6 +270,10 @@ export enum BLEND_MODES
      * @default 29
      */
     XOR = 29,
+    /**
+     * inverse where source is white
+     */
+    INVERSE = 30,
 }
 
 /**

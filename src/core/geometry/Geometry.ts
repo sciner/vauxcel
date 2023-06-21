@@ -575,7 +575,7 @@ export class Geometry
             {
                 if (!this.attributes[key].instance)
                 {
-                    return this.instanced ? 1 : this.vertexPerInstance;
+                    return this.vertexPerInstance;
                 }
             }
         }

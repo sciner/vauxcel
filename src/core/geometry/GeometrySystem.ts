@@ -57,6 +57,7 @@ export class GeometrySystem implements ISystem
     protected gl: IRenderingContext;
     protected _activeGeometry: Geometry;
     protected _activeGPS: GeometryPerShader;
+    protected _activeBB: number;
 
     /** Cache for all geometries by id, used in case renderer gets destroyed or for profiling. */
     readonly managedGeometries: {[key: number]: Geometry};
@@ -70,6 +71,7 @@ export class GeometrySystem implements ISystem
         this.renderer = renderer;
         this._activeGeometry = null;
         this._activeGPS = null;
+        this._activeBB = -1;
 
         this.hasVao = true;
         this.hasInstance = true;
@@ -198,6 +200,7 @@ export class GeometrySystem implements ISystem
         // don't need to loop through if nothing changed!
         // maybe look to add an 'autoupdate' to geometry?
         this.updateBuffers();
+        this._activeBB = null;
     }
 
     /** Reset and unbind any active VAO and geometry. */
@@ -534,6 +537,7 @@ export class GeometrySystem implements ISystem
         // TODO : find out whether its instanced buffer!
         const stride = geometry.getInstanceBufferStride(bufInd);
 
+        this._activeBB = -1;
         geometry.swapBuffer(bufInd, newBuffer);
 
         if (stride && oldBuffer.byteLength)
@@ -649,6 +653,12 @@ export class GeometrySystem implements ISystem
     {
         const { gl } = this;
         const geometry = this._activeGeometry;
+        const gps = this._activeGPS;
+
+        if (gps.emulateBaseInstance !== 0)
+        {
+            geometry.getAttributeBaseCallback().syncFunc(gl, gps.instLocations, 0);
+        }
 
         // TODO.. this should not change so maybe cache the function?
 
@@ -690,6 +700,60 @@ export class GeometrySystem implements ISystem
         return this;
     }
 
+    drawBI(type: DRAW_MODES, size: number, start: number, instanceCount: number, baseInstance = 0)
+    {
+        const { renderer } = this;
+        const { gl } = renderer;
+        const { bvbi } = renderer.context.extensions;
+        const geometry = this._activeGeometry;
+        const gps = this._activeGPS;
+        const program = this.renderer.shader.shader.program;
+
+        if (bvbi)
+        {
+            bvbi.drawArraysInstancedBaseInstanceWEBGL(type, start, size, instanceCount, baseInstance);
+        }
+        else
+        {
+            const attribSync = geometry.getAttributeBaseCallback();
+
+            if (!gps.instLocations)
+            {
+                gps.instLocations = program.getLocationListByAttributes(geometry.getInstancedAttributeNames());
+            }
+
+            if (attribSync.bufSyncCount === 0)
+            {
+                const bb = attribSync.bufFirstIndex;
+
+                if (this._activeBB !== bb)
+                {
+                    this._activeBB = bb;
+                    renderer.buffer.bind(geometry.buffers[bb]);
+                }
+                if (gps.emulateBaseInstance !== baseInstance)
+                {
+                    gps.emulateBaseInstance = baseInstance;
+                    attribSync.syncFunc(gl, gps.instLocations, baseInstance);
+                }
+                gl.drawArraysInstanced(type, start, size, instanceCount);
+            }
+            else
+            {
+                const buffers = geometry.buffers;
+                const bufferSystem = renderer.buffer;
+
+                if (gps.emulateBaseInstance !== baseInstance)
+                {
+                    gps.emulateBaseInstance = baseInstance;
+                    this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstance,
+                        bufferSystem, buffers, this._activeBB);
+                }
+                gl.drawArraysInstanced(type, start, size, instanceCount);
+            }
+        }
+    }
+
     multiDrawArraysBVBI(type: DRAW_MODES, firsts: Int32Array, counts: Int32Array,
         instanceCounts: Int32Array, instanceOffsets: Uint32Array, rangeCount: number): void
     {
@@ -726,7 +790,11 @@ export class GeometrySystem implements ISystem
                 renderer.buffer.bind(geometry.buffers[attribSync.bufFirstIndex]);
                 for (let i = 0; i < rangeCount; i++)
                 {
-                    attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
+                    if (gps.emulateBaseInstance !== instanceOffsets[i])
+                    {
+                        gps.emulateBaseInstance = instanceOffsets[i];
+                        attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
+                    }
                     gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
                 }
             }
@@ -734,12 +802,15 @@ export class GeometrySystem implements ISystem
             {
                 const buffers = geometry.buffers;
                 const bufferSystem = renderer.buffer;
-                let lastBuffer = null;
 
                 for (let i = 0; i < rangeCount; i++)
                 {
-                    lastBuffer = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
-                        bufferSystem, buffers, lastBuffer);
+                    if (gps.emulateBaseInstance !== instanceOffsets[i])
+                    {
+                        gps.emulateBaseInstance = instanceOffsets[i];
+                        this._activeBB = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
+                            bufferSystem, buffers, this._activeBB);
+                    }
                     gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
                 }
             }
@@ -752,6 +823,7 @@ export class GeometrySystem implements ISystem
         this.gl.bindVertexArray(null);
         this._activeGPS = null;
         this._activeGeometry = null;
+        this._activeBB = null;
     }
 
     destroy(): void

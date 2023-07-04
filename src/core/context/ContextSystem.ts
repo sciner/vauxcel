@@ -340,6 +340,7 @@ export class ContextSystem implements ISystem<ContextSystemOptions>
                 colorBufferFloat: gl.getExtension('EXT_color_buffer_float'),
                 md: gl.getExtension('WEBGL_multi_draw'),
                 md_bvbi: gl.getExtension('WEBGL_multi_draw_instanced_base_vertex_base_instance'),
+                bvbi: gl.getExtension('WEBGL_draw_instanced_base_vertex_base_instance'),
             });
         }
     }

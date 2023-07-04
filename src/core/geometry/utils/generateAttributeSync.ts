@@ -5,9 +5,9 @@ import type { Geometry } from '../Geometry';
 import { IRenderingContext } from '../../IRenderer';
 import { BufferSystem } from '../BufferSystem';
 
-export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], byteOffset: number,
-    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer | null)
-=> Buffer | null;
+export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], baseInstance: number,
+    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: number)
+=> number;
 
 export type AttributeBaseCallbackStruct = { syncFunc: AttributeBaseCallback, bufSyncCount: number,
     bufFirstIndex: number, stride: number};
@@ -92,7 +92,7 @@ if (lastBuffer !== buffers[${bufInd}]) {
 export function generateAttribSyncForGeom(geom: Geometry)
 {
     const { attributes } = geom;
-    let lastBuf = -1;
+    let firstBuf = -1;
     let genBuffers = false;
     const instAttribs: Attribute[] = [];
 
@@ -103,15 +103,20 @@ export function generateAttribSyncForGeom(geom: Geometry)
         if (attr.instance)
         {
             instAttribs.push(attr);
-            if (lastBuf !== attr.buffer)
+            if (firstBuf !== attr.buffer)
             {
-                if (lastBuf !== -1)
+                if (firstBuf !== -1)
                 {
                     genBuffers = true;
+                    break;
                 }
-                lastBuf = attr.buffer;
+                firstBuf = attr.buffer;
             }
         }
+    }
+    if (geom._attributeBaseOmitBind)
+    {
+        genBuffers = false;
     }
 
     const sign = generateAttributesSignature(instAttribs);

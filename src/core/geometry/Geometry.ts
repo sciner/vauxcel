@@ -48,7 +48,7 @@ export class GeometryPerShader
 {
     vao: WebGLVertexArrayObject;
     instLocations: number[] = null;
-    baseInstance = 0;
+    emulateBaseInstance = 0;
 
     constructor(vao: WebGLVertexArrayObject)
     {
@@ -93,6 +93,7 @@ export class Geometry
     public indexPerInstance = 1;
 
     private _attributeBaseCallback: AttributeBaseCallbackStruct;
+    public _attributeBaseOmitBind = false;
 
     /**
      * Number of instances in this geometry, pass it to `GeometrySystem.draw()`.

@@ -6,8 +6,8 @@ import { IRenderingContext } from '../../IRenderer';
 import { BufferSystem } from '../BufferSystem';
 
 export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], baseInstance: number,
-    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: number)
-=> number;
+    bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer)
+=> Buffer;
 
 export type AttributeBaseCallbackStruct = { syncFunc: AttributeBaseCallback, bufSyncCount: number,
     bufFirstIndex: number, stride: number};

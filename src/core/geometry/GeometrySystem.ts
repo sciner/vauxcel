@@ -57,7 +57,7 @@ export class GeometrySystem implements ISystem
     protected gl: IRenderingContext;
     protected _activeGeometry: Geometry;
     protected _activeGPS: GeometryPerShader;
-    protected _activeBB: number;
+    protected _activeBB: Buffer;
 
     /** Cache for all geometries by id, used in case renderer gets destroyed or for profiling. */
     readonly managedGeometries: {[key: number]: Geometry};
@@ -71,7 +71,7 @@ export class GeometrySystem implements ISystem
         this.renderer = renderer;
         this._activeGeometry = null;
         this._activeGPS = null;
-        this._activeBB = -1;
+        this._activeBB = null;
 
         this.hasVao = true;
         this.hasInstance = true;
@@ -537,7 +537,7 @@ export class GeometrySystem implements ISystem
         // TODO : find out whether its instanced buffer!
         const stride = geometry.getInstanceBufferStride(bufInd);
 
-        this._activeBB = -1;
+        this._activeBB = null;
         geometry.swapBuffer(bufInd, newBuffer);
 
         if (stride && oldBuffer.byteLength)
@@ -726,10 +726,10 @@ export class GeometrySystem implements ISystem
             {
                 const bb = attribSync.bufFirstIndex;
 
-                if (this._activeBB !== bb)
+                if (this._activeBB !== geometry.buffers[bb])
                 {
-                    this._activeBB = bb;
-                    renderer.buffer.bind(geometry.buffers[bb]);
+                    this._activeBB = geometry.buffers[bb];
+                    renderer.buffer.bind(this._activeBB);
                 }
                 if (gps.emulateBaseInstance !== baseInstance)
                 {

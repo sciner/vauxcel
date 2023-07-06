@@ -20,6 +20,7 @@ export class Attribute
     public instance: boolean;
     public divisor: number;
     public int: boolean;
+    public hasSingleValue: boolean;
 
     /**
      * @param buffer - the id of the buffer that this attribute will look for
@@ -44,6 +45,7 @@ export class Attribute
         this.int = !normalized && (type === TYPES.INT || type === TYPES.UNSIGNED_INT
             || type === TYPES.SHORT || type === TYPES.UNSIGNED_SHORT
             || type === TYPES.BYTE || type === TYPES.UNSIGNED_BYTE);
+        this.hasSingleValue = false;
     }
 
     /** Destroys the Attribute. */

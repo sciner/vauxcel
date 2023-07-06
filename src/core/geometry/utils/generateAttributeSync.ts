@@ -100,7 +100,7 @@ export function generateAttribSyncForGeom(geom: Geometry)
     {
         const attr = attributes[i];
 
-        if (attr.instance)
+        if (attr.instance && !attr.hasSingleValue)
         {
             instAttribs.push(attr);
             if (firstBuf !== attr.buffer)
@@ -113,10 +113,6 @@ export function generateAttribSyncForGeom(geom: Geometry)
                 firstBuf = attr.buffer;
             }
         }
-    }
-    if (geom._attributeBaseOmitBind)
-    {
-        genBuffers = false;
     }
 
     const sign = generateAttributesSignature(instAttribs);

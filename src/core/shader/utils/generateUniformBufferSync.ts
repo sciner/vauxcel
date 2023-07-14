@@ -64,7 +64,26 @@ const UBO_TO_SINGLE_SETTERS: Dict<string> = {
         {
             data[offset + i] = v[i];
         }
-    `
+    `,
+    int: `
+        dataInt32[offset] = v;
+    `,
+    ivec2: `
+        dataInt32[offset] = v[0];
+        dataInt32[offset+1] = v[1];
+    `,
+    ivec3: `
+        dataInt32[offset] = v[0];
+        dataInt32[offset+1] = v[1];
+        dataInt32[offset+2] = v[2];
+
+    `,
+    ivec4: `
+        dataInt32[offset] = v[0];
+        dataInt32[offset+1] = v[1];
+        dataInt32[offset+2] = v[2];
+        dataInt32[offset+3] = v[3];
+    `,
 };
 
 const GLSL_TO_STD40_SIZE: Dict<number> = {
@@ -208,6 +227,7 @@ export function generateUniformBufferSync(
     var gl = renderer.gl
     var index = 0;
     var data = buffer.data;
+    var dataInt32 = buffer.dataInt32;
     `];
 
     for (let i = 0; i < uboElements.length; i++)

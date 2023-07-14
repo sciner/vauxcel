@@ -73,12 +73,13 @@ if (lastBuffer !== buffers[${bufInd}]) {
     {
         funcFragments.push(`return lastBuffer;`);
         // eslint-disable-next-line no-new-func
-        syncFunc = new Function('gl', 'locations', 'instOffset', funcFragments.join('\n')) as AttributeBaseCallback;
+        syncFunc = new Function('gl', 'locations', 'instOffset',
+            'bufferSystem', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
     }
     else
     {
         // eslint-disable-next-line no-new-func,max-len
-        syncFunc = new Function('gl', 'locations', 'instOffset', 'bufferSystem', 'buffers', 'lastBuffer', funcFragments.join('\n')) as AttributeBaseCallback;
+        syncFunc = new Function('gl', 'locations', 'instOffset', funcFragments.join('\n')) as AttributeBaseCallback;
     }
 
     return {

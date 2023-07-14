@@ -43,6 +43,8 @@ export class Buffer
      */
     public data: ITypedArray;
 
+    public _dataInt32: ITypedArray = null;
+
     /**
      * Instead of data, you can specify byte length
      * might be 0 if data is specified
@@ -96,12 +98,26 @@ export class Buffer
      */
     update(data?: IArrayBuffer | Array<number>): void
     {
+        if (data && data !== this.data)
+        {
+            this._dataInt32 = null;
+        }
         if (data instanceof Array)
         {
             data = new Float32Array(data);
         }
         this.data = (data as ITypedArray) || this.data;
         this._updateID++;
+    }
+
+    get dataInt32()
+    {
+        if (!this._dataInt32)
+        {
+            this._dataInt32 = new Int32Array((this.data as any).buffer);
+        }
+
+        return this._dataInt32;
     }
 
     /** Disposes WebGL resources that are connected to this geometry. */

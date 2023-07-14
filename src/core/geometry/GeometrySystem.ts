@@ -653,11 +653,10 @@ export class GeometrySystem implements ISystem
     {
         const { gl } = this;
         const geometry = this._activeGeometry;
-        const gps = this._activeGPS;
 
-        if (gps.emulateBaseInstance !== 0)
+        if (this._activeGPS.emulateBaseInstance !== 0)
         {
-            geometry.getAttributeBaseCallback().syncFunc(gl, gps.instLocations, 0);
+            this.drawBI(type, size, start, instanceCount, 0);
         }
 
         // TODO.. this should not change so maybe cache the function?

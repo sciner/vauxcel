@@ -549,7 +549,7 @@ export class Geometry
         {
             const attr = this.attributes[i];
 
-            if (attr.instance)
+            if (attr.instance && !attr.hasSingleValue)
             {
                 instAttribs.push(i);
             }

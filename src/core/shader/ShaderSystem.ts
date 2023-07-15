@@ -223,26 +223,41 @@ export class ShaderSystem implements ISystem
     syncUniformBufferGroup(group: UniformGroup, name?: string)
     {
         const glProgram = this.getGlProgram();
+        const { uniformBufferBound, uniformBufferDirty, uniformBufferBindings } = glProgram;
+        let bound = uniformBufferBindings[name];
 
-        if (!group.static || group.dirtyId !== 0 || !glProgram.uniformGroups[group.id])
+        if (bound === undefined)
         {
-            group.dirtyId = 0;
-
-            const syncFunc = glProgram.uniformGroups[group.id]
-                || this.createSyncBufferGroup(group, glProgram, name);
-
-            // TODO wrap update in a cache??
-            group.buffer.update();
-
-            syncFunc(glProgram.uniformData,
-                group.uniforms,
-                this.renderer,
-                defaultSyncData,
-                group.buffer
-            );
+            this.createSyncBufferGroup(group, glProgram, name);
+            bound = uniformBufferBindings[name];
         }
 
-        this.renderer.buffer.bindBufferBase(group.buffer, glProgram.uniformBufferBindings[name]);
+        if (group.static && uniformBufferBound[bound] === group
+            && group.dirtyId === uniformBufferDirty[bound])
+        {
+            this.renderer.buffer.bindBufferBase(group.buffer, bound);
+
+            return;
+        }
+
+        uniformBufferBound[bound] = group;
+        uniformBufferDirty[bound] = group.dirtyId;
+
+        group.manualSync?.(glProgram.uniformData, group.uniforms, this.renderer, defaultSyncData);
+
+        const syncFunc = glProgram.uniformGroups[group.id];
+
+        // TODO wrap update in a cache??
+        group.buffer.update();
+
+        syncFunc(glProgram.uniformData,
+            group.uniforms,
+            this.renderer,
+            defaultSyncData,
+            group.buffer
+        );
+
+        this.renderer.buffer.bindBufferBase(group.buffer, bound);
     }
 
     /**

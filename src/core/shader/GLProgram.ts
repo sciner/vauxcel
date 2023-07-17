@@ -1,5 +1,5 @@
 import type { Dict } from '@vaux/utils';
-import { UniformGroup } from './UniformGroup';
+import type { UniformGroup } from './UniformGroup';
 
 /**
  * @private
@@ -44,8 +44,9 @@ export class GLProgram
      */
     public uniformDirtyGroups: Dict<any>;
 
-    public uniformBufferBound: Array<any> = [];
+    public uniformBufferBound: Array<UniformGroup> = [];
     public uniformBufferDirty: Array<number> = [];
+    public uniformBindCount = 0;
 
     /**
      * Makes a new Pixi program.

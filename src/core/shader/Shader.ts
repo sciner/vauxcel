@@ -15,12 +15,6 @@ export class Shader
     public program: Program;
     public uniformGroup: UniformGroup;
 
-    /**
-     * Used internally to bind uniform buffer objects.
-     * @ignore
-     */
-    uniformBindCount = 0;
-
     disposeRunner: Runner;
 
     manualSync?: (ud: Dict<any>, renderer: Renderer, syncData: any) => void = null;

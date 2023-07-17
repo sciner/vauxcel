@@ -224,24 +224,24 @@ export class ShaderSystem implements ISystem
     {
         const glProgram = this.getGlProgram();
         const { uniformBufferBound, uniformBufferDirty, uniformBufferBindings } = glProgram;
-        let bound = uniformBufferBindings[name];
+        let boundIndex = uniformBufferBindings[name];
 
-        if (bound === undefined)
+        if (boundIndex === undefined || !glProgram.uniformGroups[group.id])
         {
             this.createSyncBufferGroup(group, glProgram, name);
-            bound = uniformBufferBindings[name];
+            boundIndex = uniformBufferBindings[name];
         }
-
-        if (group.static && uniformBufferBound[bound] === group
-            && group.dirtyId === uniformBufferDirty[bound])
+        else
+        if (group.static && uniformBufferBound[boundIndex] === group
+                && group.dirtyId === uniformBufferDirty[boundIndex])
         {
-            this.renderer.buffer.bindBufferBase(group.buffer, bound);
+            this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
 
             return;
         }
 
-        uniformBufferBound[bound] = group;
-        uniformBufferDirty[bound] = group.dirtyId;
+        uniformBufferBound[boundIndex] = group;
+        uniformBufferDirty[boundIndex] = group.dirtyId;
 
         group.manualSync?.(glProgram.uniformData, group.uniforms, this.renderer, defaultSyncData);
 
@@ -257,7 +257,7 @@ export class ShaderSystem implements ISystem
             group.buffer
         );
 
-        this.renderer.buffer.bindBufferBase(group.buffer, bound);
+        this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
     }
 
     /**
@@ -274,14 +274,15 @@ export class ShaderSystem implements ISystem
 
         this.renderer.buffer.bind(group.buffer);
 
-        // bind them...
-        const uniformBlockIndex = this.gl.getUniformBlockIndex(glProgram.program, name);
+        if (!glProgram.uniformBufferBindings[name])
+        {
+            // bind them...
+            const uniformBlockIndex = this.gl.getUniformBlockIndex(glProgram.program, name);
 
-        glProgram.uniformBufferBindings[name] = this.shader.uniformBindCount;
-
-        gl.uniformBlockBinding(glProgram.program, uniformBlockIndex, this.shader.uniformBindCount);
-
-        this.shader.uniformBindCount++;
+            glProgram.uniformBufferBindings[name] = glProgram.uniformBindCount;
+            gl.uniformBlockBinding(glProgram.program, uniformBlockIndex, glProgram.uniformBindCount);
+            glProgram.uniformBindCount++;
+        }
 
         const id = this.getSignature(group, this.shader.program.uniformData, 'ubo');
 

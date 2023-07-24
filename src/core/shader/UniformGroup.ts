@@ -78,6 +78,9 @@ export class UniformGroup<LAYOUT = Dict<any>>
      * @protected
      */
     dirtyId: number;
+    uboUpdateId = -1;
+    uboOffset = -1;
+    uboSize = 0;
 
     /** Flag for if uniforms wont be changed after creation. */
     static: boolean;

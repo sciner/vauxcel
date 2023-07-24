@@ -42,6 +42,8 @@ export class BufferSystem implements ISystem
     /** Cache keeping track of the base bound buffer bases */
     readonly boundBufferBases: {[key: number]: Buffer};
 
+    readonly boundBufferOffsets: {[key: number]: number};
+
     private renderer: Renderer;
 
     /**
@@ -52,6 +54,7 @@ export class BufferSystem implements ISystem
         this.renderer = renderer;
         this.managedBuffers = {};
         this.boundBufferBases = {};
+        this.boundBufferOffsets = {};
     }
 
     /**
@@ -121,15 +124,20 @@ export class BufferSystem implements ISystem
      * @param index - the base index to bind at, defaults to 0
      * @param offset - the offset to bind at (this is blocks of 256). 0 = 0, 1 = 256, 2 = 512 etc
      */
-    bindBufferRange(buffer: Buffer, index?: number, offset?: number): void
+    bindBufferRange(buffer: Buffer, index: number, offsetBytes: number, sizeBytes: number): void
     {
         const { gl, CONTEXT_UID } = this;
 
-        offset = offset || 0;
+        offsetBytes = offsetBytes || 0;
 
-        const glBuffer = buffer._glBuffers[CONTEXT_UID] || this.createGLBuffer(buffer);
+        if (this.boundBufferBases[index] !== buffer || this.boundBufferOffsets[index] !== offsetBytes)
+        {
+            const glBuffer = buffer._glBuffers[CONTEXT_UID] || this.createGLBuffer(buffer);
 
-        gl.bindBufferRange(gl.UNIFORM_BUFFER, index || 0, glBuffer.buffer, offset * 256, 256);
+            this.boundBufferBases[index] = buffer;
+            this.boundBufferOffsets[index] = offsetBytes;
+            gl.bindBufferRange(gl.UNIFORM_BUFFER, index || 0, glBuffer.buffer, offsetBytes, sizeBytes);
+        }
     }
 
     /**

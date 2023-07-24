@@ -232,10 +232,17 @@ export class ShaderSystem implements ISystem
             boundIndex = uniformBufferBindings[name];
         }
         else
-        if (group.static && uniformBufferBound[boundIndex] === group
-                && group.dirtyId === uniformBufferDirty[boundIndex])
+        // if (group.static && uniformBufferBound[boundIndex] === group
+        //         && group.dirtyId === uniformBufferDirty[boundIndex])
+        if (group.static && group.uboUpdateId === group.dirtyId)
         {
-            this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
+            if (group.uboSize > 0)
+            {
+                this.renderer.buffer.bindBufferRange(group.buffer, boundIndex, group.uboOffset, group.uboSize);
+            } else
+            {
+                this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
+            }
 
             return;
         }
@@ -247,7 +254,7 @@ export class ShaderSystem implements ISystem
 
         const syncFunc = glProgram.uniformGroups[group.id];
 
-        // TODO wrap update in a cache??
+        group.uboUpdateId = group.dirtyId;
         group.buffer.update();
 
         syncFunc(glProgram.uniformData,

@@ -1,5 +1,4 @@
 import type { Dict } from '@vaux/utils';
-import type { UniformGroup } from './UniformGroup';
 
 /**
  * @private
@@ -44,8 +43,6 @@ export class GLProgram
      */
     public uniformDirtyGroups: Dict<any>;
 
-    public uniformBufferBound: Array<UniformGroup> = [];
-    public uniformBufferDirty: Array<number> = [];
     public uniformBindCount = 0;
 
     /**

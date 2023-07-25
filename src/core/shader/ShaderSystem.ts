@@ -223,7 +223,7 @@ export class ShaderSystem implements ISystem
     syncUniformBufferGroup(group: UniformGroup, name?: string)
     {
         const glProgram = this.getGlProgram();
-        const { uniformBufferBound, uniformBufferDirty, uniformBufferBindings } = glProgram;
+        const { uniformBufferBindings } = glProgram;
         let boundIndex = uniformBufferBindings[name];
 
         if (boundIndex === undefined || !glProgram.uniformGroups[group.id])
@@ -232,23 +232,21 @@ export class ShaderSystem implements ISystem
             boundIndex = uniformBufferBindings[name];
         }
         else
-        // if (group.static && uniformBufferBound[boundIndex] === group
-        //         && group.dirtyId === uniformBufferDirty[boundIndex])
-        if (group.static && group.uboUpdateId === group.dirtyId)
+
+        if (!group.autoManage || (group.static && group.uboUpdateId === group.dirtyId))
         {
+            this.renderer.buffer.update(group.buffer);
             if (group.uboSize > 0)
             {
                 this.renderer.buffer.bindBufferRange(group.buffer, boundIndex, group.uboOffset, group.uboSize);
-            } else
+            }
+            else
             {
                 this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
             }
 
             return;
         }
-
-        uniformBufferBound[boundIndex] = group;
-        uniformBufferDirty[boundIndex] = group.dirtyId;
 
         group.manualSync?.(glProgram.uniformData, group.uniforms, this.renderer, defaultSyncData);
 
@@ -305,6 +303,10 @@ export class ShaderSystem implements ISystem
             const data = new Float32Array(uboData.size / 4);
 
             group.buffer.update(data);
+        }
+        else
+        {
+            group.uboSize = uboData.size;
         }
 
         glProgram.uniformGroups[group.id] = uboData.syncFunc;

@@ -303,9 +303,6 @@ export class ShaderSystem implements ISystem
             const data = new Float32Array(uboData.size / 4);
 
             group.buffer.update(data);
-        }
-        else
-        {
             group.uboSize = uboData.size;
         }
 

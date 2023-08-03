@@ -109,9 +109,11 @@ export function generateAttribSyncForGeom(geom: Geometry)
                 if (firstBuf !== -1)
                 {
                     genBuffers = true;
-                    break;
                 }
-                firstBuf = attr.buffer;
+                else
+                {
+                    firstBuf = attr.buffer;
+                }
             }
         }
     }

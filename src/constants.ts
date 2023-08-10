@@ -603,6 +603,10 @@ export enum SAMPLER_TYPES
      * @default 2
      */
     UINT = 2,
+    /**
+     * @default 3
+     */
+    SHADOW = 3,
 }
 
 /**

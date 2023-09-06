@@ -1,4 +1,4 @@
-import { MSAA_QUALITY } from '@vaux/constants';
+import {BUFFER_BITS, MSAA_QUALITY} from '@vaux/constants';
 import { Program } from '../shader/Program';
 import { Shader } from '../shader/Shader';
 import { State } from '../state/State';
@@ -235,6 +235,8 @@ export class Filter extends Shader
     state: State;
 
     protected _resolution: number | null;
+
+    public clear_bits = BUFFER_BITS.COLOR | BUFFER_BITS.DEPTH;
 
     /**
      * @param vertexSrc - The source of the vertex shader.

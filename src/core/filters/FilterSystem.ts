@@ -270,7 +270,7 @@ export class FilterSystem implements ISystem
         state.transform = renderer.projection.transform;
         renderer.projection.transform = null;
         renderTextureSystem.bind(state.renderTexture, state.sourceFrame, destinationFrame);
-        renderer.framebuffer.clear(0, 0, 0, 0);
+        renderer.framebuffer.clear(0, 0, 0, 0, filters[0].clear_bits);
     }
 
     /** Pops off the filter and applies it. */

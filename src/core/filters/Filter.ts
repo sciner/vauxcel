@@ -1,4 +1,4 @@
-import {BUFFER_BITS, MSAA_QUALITY} from '@vaux/constants';
+import { BUFFER_BITS, MSAA_QUALITY } from '@vaux/constants';
 import { Program } from '../shader/Program';
 import { Shader } from '../shader/Shader';
 import { State } from '../state/State';

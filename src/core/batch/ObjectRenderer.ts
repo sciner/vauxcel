@@ -1,5 +1,7 @@
 import type { Renderer } from '../Renderer';
 import type { ISystem } from '../system/ISystem';
+import { State } from '../state/State';
+import { StateModifierObject } from '../state/StateModifier';
 
 /**
  * Base for a common object renderer that can be used as a
@@ -11,6 +13,8 @@ export class ObjectRenderer implements ISystem
     /** The renderer this manager works for. */
     protected renderer: Renderer;
 
+    modifiers: StateModifierObject | null = null;
+    state: State | null = null;
     /**
      * @param renderer - The renderer this manager works for.
      */

@@ -78,6 +78,7 @@ export * from './shader/utils/uniformParsers';
 export * from './shader/utils/unsafeEvalSupported';
 export * from './startup/StartupSystem';
 export * from './state/State';
+export * from './state/StateModifier';
 export * from './state/StateSystem';
 export * from './system/ISystem';
 export * from './systems';

@@ -50,6 +50,14 @@ export class BatchSystem implements ISystem
         this.currentRenderer.stop();
         this.currentRenderer = objectRenderer;
 
+        const { state, modifiers } = objectRenderer;
+
+        if (state)
+        {
+            this.renderer.state.set(state);
+        }
+        this.renderer.state.setModifiers(modifiers);
+
         this.currentRenderer.start();
     }
 

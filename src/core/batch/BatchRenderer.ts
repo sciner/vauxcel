@@ -647,8 +647,6 @@ export class BatchRenderer extends ObjectRenderer
     /** Starts a new sprite batch. */
     start(): void
     {
-        this.renderer.state.set(this.state);
-
         this.renderer.texture.ensureSamplerType(this.maxTextures);
 
         this.renderer.shader.bind(this._shader);

@@ -6,6 +6,9 @@ import { mapWebGLBlendModesToPixi } from './utils/mapWebGLBlendModesToPixi';
 import type { ExtensionMetadata } from '@vaux/extensions';
 import type { IRenderingContext } from '../IRenderer';
 import type { ISystem } from '../system/ISystem';
+import { FastArrayObjectClass } from '@vaux/utils';
+import { StateModifierObject, StateModifier } from './StateModifier';
+import { Renderer } from '@vaux/core';
 
 const BLEND = 0;
 const OFFSET = 1;
@@ -76,9 +79,14 @@ export class StateSystem implements ISystem
      */
     protected defaultState: State;
 
-    constructor()
+    protected modifier_classes = new FastArrayObjectClass<StateModifier>();
+    protected current_modifiers: Array<StateModifier | null> = [];
+
+    protected renderer: Renderer;
+    constructor(renderer: Renderer)
     {
         this.gl = null;
+        this.renderer = renderer;
 
         this.stateId = 0;
         this.polygonOffsetScale = 0;
@@ -111,6 +119,30 @@ export class StateSystem implements ISystem
         this.set(this.defaultState);
 
         this.reset();
+    }
+
+    setModifiers(custom: StateModifierObject | null)
+    {
+        const old_vals = this.current_modifiers;
+        const len = old_vals.length;
+        let new_vals = this.modifier_classes.def_values;
+
+        if (custom)
+        {
+            this.modifier_classes.optimize(custom);
+            new_vals = custom?.inner_arr;
+        }
+
+        for (let i = 0; i < len; i++)
+        {
+            // eslint-disable-next-line eqeqeq
+            if (old_vals[i] !== new_vals[i])
+            {
+                old_vals[i]?.disable(this.renderer);
+                new_vals[i]?.enable(this.renderer);
+                old_vals[i] = new_vals[i];
+            }
+        }
     }
 
     /**
@@ -279,10 +311,16 @@ export class StateSystem implements ISystem
     /** Resets all the logic and disables the VAOs. */
     reset(): void
     {
+        const custom = this.current_modifiers;
+
+        for (let i = 0; i < custom.length; i++)
+        {
+            custom[i]?.disable(this.renderer);
+        }
+
         this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
 
         this.forceState(this.defaultState);
-
         this._blendEq = true;
         this.blendMode = -1 as any;
         this.setBlendMode(0);

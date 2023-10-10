@@ -99,3 +99,4 @@ export * from './network/decomposeDataUri';
 export * from './network/determineCrossOrigin';
 export * from './network/getResolutionOfUrl';
 export * from './types';
+export * from './fast_object';

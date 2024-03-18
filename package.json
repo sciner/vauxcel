@@ -1,6 +1,6 @@
 {
   "name": "vauxcel",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
   "contributors": [

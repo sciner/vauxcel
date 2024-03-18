@@ -816,6 +816,69 @@ export class GeometrySystem implements ISystem
         }
     }
 
+    multiDrawArraysBVBI_offset(type: DRAW_MODES, firsts: Int32Array, counts: Int32Array,
+        instanceCounts: Int32Array, instanceOffsets: Uint32Array, rangeCount: number, rangeOffset: number): void
+    {
+        const { renderer } = this;
+        const { gl } = renderer;
+        const geometry = this._activeGeometry;
+        const gps = this._activeGPS;
+        const program = this.renderer.shader.shader.program;
+
+        const { md_bvbi } = renderer.context.extensions;
+
+        if (md_bvbi)
+        {
+            md_bvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
+                type,
+                firsts, rangeOffset,
+                counts, rangeOffset,
+                instanceCounts, rangeOffset,
+                instanceOffsets, rangeOffset,
+                rangeCount,
+            );
+        }
+        else
+        {
+            const attribSync = geometry.getAttributeBaseCallback();
+
+            if (!gps.instLocations)
+            {
+                gps.instLocations = program.getLocationListByAttributes(geometry.getInstancedAttributeNames());
+            }
+
+            if (attribSync.bufSyncCount === 0)
+            {
+                renderer.buffer.bind(geometry.buffers[attribSync.bufFirstIndex]);
+                for (let i = rangeOffset; i < rangeOffset + rangeCount; i++)
+                {
+                    if (gps.emulateBaseInstance !== instanceOffsets[i])
+                    {
+                        gps.emulateBaseInstance = instanceOffsets[i];
+                        attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
+                    }
+                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                }
+            }
+            else
+            {
+                const buffers = geometry.buffers;
+                const bufferSystem = renderer.buffer;
+
+                for (let i = rangeOffset; i < rangeOffset + rangeCount; i++)
+                {
+                    if (gps.emulateBaseInstance !== instanceOffsets[i])
+                    {
+                        gps.emulateBaseInstance = instanceOffsets[i];
+                        this._activeBB = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
+                            bufferSystem, buffers, this._activeBB);
+                    }
+                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                }
+            }
+        }
+    }
+
     /** Unbind/reset everything. */
     public unbind(): void
     {

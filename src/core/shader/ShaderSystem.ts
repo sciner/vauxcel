@@ -17,7 +17,6 @@ import type { UniformsSyncCallback } from './utils';
 import { ensurePrecision } from './program/ensurePrecision';
 import { setProgramName } from './program/setProgramName';
 import { setProgramVersion } from './program/setProgramVersion';
-import { fallbackFlat } from './program/fallbackFlat';
 
 let UID = 0;
 // default sync data so we don't create a new one each time!
@@ -39,7 +38,6 @@ export class ShaderSystem implements ISystem
         ensurePrecision,
         setProgramName,
         setProgramVersion,
-        fallbackFlat
     };
 
     options: Record<string, any> = {
@@ -116,7 +114,6 @@ export class ShaderSystem implements ISystem
         if (provokeExt)
         {
             provokeExt.provokingVertexWEBGL(provokeExt.FIRST_VERTEX_CONVENTION_WEBGL);
-            this.options.fallbackFlat.disable = true;
         }
     }
 

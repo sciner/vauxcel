@@ -426,7 +426,7 @@ export class EventEmitter<EventTypes extends ValidEventTypes = string | symbol,
     //
     // Alias methods names because people roll like that.
     //
-    off<T extends EventNames<EventTypes>>(event: EventNames<EventTypes>,
+    off<T extends EventNames<EventTypes>>(event: T,
         fn?: EventListener<EventTypes, T>,
         context?: Context,
         once?: boolean)

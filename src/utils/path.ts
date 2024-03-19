@@ -1,4 +1,4 @@
-import { settings } from '@vaux/settings';
+import { DOMAdapter } from '../environment/adapter';
 
 function assertPath(path: string)
 {
@@ -130,26 +130,120 @@ function normalizeStringPosix(path: string, allowAboveRoot: boolean)
     return res;
 }
 
+/**
+ * Path utilities for working with URLs and file paths in a cross-platform way.
+ * All paths that are passed in will become normalized to have posix separators.
+ * ```js
+ * import { path } from 'pixi.js';
+ *
+ * path.normalize('http://www.example.com/foo/bar/../baz'); // http://www.example.com/foo/baz
+ * ```
+ * @memberof utils
+ */
 export interface Path
 {
+    /**
+     * Converts a path to posix format.
+     * @param path - The path to convert to posix
+     */
     toPosix: (path: string) => string;
-    toAbsolute: (url: string, baseUrl?: string, rootUrl?: string) => string;
+    /**
+     * Checks if the path is a URL e.g. http://, https://
+     * @param path - The path to check
+     */
     isUrl: (path: string) => boolean;
+    /**
+     * Checks if the path is a data URL
+     * @param path - The path to check
+     */
     isDataUrl: (path: string) => boolean;
+    /**
+     * Checks if the path is a blob URL
+     * @param path - The path to check
+     */
+    isBlobUrl: (path: string) => boolean;
+    /**
+     * Checks if the path has a protocol e.g. http://, https://, file:///, data:, blob:, C:/
+     * This will return true for windows file paths
+     * @param path - The path to check
+     */
     hasProtocol: (path: string) => boolean;
+    /**
+     * Returns the protocol of the path e.g. http://, https://, file:///, data:, blob:, C:/
+     * @param path - The path to get the protocol from
+     */
     getProtocol: (path: string) => string;
+    /**
+     * Converts URL to an absolute path.
+     * When loading from a Web Worker, we must use absolute paths.
+     * If the URL is already absolute we return it as is
+     * If it's not, we convert it
+     * @param url - The URL to test
+     * @param customBaseUrl - The base URL to use
+     * @param customRootUrl - The root URL to use
+     */
+    toAbsolute: (url: string, baseUrl?: string, rootUrl?: string) => string;
+    /**
+     * Normalizes the given path, resolving '..' and '.' segments
+     * @param path - The path to normalize
+     */
     normalize: (path: string) => string;
-    join: (...paths: string[]) => string;
+    /**
+     * Determines if path is an absolute path.
+     * Absolute paths can be urls, data urls, or paths on disk
+     * @param path - The path to test
+     */
     isAbsolute: (path: string) => boolean;
+    /**
+     * Joins all given path segments together using the platform-specific separator as a delimiter,
+     * then normalizes the resulting path
+     * @param segments - The segments of the path to join
+     */
+    join: (...paths: string[]) => string;
+    /**
+     * Returns the directory name of a path
+     * @param path - The path to parse
+     */
     dirname: (path: string) => string;
+    /**
+     * Returns the root of the path e.g. /, C:/, file:///, http://domain.com/
+     * @param path - The path to parse
+     */
     rootname: (path: string) => string;
+    /**
+     * Returns the last portion of a path
+     * @param path - The path to test
+     * @param ext - Optional extension to remove
+     */
     basename: (path: string, ext?: string) => string;
+    /**
+     * Returns the extension of the path, from the last occurrence of the . (period) character to end of string in the last
+     * portion of the path. If there is no . in the last portion of the path, or if there are no . characters other than
+     * the first character of the basename of path, an empty string is returned.
+     * @param path - The path to parse
+     */
     extname: (path: string) => string;
+    /**
+     * Parses a path into an object containing the 'root', `dir`, `base`, `ext`, and `name` properties.
+     * @param path - The path to parse
+     */
     parse: (path: string) => { root?: string, dir?: string, base?: string, ext?: string, name?: string };
     sep: string,
-    delimiter: string
+    delimiter: string,
+    joinExtensions: string[],
 }
 
+/**
+ * Path utilities for working with URLs and file paths in a cross-platform way.
+ * All paths that are passed in will become normalized to have posix separators.
+ * ```js
+ * import { path } from 'pixi.js';
+ *
+ * path.normalize('http://www.example.com/foo/bar/../baz'); // http://www.example.com/foo/baz
+ * ```
+ * @see {@link utils.Path}
+ * @memberof utils
+ */
 export const path: Path = {
     /**
      * Converts a path to posix format.
@@ -157,7 +251,7 @@ export const path: Path = {
      */
     toPosix(path: string) { return replaceAll(path, '\\', '/'); },
     /**
-     * Checks if the path is a URL
+     * Checks if the path is a URL e.g. http://, https://
      * @param path - The path to check
      */
     isUrl(path: string) { return (/^https?:/).test(this.toPosix(path)); },
@@ -172,13 +266,22 @@ export const path: Path = {
             .test(path);
     },
     /**
-     * Checks if the path has a protocol e.g. http://
+     * Checks if the path is a blob URL
+     * @param path - The path to check
+     */
+    isBlobUrl(path: string)
+    {
+        // Not necessary to have an exact regex to match the blob URLs
+        return path.startsWith('blob:');
+    },
+    /**
+     * Checks if the path has a protocol e.g. http://, https://, file:///, data:, blob:, C:/
      * This will return true for windows file paths
      * @param path - The path to check
      */
-    hasProtocol(path: string) { return (/^[^/:]+:\//).test(this.toPosix(path)); },
+    hasProtocol(path: string) { return (/^[^/:]+:/).test(this.toPosix(path)); },
     /**
-     * Returns the protocol of the path e.g. http://, C:/, file:///
+     * Returns the protocol of the path e.g. http://, https://, file:///, data:, blob:, C:/
      * @param path - The path to get the protocol from
      */
     getProtocol(path: string)
@@ -186,21 +289,21 @@ export const path: Path = {
         assertPath(path);
         path = this.toPosix(path);
 
-        let protocol = '';
+        const matchFile = (/^file:\/\/\//).exec(path);
 
-        const isFile = (/^file:\/\/\//).exec(path);
-        const isHttp = (/^[^/:]+:\/\//).exec(path);
-        const isWindows = (/^[^/:]+:\//).exec(path);
-
-        if (isFile || isHttp || isWindows)
+        if (matchFile)
         {
-            const arr = (isFile?.[0] || isHttp?.[0] || isWindows?.[0]) as string;
-
-            protocol = arr;
-            path = path.slice(arr.length);
+            return matchFile[0];
         }
 
-        return protocol;
+        const matchProtocol = (/^[^/:]+:\/{0,2}/).exec(path);
+
+        if (matchProtocol)
+        {
+            return matchProtocol[0];
+        }
+
+        return '';
     },
 
     /**
@@ -214,12 +317,13 @@ export const path: Path = {
      */
     toAbsolute(url: string, customBaseUrl?: string, customRootUrl?: string)
     {
-        if (this.isDataUrl(url)) return url;
+        assertPath(url);
 
-        const baseUrl = removeUrlParams(this.toPosix(customBaseUrl ?? settings.ADAPTER.getBaseUrl()));
+        if (this.isDataUrl(url) || this.isBlobUrl(url)) return url;
+
+        const baseUrl = removeUrlParams(this.toPosix(customBaseUrl ?? DOMAdapter.get().getBaseUrl()));
         const rootUrl = removeUrlParams(this.toPosix(customRootUrl ?? this.rootname(baseUrl)));
 
-        assertPath(url);
         url = this.toPosix(url);
 
         // root relative url
@@ -239,10 +343,12 @@ export const path: Path = {
      */
     normalize(path: string)
     {
-        path = this.toPosix(path);
         assertPath(path);
 
         if (path.length === 0) return '.';
+        if (this.isDataUrl(path) || this.isBlobUrl(path)) return path;
+
+        path = this.toPosix(path);
 
         let protocol = '';
         const isAbsolute = path.startsWith('/');
@@ -302,7 +408,7 @@ export const path: Path = {
                 {
                     const prevArg = segments[i - 1] ?? '';
 
-                    if (this.extname(prevArg))
+                    if (this.joinExtensions.includes(this.extname(prevArg).toLowerCase()))
                     {
                         joined += `/../${arg}`;
                     }
@@ -556,7 +662,7 @@ export const path: Path = {
             // We saw a non-dot character immediately before the dot
             || preDotState === 0
             // The (right-most) trimmed path component is exactly '..'
-            // eslint-disable-next-line no-mixed-operators
+            // eslint-disable-next-line no-mixed-operators, no-mixed-operators/no-mixed-operators
             || preDotState === 1 && startDot === end - 1 && startDot === startPart + 1
         )
         {
@@ -645,7 +751,7 @@ export const path: Path = {
             // We saw a non-dot character immediately before the dot
             || preDotState === 0
             // The (right-most) trimmed path component is exactly '..'
-            // eslint-disable-next-line no-mixed-operators
+            // eslint-disable-next-line no-mixed-operators, no-mixed-operators/no-mixed-operators
             || preDotState === 1 && startDot === end - 1 && startDot === startPart + 1
         )
         {
@@ -677,5 +783,6 @@ export const path: Path = {
     },
 
     sep: '/',
-    delimiter: ':'
+    delimiter: ':',
+    joinExtensions: ['.html'],
 } as Path;

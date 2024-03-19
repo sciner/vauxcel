@@ -1,58 +1,61 @@
-import { settings } from '../settings';
+import { DOMAdapter } from '../../environment/adapter';
+import { AbstractRenderer } from '../../rendering/renderers/shared/system/AbstractRenderer';
 
-let supported: boolean | undefined;
+let _isWebGLSupported: boolean | undefined;
 
 /**
  * Helper for checking for WebGL support.
- * @memberof PIXI.utils
+ * @param failIfMajorPerformanceCaveat - whether to fail if there is a major performance caveat, defaults to false
+ * @memberof utils
  * @function isWebGLSupported
  * @returns {boolean} Is WebGL supported.
  */
-export function isWebGLSupported(): boolean
+export function isWebGLSupported(
+    failIfMajorPerformanceCaveat?: boolean
+): boolean
 {
-    if (typeof supported === 'undefined')
+    if (_isWebGLSupported !== undefined) return _isWebGLSupported;
+
+    _isWebGLSupported = ((): boolean =>
     {
-        supported = (function supported(): boolean
+        const contextOptions = {
+            stencil: true,
+            failIfMajorPerformanceCaveat:
+                failIfMajorPerformanceCaveat
+                ?? AbstractRenderer.defaultOptions.failIfMajorPerformanceCaveat,
+        };
+
+        try
         {
-            const contextOptions = {
-                stencil: true,
-                failIfMajorPerformanceCaveat: settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT,
-            };
-
-            try
-            {
-                if (!settings.ADAPTER.getWebGLRenderingContext())
-                {
-                    return false;
-                }
-
-                const canvas = settings.ADAPTER.createCanvas();
-                let gl = (
-                    canvas.getContext('webgl2', contextOptions)
-                ) as WebGL2RenderingContext | null;
-
-                const success = !!gl?.getContextAttributes()?.stencil;
-
-                if (gl)
-                {
-                    const loseContext = gl.getExtension('WEBGL_lose_context');
-
-                    if (loseContext)
-                    {
-                        loseContext.loseContext();
-                    }
-                }
-
-                gl = null;
-
-                return success;
-            }
-            catch (e)
+            if (!DOMAdapter.get().getWebGLRenderingContext())
             {
                 return false;
             }
-        })();
-    }
 
-    return supported;
+            const canvas = DOMAdapter.get().createCanvas();
+            let gl = canvas.getContext('webgl', contextOptions);
+
+            const success = !!gl?.getContextAttributes()?.stencil;
+
+            if (gl)
+            {
+                const loseContext = gl.getExtension('WEBGL_lose_context');
+
+                if (loseContext)
+                {
+                    loseContext.loseContext();
+                }
+            }
+
+            gl = null;
+
+            return success;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    })();
+
+    return _isWebGLSupported;
 }

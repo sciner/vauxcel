@@ -4,10 +4,17 @@ import type { Dict } from '../types';
 const warnings: Dict<boolean> = {};
 
 /**
+ * deprecation name for version 8.0.0
+ * @ignore
+ */
+export const v8_0_0 = '8.0.0';
+
+/**
  * Helper for warning developers about deprecated features & settings.
  * A stack track for warnings is given; useful for tracking-down where
  * deprecated methods/properties/classes are being used within the code.
- * @memberof PIXI.utils
+ * @memberof utils
+ * @ignore
  * @function deprecation
  * @param {string} version - The version where the feature became deprecated
  * @param {string} message - Message should include what is deprecated, where, and the new solution

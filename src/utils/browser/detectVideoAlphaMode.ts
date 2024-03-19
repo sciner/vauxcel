@@ -1,4 +1,4 @@
-import { ALPHA_MODES } from '@vaux/constants';
+import type { ALPHA_MODES } from '../../rendering/renderers/shared/texture/const';
 
 let promise: Promise<ALPHA_MODES> | undefined;
 
@@ -11,9 +11,9 @@ let promise: Promise<ALPHA_MODES> | undefined;
  * the upload behavior by uploading a white 2x2 webm with 50% alpha
  * without `UNPACK_PREMULTIPLY_ALPHA_WEBGL` and then checking whether
  * the uploaded pixels are premultiplied.
- * @memberof PIXI.utils
+ * @memberof utils
  * @function detectVideoAlphaMode
- * @returns {Promise<PIXI.ALPHA_MODES>} The correct alpha mode for video textures.
+ * @returns {Promise<ALPHA_MODES>} The correct alpha mode for video textures.
  */
 export async function detectVideoAlphaMode(): Promise<ALPHA_MODES>
 {
@@ -24,7 +24,7 @@ export async function detectVideoAlphaMode(): Promise<ALPHA_MODES>
 
         if (!gl)
         {
-            return ALPHA_MODES.UNPACK;
+            return 'premultiply-alpha-on-upload';
         }
 
         const video = await new Promise<HTMLVideoElement | null>((resolve) =>
@@ -43,7 +43,7 @@ export async function detectVideoAlphaMode(): Promise<ALPHA_MODES>
 
         if (!video)
         {
-            return ALPHA_MODES.UNPACK;
+            return 'premultiply-alpha-on-upload';
         }
 
         const texture = gl.createTexture();
@@ -73,7 +73,7 @@ export async function detectVideoAlphaMode(): Promise<ALPHA_MODES>
         gl.deleteTexture(texture);
         gl.getExtension('WEBGL_lose_context')?.loseContext();
 
-        return pixel[0] <= pixel[3] ? ALPHA_MODES.PMA : ALPHA_MODES.UNPACK;
+        return pixel[0] <= pixel[3] ? 'premultiplied-alpha' : 'premultiply-alpha-on-upload';
     })();
 
     return promise;

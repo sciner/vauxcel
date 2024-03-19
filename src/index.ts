@@ -1,23 +1,30 @@
-/// <reference path="../global.d.ts" />
-export * from './extensions';
-export * from './constants';
-export * from './settings';
-export * from './math';
-export * from './core';
-export * from './utils';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck - we dynamically create the other index files, so these will throw errors if we don't ignore them
+
+import { browserExt } from './environment-browser/browserExt';
+import { webworkerExt } from './environment-webworker/webworkerExt';
+import { extensions } from './extensions/Extensions';
+import './rendering/init';
+import './spritesheet/init';
+
+export * from './accessibility';
+export * from './advanced-blend-modes';
+export * from './app';
+export * from './assets';
 export * from './color';
-export * from './ticker';
-export * from './runner';
-
-export * from './display';
-export * from './sprite';
+export * from './culling';
+export * from './environment';
+export * from './environment-browser';
+export * from './environment-webworker';
+export * from './events';
+export * from './extensions';
+export * from './filters';
+export * from './maths';
+export * from './prepare';
+export * from './rendering';
+export * from './scene';
 export * from './spritesheet';
-export * from './mesh';
-export * from './text';
-export * from './text-bitmap';
-export * from './text-html';
-export * from './graphics';
+export * from './ticker';
+export * from './utils';
 
-export * from './hacks';
-
-export * from './layers';
+extensions.add(browserExt, webworkerExt);

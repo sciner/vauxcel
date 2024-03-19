@@ -1,45 +1,93 @@
-import { BaseTexture, Rectangle, Texture, utils } from '@vaux/core';
+import { Rectangle } from '../maths/shapes/Rectangle';
+import { Texture } from '../rendering/renderers/shared/texture/Texture';
 
-import type { ImageResource, IPointData, ITextureBorders } from '@vaux/core';
+import type { PointData } from '../maths/point/PointData';
+import type { TextureSource } from '../rendering/renderers/shared/texture/sources/TextureSource';
+import type { BindableTexture, TextureBorders } from '../rendering/renderers/shared/texture/Texture';
+import type { Dict } from '../utils/types';
 
 /**
  * Represents the JSON data for a spritesheet atlas.
- * @memberof PIXI
+ * @memberof assets
  */
-export interface ISpritesheetFrameData
+export interface SpritesheetFrameData
 {
+    /** The frame rectangle of the texture. */
     frame: {
         x: number;
         y: number;
         w: number;
         h: number;
     };
+    /** Whether the texture is trimmed. */
     trimmed?: boolean;
+    /** Whether the texture is rotated. */
     rotated?: boolean;
+    /** The source size of the texture. */
     sourceSize?: {
         w: number;
         h: number;
     };
+    /** The sprite source size. */
     spriteSourceSize?: {
+        h?: number;
+        w?: number;
         x: number;
         y: number;
     };
-    anchor?: IPointData;
-    borders?: ITextureBorders;
+    /** The anchor point of the texture. */
+    anchor?: PointData;
+    /** The 9-slice borders of the texture. */
+    borders?: TextureBorders
 }
 
 /**
  * Atlas format.
- * @memberof PIXI
+ * @memberof assets
  */
-export interface ISpritesheetData
+export interface SpritesheetData
 {
-    frames: utils.Dict<ISpritesheetFrameData>;
-    animations?: utils.Dict<string[]>;
+    /** The frames of the atlas. */
+    frames: Dict<SpritesheetFrameData>;
+    /** The animations of the atlas. */
+    animations?: Dict<string[]>;
+    /** The meta data of the atlas. */
     meta: {
-        scale: string;
+        app?: string;
+        format?: string;
+        frameTags?: {
+            from: number;
+            name: string;
+            to: number;
+            direction: string;
+        }[];
+        image?: string;
+        layers?: {
+            blendMode: string;
+            name: string;
+            opacity: number;
+        }[];
+        scale: number | string;
+        size?: {
+            h: number;
+            w: number;
+        };
+        slices?: {
+            color: string;
+            name: string;
+            keys: {
+                frame: number,
+                bounds: {
+                    x: number;
+                    y: number;
+                    w: number;
+                    h: number;
+                };
+            }[];
+        }[];
         // eslint-disable-next-line camelcase
         related_multi_packs?: string[];
+        version?: string;
     };
 }
 
@@ -109,47 +157,74 @@ export interface ISpritesheetData
  * ```
  * Sprite sheets can be packed using tools like {@link https://codeandweb.com/texturepacker|TexturePacker},
  * {@link https://renderhjs.net/shoebox/|Shoebox} or {@link https://github.com/krzysztof-o/spritesheet.js|Spritesheet.js}.
- * Default anchor points (see {@link PIXI.Texture#defaultAnchor}), default 9-slice borders
- * (see {@link PIXI.Texture#defaultBorders}) and grouping of animation sprites are currently only
+ * Default anchor points (see {@link Texture#defaultAnchor}), default 9-slice borders
+ * (see {@link Texture#defaultBorders}) and grouping of animation sprites are currently only
  * supported by TexturePacker.
- * @memberof PIXI
+ *
+ * Alternative ways for loading spritesheet image if you need more control:
+ *
+ * ```js
+ * import { Assets } from 'pixi.js';
+ *
+ * const sheetTexture = await Assets.load('images/spritesheet.png');
+ * Assets.add({
+ *     alias: 'atlas',
+ *     src: 'images/spritesheet.json'
+ *     data: {texture: sheetTexture} // using of preloaded texture
+ * });
+ * const sheet = await Assets.load('atlas')
+ * ```
+ *
+ * or:
+ *
+ * ```js
+ * import { Assets } from 'pixi.js';
+ *
+ * Assets.add({
+ *     alias: 'atlas',
+ *     src: 'images/spritesheet.json'
+ *     data: {imageFilename: 'my-spritesheet.2x.avif'} // using of custom filename located in "images/my-spritesheet.2x.avif"
+ * });
+ * const sheet = await Assets.load('atlas')
+ * ```
+ * @memberof assets
  */
-export class Spritesheet
+export class Spritesheet<S extends SpritesheetData = SpritesheetData>
 {
     /** The maximum number of Textures to build per process. */
-    static readonly BATCH_SIZE = 1000;
+    public static readonly BATCH_SIZE = 1000;
 
     /** For multi-packed spritesheets, this contains a reference to all the other spritesheets it depends on. */
-    public linkedSheets: Spritesheet[] = [];
+    public linkedSheets: Spritesheet<S>[] = [];
 
     /** Reference to ths source texture. */
-    public baseTexture: BaseTexture;
+    public textureSource: TextureSource;
 
     /**
      * A map containing all textures of the sprite sheet.
-     * Can be used to create a {@link PIXI.Sprite|Sprite}:
+     * Can be used to create a {@link Sprite|Sprite}:
      * @example
      * import { Sprite } from 'pixi.js';
      *
      * new Sprite(sheet.textures['image.png']);
      */
-    public textures: utils.Dict<Texture>;
+    public textures: Record<keyof S['frames'], Texture>;
 
     /**
      * A map containing the textures for each animation.
-     * Can be used to create an {@link PIXI.AnimatedSprite|AnimatedSprite}:
+     * Can be used to create an {@link AnimatedSprite|AnimatedSprite}:
      * @example
      * import { AnimatedSprite } from 'pixi.js';
      *
      * new AnimatedSprite(sheet.animations['anim_name']);
      */
-    public animations: utils.Dict<Texture[]>;
+    public animations: Record<keyof NonNullable<S['animations']>, Texture[]>;
 
     /**
      * Reference to the original JSON data.
      * @type {object}
      */
-    public data: ISpritesheetData;
+    public data: S;
 
     /** The resolution of the spritesheet. */
     public resolution: number;
@@ -164,10 +239,10 @@ export class Spritesheet
      * Map of spritesheet frames.
      * @type {object}
      */
-    private _frames: utils.Dict<ISpritesheetFrameData>;
+    private _frames: S['frames'];
 
     /** Collection of frame names. */
-    private _frameKeys: string[];
+    private _frameKeys: (keyof S['frames'])[];
 
     /** Current batch index being processed. */
     private _batchIndex: number;
@@ -176,26 +251,32 @@ export class Spritesheet
      * Callback when parse is completed.
      * @type {Function}
      */
-    private _callback: (textures: utils.Dict<Texture>) => void;
+    private _callback: (textures: Dict<Texture>) => void;
 
     /**
      * @param texture - Reference to the source BaseTexture object.
      * @param {object} data - Spritesheet image data.
-     * @param resolutionFilename - The filename to consider when determining
-     *        the resolution of the spritesheet. If not provided, the imageUrl will
-     *        be used on the BaseTexture.
      */
-    constructor(texture: BaseTexture | Texture, data: ISpritesheetData, resolutionFilename: string = null)
+    constructor(texture: BindableTexture, data: S)
     {
         this._texture = texture instanceof Texture ? texture : null;
-        this.baseTexture = texture instanceof BaseTexture ? texture : this._texture.baseTexture;
-        this.textures = {};
-        this.animations = {};
+        this.textureSource = texture.source;
+        this.textures = {} as Record<keyof S['frames'], Texture>;
+        this.animations = {} as Record<keyof NonNullable<S['animations']>, Texture[]>;
         this.data = data;
 
-        const resource = this.baseTexture.resource as ImageResource;
+        const metaResolution = parseFloat(data.meta.scale as string);
 
-        this.resolution = this._updateResolution(resolutionFilename || (resource ? resource.url : null));
+        if (metaResolution)
+        {
+            this.resolution = metaResolution;
+            texture.source.resolution = this.resolution;
+        }
+        else
+        {
+            this.resolution = texture.source._resolution;
+        }
+
         this._frames = this.data.frames;
         this._frameKeys = Object.keys(this._frames);
         this._batchIndex = 0;
@@ -203,41 +284,10 @@ export class Spritesheet
     }
 
     /**
-     * Generate the resolution from the filename or fallback
-     * to the meta.scale field of the JSON data.
-     * @param resolutionFilename - The filename to use for resolving
-     *        the default resolution.
-     * @returns Resolution to use for spritesheet.
-     */
-    private _updateResolution(resolutionFilename: string = null): number
-    {
-        const { scale } = this.data.meta;
-
-        // Use a defaultValue of `null` to check if a url-based resolution is set
-        let resolution = utils.getResolutionOfUrl(resolutionFilename, null);
-
-        // No resolution found via URL
-        if (resolution === null)
-        {
-            // Use the scale value or default to 1
-            resolution = parseFloat(scale ?? '1');
-        }
-
-        // For non-1 resolutions, update baseTexture
-        if (resolution !== 1)
-        {
-            this.baseTexture.setResolution(resolution);
-        }
-
-        return resolution;
-    }
-
-    /**
      * Parser spritesheet from loaded data. This is done asynchronously
      * to prevent creating too many Texture within a single process.
-     * @method PIXI.Spritesheet#parse
      */
-    public parse(): Promise<utils.Dict<Texture>>
+    public parse(): Promise<Record<string, Texture>>
     {
         return new Promise((resolve) =>
         {
@@ -316,18 +366,18 @@ export class Spritesheet
                     );
                 }
 
-                this.textures[i] = new Texture(
-                    this.baseTexture,
+                this.textures[i] = new Texture({
+                    source: this.textureSource,
+
                     frame,
                     orig,
                     trim,
-                    data.rotated ? 2 : 0,
-                    data.anchor,
-                    data.borders
-                );
+                    rotate: data.rotated ? 2 : 0,
+                    defaultAnchor: data.anchor,
+                    defaultBorders: data.borders,
 
-                // lets also add the frame to pixi's global cache for 'from' and 'fromLoader' functions
-                Texture.addToCache(this.textures[i], i);
+                    label: i.toString(),
+                });
             }
 
             frameIndex++;
@@ -341,7 +391,7 @@ export class Spritesheet
 
         for (const animName in animations)
         {
-            this.animations[animName] = [];
+            this.animations[animName as keyof S['animations']] = [];
             for (let i = 0; i < animations[animName].length; i++)
             {
                 const frameName = animations[animName][i];
@@ -397,10 +447,10 @@ export class Spritesheet
         if (destroyBase)
         {
             this._texture?.destroy();
-            this.baseTexture.destroy();
+            this.textureSource.destroy();
         }
         this._texture = null;
-        this.baseTexture = null;
+        this.textureSource = null;
         this.linkedSheets = [];
     }
 }

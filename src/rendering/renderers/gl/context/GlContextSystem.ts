@@ -296,6 +296,13 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 vertexAttribDivisorANGLE: gl.getExtension('ANGLE_instanced_arrays'),
                 srgb: gl.getExtension('EXT_sRGB'),
             };
+
+            const provokeExt = gl.getExtension('WEBGL_provoking_vertex');
+
+            if (provokeExt)
+            {
+                provokeExt.provokingVertexWEBGL(provokeExt.FIRST_VERTEX_CONVENTION_WEBGL);
+            }
         }
         else
         {

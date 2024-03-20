@@ -1,32 +1,34 @@
 {
     "compilerOptions": {
-        "sourceMap": true,
-        "inlineSources": true,
+        "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"],
+        "target": "es2020",
+        "lib": ["ESNext", "DOM", "WebWorker"],
         "module": "ESNext",
-        "target": "ES2021",
-        "moduleResolution": "node",
-        "esModuleInterop": true,
+        "allowJs": false,
+        "removeComments": false,
+        "strict": true,
         "noImplicitAny": true,
-        "strict": false,
-        "preserveConstEnums": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": false,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
         "downlevelIteration": true,
-        "baseUrl": "./",
-        "paths": {
-            "@vaux/*": [
-                "./src/*"
-            ],
-            "vauxcel": [
-                "./src"
-            ]
-        },
-        "plugins": [
-            // Source Transformer: 'type' defaults to 'program'
-            {
-                "transform": "ts-transform-paths"
-            }
-        ]
+        "skipDefaultLibCheck": true,
     },
-    "include": [
-        "src/**/*"
-    ]
+    "exclude": [
+        "node_modules",
+        "**/dist/**",
+        "**/lib/**",
+        "**/out/**"
+    ],
+    "ts-node": {
+        "files": true,
+        "compilerOptions": {
+            "esModuleInterop": true,
+            "module": "commonjs"
+        }
+    }
 }

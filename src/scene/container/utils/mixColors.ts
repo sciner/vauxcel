@@ -1,15 +1,25 @@
 import { mixHexColors } from './mixHexColors';
 
-const WHITE_BGR = 0xFFFFFF;
+const WHITE_WHITE = 0xFFFFFF + (0xFFFFFF << 32);
 
 export function mixColors(localBGRColor: number, parentBGRColor: number)
 {
-    if (localBGRColor === WHITE_BGR || parentBGRColor === WHITE_BGR)
+    if (localBGRColor + (parentBGRColor << 32) !== WHITE_WHITE)
     {
-        return localBGRColor + parentBGRColor - WHITE_BGR;
+        // color has changed!
+        if (localBGRColor === 0xFFFFFF)
+        {
+            return parentBGRColor;
+        }
+        else if (parentBGRColor === 0xFFFFFF)
+        {
+            return localBGRColor;
+        }
+
+        return mixHexColors(localBGRColor, parentBGRColor, 0.5);
     }
 
-    return mixHexColors(localBGRColor, parentBGRColor, 0.5);
+    return 0xFFFFFF;
 }
 
 export function mixStandardAnd32BitColors(localColorRGB: number, localAlpha: number, parentColor: number)
@@ -23,15 +33,24 @@ export function mixStandardAnd32BitColors(localColorRGB: number, localAlpha: num
 
     const parentBGRColor = parentColor & 0x00FFFFFF;
 
-    let sharedBGRColor: number;
+    let sharedBGRColor = 0xFFFFFF;
 
-    if (localBGRColor === WHITE_BGR || parentBGRColor === WHITE_BGR)
+    if (localBGRColor + (parentBGRColor << 32) !== WHITE_WHITE)
     {
-        sharedBGRColor = localBGRColor + parentBGRColor - WHITE_BGR;
-    }
-    else
-    {
-        sharedBGRColor = mixHexColors(localBGRColor, parentBGRColor, 0.5);
+        // color has changed!
+        if (localBGRColor === 0xFFFFFF)
+        {
+            sharedBGRColor = parentBGRColor;
+        }
+        else if (parentBGRColor === 0xFFFFFF)
+        {
+            sharedBGRColor = localBGRColor;
+        }
+
+        else
+        {
+            sharedBGRColor = mixHexColors(localBGRColor, parentBGRColor, 0.5);
+        }
     }
 
     return sharedBGRColor + (globalAlpha << 24);

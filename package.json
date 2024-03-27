@@ -7,7 +7,9 @@
   "types": "lib/index.d.ts",
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "src",
+    "types"
   ],
   "scripts": {
     "prepare": "husky install",

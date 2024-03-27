@@ -16,7 +16,6 @@
     "start": "run-s watch",
     "clean": "run-s clean:*",
     "clean:build": "rimraf \"{lib,dist,out}\" --glob",
-    "clean:index": "rimraf \"src/*/**/index.ts\" --glob",
     "clean:uploads": "rimraf .pr_uploads .s3_uploads --glob",
     "prebuild": "npm run clean",
     "build": "run-s build:index build:pkg build:rollup build:tsc build:dts",

@@ -21,6 +21,7 @@ directories.forEach((directory) =>
             // these shouldn't be exported as the webworker plugin will handle them
             '**/*.worker.ts',
             '**/colord/*.ts',
+            '**/index.ts'
         ],
     });
 

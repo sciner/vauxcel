@@ -25,7 +25,6 @@
     "build:dts": "ts-node --transpile-only ./scripts/types/fixTypes.ts && copyfiles -u 1 \"src/**/*.d.ts\" lib/",
     "build:pkg": "ts-node ./scripts/utils/exports.ts",
     "prewatch": "npm run build",
-    "postbuild": "rimraf \"src/*/**/index.ts\" --glob",
     "watch": "nodemon --watch \"./src/*\" --exec \"npm run watch:build\" -e ts,js,vert,frag,wgsl,d.ts --ignore \"index.ts\"",
     "watch:lib": "cross-env LIB_ONLY=1 nodemon --watch \"./src/*\" --exec \"npm run watch:build\" -e ts,js,vert,frag,wgsl,d.ts --ignore \"index.ts\"",
     "watch:build": "run-s build:index build:rollup build:tsc build:dts postbuild",
@@ -52,9 +51,7 @@
   "dependencies": {
     "@types/css-font-loading-module": "^0.0.12",
     "@types/earcut": "^2.1.4",
-    "@webgpu/types": "^0.1.40",
-    "@xmldom/xmldom": "^0.8.10",
-    "parse-svg-path": "^0.1.2"
+    "@webgpu/types": "^0.1.40"
   },
   "devDependencies": {
     "@pixi/eslint-config": "^5.1.0",

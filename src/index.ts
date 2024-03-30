@@ -2,7 +2,6 @@
 // @ts-nocheck - we dynamically create the other index files, so these will throw errors if we don't ignore them
 
 import { browserExt } from './environment-browser/browserExt';
-import { webworkerExt } from './environment-webworker/webworkerExt';
 import { extensions } from './extensions/Extensions';
 import './rendering/init';
 import './spritesheet/init';
@@ -27,4 +26,4 @@ export * from './spritesheet';
 export * from './ticker';
 export * from './utils';
 
-extensions.add(browserExt, webworkerExt);
+extensions.add(browserExt);

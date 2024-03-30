@@ -24,4 +24,5 @@ export * from './path';
 export * from './pool/Pool';
 export * from './pool/PoolGroup';
 export * from './sayHello';
+export * from './svg/parse_svg_path';
 export * from './types';

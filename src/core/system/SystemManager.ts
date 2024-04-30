@@ -1,8 +1,8 @@
-import { Runner } from '@vaux/runner';
-import { EventEmitter } from '@vaux/utils';
+import { Runner } from '@vaux/runner.js';
+import { EventEmitter } from '@vaux/utils/index.js';
 
-import type { IRenderer } from '../IRenderer';
-import type { ISystem, ISystemConstructor } from './ISystem';
+import type { IRenderer } from '../IRenderer.js';
+import type { ISystem, ISystemConstructor } from './ISystem.js';
 
 interface ISystemConfig<R>
 {

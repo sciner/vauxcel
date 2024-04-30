@@ -1,8 +1,8 @@
-import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@vaux/constants';
-import { Runner } from '@vaux/runner';
-import { BaseTexture } from '../textures/BaseTexture';
+import { BaseTexture } from '../textures/BaseTexture.js';
+import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@vaux/constants.js';
+import { Runner } from '@vaux/runner.js';
 
-import type { GLFramebuffer } from './GLFramebuffer';
+import type { GLFramebuffer } from './GLFramebuffer.js';
 
 /**
  * A framebuffer can be used to render contents off of the screen. {@link PIXI.BaseRenderTexture} uses

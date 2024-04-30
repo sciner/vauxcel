@@ -1,7 +1,7 @@
-import { uniformParsers } from './uniformParsers';
+import { uniformParsers } from './uniformParsers.js';
 
-import type { Dict } from '@vaux/utils';
-import type { UniformGroup } from '../UniformGroup';
+import type { UniformGroup } from '../UniformGroup.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 export type UniformsSyncCallback = (...args: any[]) => void;
 

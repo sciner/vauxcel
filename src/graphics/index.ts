@@ -13,16 +13,15 @@ import {
     QuadraticUtils,
 } from './utils';
 
-import type { SHAPES } from '@vaux/core';
-import type { BatchDrawCall } from '@vaux/core/';
-import type { IShapeBuildCommand } from './utils/IShapeBuildCommand';
+import type { IShapeBuildCommand } from './utils/IShapeBuildCommand.js';
+import type { BatchDrawCall, SHAPES } from '@vaux/core/index.js';
 
-export * from './const';
-export * from './Graphics';
-export * from './GraphicsData';
-export * from './GraphicsGeometry';
-export * from './styles/FillStyle';
-export * from './styles/LineStyle';
+export * from './const.js';
+export * from './Graphics.js';
+export * from './GraphicsData.js';
+export * from './GraphicsGeometry.js';
+export * from './styles/FillStyle.js';
+export * from './styles/LineStyle.js';
 
 export const graphicsUtils = {
     buildPoly: buildPoly as IShapeBuildCommand,

@@ -1,5 +1,5 @@
-import { settings, utils } from '@vaux/core';
-import { Container } from './Container';
+import { Container } from './Container.js';
+import { settings, utils } from '@vaux/core/index.js';
 
 Object.defineProperties(settings, {
     /**

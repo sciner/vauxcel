@@ -1,6 +1,6 @@
-import { BaseImageResource } from './BaseImageResource';
+import { BaseImageResource } from './BaseImageResource.js';
 
-import type { ICanvas } from '@vaux/settings';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Resource type for HTMLCanvasElement and OffscreenCanvas.

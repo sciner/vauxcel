@@ -1,5 +1,5 @@
-import './settings';
+import './settings.js';
 
-export * from './const';
-export * from './Ticker';
-export * from './TickerPlugin';
+export * from './const.js';
+export * from './Ticker.js';
+export * from './TickerPlugin.js';

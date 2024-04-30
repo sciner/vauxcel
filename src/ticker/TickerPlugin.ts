@@ -1,8 +1,8 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { UPDATE_PRIORITY } from './const';
-import { Ticker } from './Ticker';
+import { UPDATE_PRIORITY } from './const.js';
+import { Ticker } from './Ticker.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 export interface TickerPluginOptions
 {

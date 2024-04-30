@@ -1,8 +1,8 @@
-import { DEG_TO_RAD, RAD_TO_DEG, Rectangle, Transform, utils } from '@vaux/core';
-import { Bounds } from './Bounds';
+import { Bounds } from './Bounds.js';
+import { DEG_TO_RAD, RAD_TO_DEG, Rectangle, Transform, utils } from '@vaux/core/index.js';
 
-import type { Filter, IPointData, MaskData, Matrix, ObservablePoint, Point, Renderer } from '@vaux/core';
-import type { Container } from './Container';
+import type { Container } from './Container.js';
+import type { Filter, IPointData, MaskData, Matrix, ObservablePoint, Point, Renderer } from '@vaux/core/index.js';
 
 export interface IDestroyOptions
 {

@@ -1,11 +1,11 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { Matrix, Rectangle } from '@vaux/math';
-import { settings } from '@vaux/settings';
-import { AbstractMaskSystem } from './AbstractMaskSystem';
+import { AbstractMaskSystem } from './AbstractMaskSystem.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Matrix, Rectangle } from '@vaux/math/index.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Renderer } from '../Renderer';
-import type { MaskData } from './MaskData';
+import type { Renderer } from '../Renderer.js';
+import type { MaskData } from './MaskData.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const tempMatrix = new Matrix();
 const rectPool: Rectangle[] = [];

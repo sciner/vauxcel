@@ -1,2 +1,2 @@
-export * from './HTMLText';
-export * from './HTMLTextStyle';
+export * from './HTMLText.js';
+export * from './HTMLTextStyle.js';

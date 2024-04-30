@@ -1,5 +1,5 @@
-import { Matrix } from './Matrix';
-import { ObservablePoint } from './ObservablePoint';
+import { Matrix } from './Matrix.js';
+import { ObservablePoint } from './ObservablePoint.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Transform extends GlobalMixins.Transform {}

@@ -1,7 +1,7 @@
-import { SHAPES } from '../const';
-import { Point } from '../Point';
+import { SHAPES } from '../const.js';
+import { Point } from '../Point.js';
 
-import type { Matrix } from '../Matrix';
+import type { Matrix } from '../Matrix.js';
 
 const tempPoints = [new Point(), new Point(), new Point(), new Point()];
 

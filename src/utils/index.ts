@@ -15,7 +15,7 @@
  * @namespace PIXI.utils
  */
 
-import './settings';
+import './settings.js';
 
 /**
  * A simple JS library that detects mobile devices.
@@ -44,7 +44,7 @@ import './settings';
  * @property {boolean} windows.tablet - `true` if any Windows tablet
  * @property {boolean} windows.phone - `true` if any Windows phone
  */
-export { isMobile } from './is_mobile';
+export { isMobile } from './is_mobile/index.js';
 
 /**
  * A high performance event emitter
@@ -52,7 +52,7 @@ export { isMobile } from './is_mobile';
  * @memberof PIXI.utils
  * @class EventEmitter
  */
-export { EventEmitter } from './event_emitter';
+export { EventEmitter } from './event_emitter.js';
 
 /**
  * A polygon triangulation library
@@ -64,7 +64,7 @@ export { EventEmitter } from './event_emitter';
  * @param {number} [dimensions=2] - The number of coordinates per vertex in the input array
  * @returns {number[]} Triangulated polygon
  */
-export { earcut } from './earcut';
+export { earcut } from './earcut.js';
 
 /**
  * Browser and Node.js compatible path utilities.
@@ -73,29 +73,29 @@ export { earcut } from './earcut';
  * @name path
  * @member {object}
  */
-export * from './path';
+export * from './path.js';
 
 // Other exports
-export * from './browser/detectVideoAlphaMode';
-export * from './browser/hello';
-export * from './browser/isWebGLSupported';
-export * from './color/hex';
-export * from './color/premultiply';
-export * from './const';
-export * from './data/createIndicesForQuads';
-export * from './data/getBufferType';
-export * from './data/interleaveTypedArrays';
-export * from './data/pow2';
-export * from './data/removeItems';
-export * from './data/sign';
-export * from './data/uid';
-export * from './logging/deprecation';
-export * from './media/BoundingBox';
-export * from './media/caches';
-export * from './media/CanvasRenderTarget';
-export * from './media/getCanvasBoundingBox';
-export * from './media/trimCanvas';
-export * from './network/decomposeDataUri';
-export * from './network/determineCrossOrigin';
-export * from './network/getResolutionOfUrl';
-export * from './types';
+export * from './browser/detectVideoAlphaMode.js';
+export * from './browser/hello.js';
+export * from './browser/isWebGLSupported.js';
+export * from './color/hex.js';
+export * from './color/premultiply.js';
+export * from './const.js';
+export * from './data/createIndicesForQuads.js';
+export * from './data/getBufferType.js';
+export * from './data/interleaveTypedArrays.js';
+export * from './data/pow2.js';
+export * from './data/removeItems.js';
+export * from './data/sign.js';
+export * from './data/uid.js';
+export * from './logging/deprecation.js';
+export * from './media/BoundingBox.js';
+export * from './media/caches.js';
+export * from './media/CanvasRenderTarget.js';
+export * from './media/getCanvasBoundingBox.js';
+export * from './media/trimCanvas.js';
+export * from './network/decomposeDataUri.js';
+export * from './network/determineCrossOrigin.js';
+export * from './network/getResolutionOfUrl.js';
+export * from './types.js';

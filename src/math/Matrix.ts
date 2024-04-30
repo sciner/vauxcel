@@ -1,8 +1,8 @@
-import { PI_2 } from './const';
-import { Point } from './Point';
+import { PI_2 } from './const.js';
+import { Point } from './Point.js';
 
-import type { IPointData } from './IPointData';
-import type { Transform } from './Transform';
+import type { IPointData } from './IPointData.js';
+import type { Transform } from './Transform.js';
 
 /**
  * The PixiJS Matrix as a class makes it a lot faster.

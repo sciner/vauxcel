@@ -1,3 +1,8 @@
+import { curves, LINE_CAP, LINE_JOIN } from './const.js';
+import { GraphicsGeometry } from './GraphicsGeometry.js';
+import { FillStyle } from './styles/FillStyle.js';
+import { LineStyle } from './styles/LineStyle.js';
+import { ArcUtils, BezierUtils, QuadraticUtils } from './utils/index.js';
 import {
     BLEND_MODES,
     Circle,
@@ -15,15 +20,10 @@ import {
     Texture,
     UniformGroup,
 } from '@vaux/core';
-import { Container } from '@vaux/display';
-import { curves, LINE_CAP, LINE_JOIN } from './const';
-import { GraphicsGeometry } from './GraphicsGeometry';
-import { FillStyle } from './styles/FillStyle';
-import { LineStyle } from './styles/LineStyle';
-import { ArcUtils, BezierUtils, QuadraticUtils } from './utils';
+import { Container } from '@vaux/display/index.js';
 
-import type { BatchDrawCall, ColorSource, IPointData, IShape, Renderer } from '@vaux/core';
-import type { IDestroyOptions } from '@vaux/display';
+import type { BatchDrawCall, ColorSource, IPointData, IShape, Renderer } from '@vaux/core/index.js';
+import type { IDestroyOptions } from '@vaux/display/index.js';
 
 /**
  * Batch element computed from Graphics geometry.
@@ -773,14 +773,14 @@ export class Graphics extends Container
             points = poly.points;
         }
         else
-        if (Array.isArray(path[0]))
-        {
-            points = path[0];
-        }
-        else
-        {
-            points = path;
-        }
+            if (Array.isArray(path[0]))
+            {
+                points = path[0];
+            }
+            else
+            {
+                points = path;
+            }
 
         const shape = new Polygon(points);
 

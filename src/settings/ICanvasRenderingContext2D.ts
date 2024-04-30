@@ -1,4 +1,4 @@
-import type { ICanvas } from './ICanvas';
+import type { ICanvas } from './ICanvas.js';
 
 /**
  * Common interface for CanvasRenderingContext2D, OffscreenCanvasRenderingContext2D, and other custom canvas 2D context.
@@ -28,6 +28,6 @@ export interface ICanvasRenderingContext2D extends
     drawImage(image: CanvasImageSource | ICanvas, sx: number, sy: number, sw: number, sh: number,
         dx: number, dy: number, dw: number, dh: number): void;
 
-    letterSpacing?: string;
+    letterSpacing: string;
     textLetterSpacing?: string; // For Chrome < 94
 }

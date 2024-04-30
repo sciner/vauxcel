@@ -1,7 +1,7 @@
-import { BUFFER_TYPE } from '@vaux/constants';
-import { Runner } from '@vaux/runner';
+import { BUFFER_TYPE } from '@vaux/constants.js';
+import { Runner } from '@vaux/runner.js';
 
-import type { GLBuffer } from './GLBuffer';
+import type { GLBuffer } from './GLBuffer.js';
 
 let UID = 0;
 /* eslint-disable max-len */

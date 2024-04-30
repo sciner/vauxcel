@@ -1,4 +1,4 @@
-import { Geometry } from '../geometry/Geometry';
+import { Geometry } from '../geometry/Geometry.js';
 
 /**
  * Helper class to create a quad

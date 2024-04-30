@@ -1,4 +1,4 @@
-import { FORMATS, TYPES } from '@vaux/constants';
+import { FORMATS, TYPES } from '@vaux/constants.js';
 
 /**
  * Internal texture for WebGL context.

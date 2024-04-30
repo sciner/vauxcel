@@ -1,6 +1,6 @@
-import { Rectangle } from '@vaux/core';
+import { Rectangle } from '@vaux/core/index.js';
 
-import type { IPointData, Matrix, Transform } from '@vaux/core';
+import type { IPointData, Matrix, Transform } from '@vaux/core/index.js';
 
 /**
  * 'Builder' pattern for bounds rectangles.

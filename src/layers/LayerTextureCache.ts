@@ -1,7 +1,8 @@
-import type { LayerPass } from './LayerPass';
-import { RenderTexture, Renderer } from '@vaux/core';
-import { Rectangle, Matrix } from '@vaux/math';
-import { settings } from '@vaux/settings';
+import { Renderer, RenderTexture } from '@vaux/core/index.js';
+import { Matrix, Rectangle } from '@vaux/math/index.js';
+import { settings } from '@vaux/settings/index.js';
+
+import type { LayerPass } from './LayerPass.js';
 
 /**
  * This manages the render-texture a {@link Layer} renders into.

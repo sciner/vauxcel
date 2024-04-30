@@ -1,8 +1,8 @@
 // disabling eslint for now, going to rewrite this in v5
 /* eslint-disable */
 
-import { TEXT_GRADIENT } from './const';
-import { Color } from '@vaux/core';
+import { TEXT_GRADIENT } from './const.js';
+import { Color } from '@vaux/core/index.js';
 
 export type TextStyleAlign = 'left'|'center'|'right'|'justify';
 export type TextStyleFill = string|string[]|number|number[]|CanvasGradient|CanvasPattern;

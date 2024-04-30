@@ -1,11 +1,11 @@
-import { BLEND_MODES } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { State } from './State';
-import { mapWebGLBlendModesToPixi } from './utils/mapWebGLBlendModesToPixi';
+import { State } from './State.js';
+import { mapWebGLBlendModesToPixi } from './utils/mapWebGLBlendModesToPixi.js';
+import { BLEND_MODES } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { ISystem } from '../system/ISystem';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const BLEND = 0;
 const OFFSET = 1;

@@ -1,7 +1,7 @@
-import { DRAW_MODES } from '@vaux/constants';
+import { DRAW_MODES } from '@vaux/constants.js';
 
-import type { BLEND_MODES } from '@vaux/constants';
-import type { BatchTextureArray } from './BatchTextureArray';
+import type { BatchTextureArray } from './BatchTextureArray.js';
+import type { BLEND_MODES } from '@vaux/constants.js';
 
 /**
  * Used by the batcher to draw batches.

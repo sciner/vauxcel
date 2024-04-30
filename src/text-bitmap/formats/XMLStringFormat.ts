@@ -1,7 +1,7 @@
-import { settings } from '@vaux/core';
-import { XMLFormat } from './XMLFormat';
+import { XMLFormat } from './XMLFormat.js';
+import { settings } from '@vaux/core/index.js';
 
-import type { BitmapFontData } from '../BitmapFontData';
+import type { BitmapFontData } from '../BitmapFontData.js';
 
 /**
  * BitmapFont format that's XML-based.

@@ -1,9 +1,9 @@
-import { BUFFER_TYPE } from '@vaux/constants';
-import { Buffer } from '../geometry/Buffer';
+import { Buffer } from '../geometry/Buffer.js';
+import { BUFFER_TYPE } from '@vaux/constants.js';
 
-import type { Dict } from '@vaux/utils';
-import type { UniformsSyncCallback } from './utils';
-import type { Renderer } from '../Renderer';
+import type { Renderer } from '../Renderer.js';
+import type { UniformsSyncCallback } from './utils/index.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 let UID = 0;
 

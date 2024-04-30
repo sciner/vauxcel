@@ -1,6 +1,6 @@
-import { Texture } from '@vaux/core';
+import { Texture } from '@vaux/core/index.js';
 
-import type { Matrix } from '@vaux/core';
+import type { Matrix } from '@vaux/core/index.js';
 
 /**
  * Fill style object for Graphics.

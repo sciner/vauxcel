@@ -1,10 +1,10 @@
-import { ALPHA_MODES } from '@vaux/constants';
-import { determineCrossOrigin } from '@vaux/utils';
-import { Resource } from './Resource';
+import { Resource } from './Resource.js';
+import { ALPHA_MODES } from '@vaux/constants.js';
+import { determineCrossOrigin } from '@vaux/utils/index.js';
 
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture, ImageSource } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture, ImageSource } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
 
 /**
  * Base for all the image/canvas resources.

@@ -1,9 +1,9 @@
-import { Point, SHAPES } from '@vaux/core';
-import { curves, LINE_CAP, LINE_JOIN } from '../const';
+import { curves, LINE_CAP, LINE_JOIN } from '../const.js';
+import { Point, SHAPES } from '@vaux/core/index.js';
 
-import type { Polygon } from '@vaux/core';
-import type { GraphicsData } from '../GraphicsData';
-import type { GraphicsGeometry } from '../GraphicsGeometry';
+import type { GraphicsData } from '../GraphicsData.js';
+import type { GraphicsGeometry } from '../GraphicsGeometry.js';
+import type { Polygon } from '@vaux/core/index.js';
 
 /**
  * Buffers vertices to draw a square cap.

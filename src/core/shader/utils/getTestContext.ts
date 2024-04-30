@@ -1,5 +1,5 @@
-import { ENV } from '@vaux/constants';
-import { settings } from '@vaux/settings';
+import { ENV } from '@vaux/constants.js';
+import { settings } from '@vaux/settings/index.js';
 
 const unknownContext = {};
 let context: WebGLRenderingContext | WebGL2RenderingContext = unknownContext as any;

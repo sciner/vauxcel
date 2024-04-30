@@ -1,11 +1,11 @@
-import { MASK_TYPES } from '@vaux/constants';
-import { Filter } from '../filters/Filter';
+import { Filter } from '../filters/Filter.js';
+import { MASK_TYPES } from '@vaux/constants.js';
 
-import type { MSAA_QUALITY } from '@vaux/constants';
-import type { Matrix, Rectangle } from '@vaux/math';
-import type { IFilterTarget } from '../filters/IFilterTarget';
-import type { ISpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter';
-import type { Renderer } from '../Renderer';
+import type { IFilterTarget } from '../filters/IFilterTarget.js';
+import type { ISpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter.js';
+import type { Renderer } from '../Renderer.js';
+import type { MSAA_QUALITY } from '@vaux/constants.js';
+import type { Matrix, Rectangle } from '@vaux/math/index.js';
 
 export interface IMaskTarget extends IFilterTarget
 {

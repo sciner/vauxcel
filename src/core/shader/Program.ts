@@ -1,11 +1,35 @@
-import { PRECISION } from '@vaux/constants';
-import { isMobile, ProgramCache } from '@vaux/utils';
-import defaultFragment from './defaultProgram.frag';
-import defaultVertex from './defaultProgram.vert';
+import { PRECISION } from '@vaux/constants.js';
+import { isMobile, ProgramCache } from '@vaux/utils/index.js';
 
-import type { GLProgram } from './GLProgram';
+import type { GLProgram } from './GLProgram.js';
 
 let UID = 0;
+
+const defaultFragment = `#version 100
+
+varying vec2 vTextureCoord;
+
+uniform sampler2D uSampler;
+
+void main(void){
+   gl_FragColor *= texture2D(uSampler, vTextureCoord);
+}
+`;
+
+const defaultVertex = `#version 100
+
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+uniform mat3 projectionMatrix;
+
+varying vec2 vTextureCoord;
+
+void main(void){
+   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+   vTextureCoord = aTextureCoord;
+}
+`;
 
 export interface IAttributeData
 {

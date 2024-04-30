@@ -1,10 +1,10 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { settings } from '@vaux/settings';
-import { AbstractMaskSystem } from './AbstractMaskSystem';
+import { AbstractMaskSystem } from './AbstractMaskSystem.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Renderer } from '../Renderer';
-import type { IMaskTarget, MaskData } from './MaskData';
+import type { Renderer } from '../Renderer.js';
+import type { IMaskTarget, MaskData } from './MaskData.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage stencils (used for masks).

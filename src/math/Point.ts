@@ -1,5 +1,5 @@
-import type { IPoint } from './IPoint';
-import type { IPointData } from './IPointData';
+import type { IPoint } from './IPoint.js';
+import type { IPointData } from './IPointData.js';
 
 export interface Point extends GlobalMixins.Point, IPoint {}
 

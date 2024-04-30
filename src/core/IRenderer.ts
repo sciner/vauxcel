@@ -1,10 +1,7 @@
-import type { MSAA_QUALITY, RENDERER_TYPE } from '@vaux/constants';
-import type { Matrix, Rectangle, Transform } from '@vaux/math';
-import type { ICanvas } from '@vaux/settings';
-import type { IRendererPlugins } from './plugin/PluginSystem';
-import type { IGenerateTextureOptions } from './renderTexture/GenerateTextureSystem';
-import type { RenderTexture } from './renderTexture/RenderTexture';
-import type { SystemManager } from './system/SystemManager';
+import type { IRendererPlugins } from './plugin/PluginSystem.js';
+import type { IGenerateTextureOptions } from './renderTexture/GenerateTextureSystem.js';
+import type { RenderTexture } from './renderTexture/RenderTexture.js';
+import type { SystemManager } from './system/SystemManager.js';
 import type {
     BackgroundSystem,
     BackgroundSystemOptions,
@@ -12,7 +9,10 @@ import type {
     StartupSystemOptions,
     ViewSystemOptions,
 } from './systems';
-import type { ImageSource } from './textures/BaseTexture';
+import type { ImageSource } from './textures/BaseTexture.js';
+import type { MSAA_QUALITY, RENDERER_TYPE } from '@vaux/constants.js';
+import type { Matrix, Rectangle, Transform } from '@vaux/math/index.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Interface for DisplayObject to interface with Renderer.

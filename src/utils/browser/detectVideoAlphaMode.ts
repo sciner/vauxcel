@@ -1,4 +1,4 @@
-import { ALPHA_MODES } from '@vaux/constants';
+import { ALPHA_MODES } from '@vaux/constants.js';
 
 let promise: Promise<ALPHA_MODES> | undefined;
 

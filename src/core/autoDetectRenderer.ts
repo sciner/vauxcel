@@ -1,7 +1,7 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ICanvas } from '@vaux/settings';
-import type { IRenderer, IRendererOptions } from './IRenderer';
+import type { IRenderer, IRendererOptions } from './IRenderer.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Renderer options supplied to `autoDetectRenderer`.

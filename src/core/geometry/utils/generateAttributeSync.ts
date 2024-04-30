@@ -1,9 +1,10 @@
-import { TYPES } from '@vaux/constants';
-import type { Attribute } from '../Attribute';
-import type { Buffer } from '../Buffer';
-import type { Geometry } from '../Geometry';
-import { IRenderingContext } from '../../IRenderer';
-import { BufferSystem } from '../BufferSystem';
+import { IRenderingContext } from '../../IRenderer.js';
+import { BufferSystem } from '../BufferSystem.js';
+import { TYPES } from '@vaux/constants.js';
+
+import type { Attribute } from '../Attribute.js';
+import type { Buffer } from '../Buffer.js';
+import type { Geometry } from '../Geometry.js';
 
 export type AttributeBaseCallback = (gl: IRenderingContext, locations: number[], baseInstance: number,
     bufferSystem?: BufferSystem, buffers?: Buffer[], lastBuffer?: Buffer)

@@ -1,8 +1,8 @@
-import { BLEND_MODES, Color, ObservablePoint, Point, Rectangle, settings, Texture, utils } from '@vaux/core';
-import { Bounds, Container } from '@vaux/display';
+import { BLEND_MODES, Color, ObservablePoint, Point, Rectangle, settings, Texture, utils } from '@vaux/core/index.js';
+import { Bounds, Container } from '@vaux/display/index.js';
 
-import type { ColorSource, IBaseTextureOptions, IPointData, Renderer, TextureSource } from '@vaux/core';
-import type { IDestroyOptions } from '@vaux/display';
+import type { ColorSource, IBaseTextureOptions, IPointData, Renderer, TextureSource } from '@vaux/core/index.js';
+import type { IDestroyOptions } from '@vaux/display/index.js';
 
 const tempPoint = new Point();
 const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
@@ -48,18 +48,6 @@ export class Sprite extends Container
      * @default 'batch'
      */
     public pluginName: string;
-
-    /**
-     * The width of the sprite (this is initially set by the texture).
-     * @protected
-     */
-    _width: number;
-
-    /**
-     * The height of the sprite (this is initially set by the texture)
-     * @protected
-     */
-    _height: number;
 
     /**
      * The texture that the sprite is using.

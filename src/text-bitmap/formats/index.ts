@@ -1,6 +1,6 @@
-import { TextFormat } from './TextFormat';
-import { XMLFormat } from './XMLFormat';
-import { XMLStringFormat } from './XMLStringFormat';
+import { TextFormat } from './TextFormat.js';
+import { XMLFormat } from './XMLFormat.js';
+import { XMLStringFormat } from './XMLStringFormat.js';
 
 // Registered formats, maybe make this extensible in the future?
 const formats = [
@@ -28,5 +28,5 @@ export function autoDetectFormat(data: unknown): typeof formats[number] | null
     return null;
 }
 
-export type { IBitmapFontRawData } from './TextFormat';
+export type { IBitmapFontRawData } from './TextFormat.js';
 export { TextFormat, XMLFormat, XMLStringFormat };

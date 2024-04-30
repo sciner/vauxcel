@@ -55,50 +55,36 @@ declare namespace GlobalMixins
         /** @deprecated since 7.1.0 */
         FILTER_RESOLUTION: number;
         /** @deprecated since 7.1.0 */
-        FILTER_MULTISAMPLE: import('vauxcel').MSAA_QUALITY;
+        FILTER_MULTISAMPLE: import('@sciner/vauxcel').MSAA_QUALITY;
         /** @deprecated since 7.1.0 */
         SPRITE_MAX_TEXTURES: number;
         /** @deprecated since 7.1.0 */
         SPRITE_BATCH_SIZE: number;
         /** @deprecated since 7.1.0 */
-        MIPMAP_TEXTURES: import('vauxcel').MIPMAP_MODES;
+        MIPMAP_TEXTURES: import('@sciner/vauxcel').MIPMAP_MODES;
         /** @deprecated since 7.1.0 */
         ANISOTROPIC_LEVEL: number;
         /** @deprecated since 7.1.0 */
-        WRAP_MODE: import('vauxcel').WRAP_MODES;
+        WRAP_MODE: import('@sciner/vauxcel').WRAP_MODES;
         /** @deprecated since 7.1.0 */
-        SCALE_MODE: import('vauxcel').SCALE_MODES;
+        SCALE_MODE: import('@sciner/vauxcel').SCALE_MODES;
         /** @deprecated since 7.1.0 */
         CAN_UPLOAD_SAME_BUFFER: boolean;
         /** @deprecated since 7.1.0 */
-        PRECISION_VERTEX: import('vauxcel').PRECISION,
+        PRECISION_VERTEX: import('@sciner/vauxcel').PRECISION,
         /** @deprecated since 7.1.0 */
-        PRECISION_FRAGMENT: import('vauxcel').PRECISION,
+        PRECISION_FRAGMENT: import('@sciner/vauxcel').PRECISION,
         /** @deprecated since 7.1.0 */
-        GC_MODE: import('vauxcel').GC_MODES,
+        GC_MODE: import('@sciner/vauxcel').GC_MODES,
         /** @deprecated since 7.1.0 */
         GC_MAX_IDLE: number,
         /** @deprecated since 7.1.0 */
         GC_MAX_CHECK_COUNT: number,
 
-        RENDER_OPTIONS: import('vauxcel').IRendererOptions;
+        RENDER_OPTIONS: import('@sciner/vauxcel').IRendererOptions;
         STRICT_TEXTURE_CACHE: boolean;
-        PREFER_ENV: import('vauxcel').ENV;
+        PREFER_ENV: import('@sciner/vauxcel').ENV;
     }
-}
-
-// general
-
-declare module '*.frag' {
-    const value: string;
-
-    export default value;
-}
-
-declare module '*.vert' {
-    const value: string;
-
-    export default value;
 }
 
 // settings
@@ -166,7 +152,7 @@ declare namespace GlobalMixins
 {
     interface Application
     {
-        ticker: import('vauxcel').Ticker;
+        ticker: import('@sciner/vauxcel').Ticker;
         stop(): void;
         start(): void;
     }
@@ -247,7 +233,7 @@ declare namespace GlobalMixins
 {
     interface IBitmapFontResource
     {
-        bitmapFont: import('vauxcel').BitmapFont;
+        bitmapFont: import('@sciner/vauxcel').BitmapFont;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface

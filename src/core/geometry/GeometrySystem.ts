@@ -1,22 +1,24 @@
-import { BUFFER_TYPE, ENV } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { settings } from '@vaux/settings';
+import { Buffer } from './Buffer.js';
+import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation.js';
+import { GeometryPerGL, GeometryPerShader } from './Geometry.js';
+import { BUFFER_TYPE, ENV } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { DRAW_MODES } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Dict } from '@vaux/utils';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { Program } from '../shader/Program';
-import type { Shader } from '../shader/Shader';
-import type { ISystem } from '../system/ISystem';
-import type { Geometry } from './Geometry';
-import { GeometryPerGL, GeometryPerShader } from './Geometry';
-import { Buffer } from './Buffer';
-import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { Program } from '../shader/Program.js';
+import type { Shader } from '../shader/Shader.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { Geometry } from './Geometry.js';
+import type { DRAW_MODES } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+import type { Dict } from '@vaux/utils/index.js';
 
-const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1,
-    5125: 4, 5124: 4, 5122: 2, 5120: 1 };
+const byteSizeMap: {[key: number]: number} = {
+    5126: 4, 5123: 2, 5121: 1,
+    5125: 4, 5124: 4, 5122: 2, 5120: 1
+};
 
 /**
  * System plugin to the renderer to manage geometry.
@@ -173,10 +175,10 @@ export class GeometrySystem implements ISystem
             geometry.glVertexArrayObjects[CONTEXT_UID] = glGeom = new GeometryPerGL(CONTEXT_UID);
         }
         else
-        if (glGeom.bufRefCount === 0)
-        {
-            this.regenVao(geometry, glGeom);
-        }
+            if (glGeom.bufRefCount === 0)
+            {
+                this.regenVao(geometry, glGeom);
+            }
 
         const gps = glGeom.bySignature[shader.program.id] || this.initGeometryVao(geometry, shader, glGeom);
 

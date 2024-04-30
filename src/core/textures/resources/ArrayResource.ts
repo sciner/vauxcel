@@ -1,11 +1,11 @@
-import { TARGETS } from '@vaux/constants';
-import { AbstractMultiResource } from './AbstractMultiResource';
+import { AbstractMultiResource } from './AbstractMultiResource.js';
+import { TARGETS } from '@vaux/constants.js';
 
-import type { ISize } from '@vaux/math';
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
-import type { BaseImageResource } from './BaseImageResource';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
+import type { BaseImageResource } from './BaseImageResource.js';
+import type { ISize } from '@vaux/math/index.js';
 
 /**
  * A resource that contains a number of sources.

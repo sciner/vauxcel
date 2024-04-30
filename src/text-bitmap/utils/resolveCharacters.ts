@@ -1,4 +1,4 @@
-import { splitTextToCharacters } from './splitTextToCharacters';
+import { splitTextToCharacters } from './splitTextToCharacters.js';
 
 /**
  * Processes the passed character set data and returns a flattened array of all the characters.

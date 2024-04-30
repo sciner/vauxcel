@@ -1,5 +1,5 @@
-import { LINE_CAP, LINE_JOIN } from '../const';
-import { FillStyle } from './FillStyle';
+import { LINE_CAP, LINE_JOIN } from '../const.js';
+import { FillStyle } from './FillStyle.js';
 
 /**
  * Represents the line style for Graphics.

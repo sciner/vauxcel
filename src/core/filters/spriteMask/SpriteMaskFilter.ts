@@ -1,16 +1,63 @@
-import { Matrix } from '@vaux/math';
-import { TextureMatrix } from '../../textures/TextureMatrix';
-import { Filter } from '../Filter';
-import fragment from './spriteMaskFilter.frag';
-import vertex from './spriteMaskFilter.vert';
+import { TextureMatrix } from '../../textures/TextureMatrix.js';
+import { Filter } from '../Filter.js';
+import { Matrix } from '@vaux/math/index.js';
 
-import type { CLEAR_MODES } from '@vaux/constants';
-import type { Point } from '@vaux/math';
-import type { Dict } from '@vaux/utils';
-import type { IMaskTarget } from '../../mask/MaskData';
-import type { RenderTexture } from '../../renderTexture/RenderTexture';
-import type { Texture } from '../../textures/Texture';
-import type { FilterSystem } from '../FilterSystem';
+import type { IMaskTarget } from '../../mask/MaskData.js';
+import type { RenderTexture } from '../../renderTexture/RenderTexture.js';
+import type { Texture } from '../../textures/Texture.js';
+import type { FilterSystem } from '../FilterSystem.js';
+import type { CLEAR_MODES } from '@vaux/constants.js';
+import type { Point } from '@vaux/math/index.js';
+import type { Dict } from '@vaux/utils/index.js';
+
+const fragment = `#version 100
+
+varying vec2 vMaskCoord;
+varying vec2 vTextureCoord;
+
+uniform sampler2D uSampler;
+uniform sampler2D mask;
+uniform float alpha;
+uniform float npmAlpha;
+uniform vec4 maskClamp;
+
+void main(void)
+{
+    float clip = step(3.5,
+        step(maskClamp.x, vMaskCoord.x) +
+        step(maskClamp.y, vMaskCoord.y) +
+        step(vMaskCoord.x, maskClamp.z) +
+        step(vMaskCoord.y, maskClamp.w));
+
+    vec4 original = texture2D(uSampler, vTextureCoord);
+    vec4 masky = texture2D(mask, vMaskCoord);
+    float alphaMul = 1.0 - npmAlpha * (1.0 - masky.a);
+
+    original *= (alphaMul * masky.r * alpha * clip);
+
+    gl_FragColor = original;
+}
+`;
+
+const vertex = `#version 100
+
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+uniform mat3 projectionMatrix;
+uniform mat3 otherMatrix;
+
+varying vec2 vMaskCoord;
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+
+    vTextureCoord = aTextureCoord;
+    vMaskCoord = ( otherMatrix * vec3( aTextureCoord, 1.0)  ).xy;
+}
+`;
 
 export interface ISpriteMaskTarget extends IMaskTarget
 {

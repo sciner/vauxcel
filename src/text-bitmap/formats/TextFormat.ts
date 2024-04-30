@@ -1,4 +1,4 @@
-import { BitmapFontData } from '../BitmapFontData';
+import { BitmapFontData } from '../BitmapFontData.js';
 
 /**
  * Internal data format used to convert to BitmapFontData.

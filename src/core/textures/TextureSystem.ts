@@ -1,19 +1,19 @@
-import { MIPMAP_MODES, SAMPLER_TYPES, SCALE_MODES, WRAP_MODES } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { removeItems } from '@vaux/utils';
-import { BaseTexture } from './BaseTexture';
-import { GLTexture } from './GLTexture';
-import { mapInternalFormatToSamplerType } from './utils/mapInternalFormatToSamplerType';
+import { BaseTexture } from './BaseTexture.js';
+import { GLTexture } from './GLTexture.js';
+import { mapInternalFormatToSamplerType } from './utils/mapInternalFormatToSamplerType.js';
+import { MIPMAP_MODES, SAMPLER_TYPES, SCALE_MODES, WRAP_MODES } from '@vaux/constants.js';
+import { mapFormatToGlFormat } from '@vaux/core/textures/utils/mapFormatToGlFormat.js';
+import { mapFormatToGlInternalFormat } from '@vaux/core/textures/utils/mapFormatToGlInternalFormat.js';
+import { mapFormatToGlType } from '@vaux/core/textures/utils/mapFormatToGlType.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { removeItems } from '@vaux/utils/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { Texture } from './Texture';
-import type { Texture3D } from './Texture3D';
-import { mapFormatToGlInternalFormat } from '@vaux/core/textures/utils/mapFormatToGlInternalFormat';
-import { mapFormatToGlType } from '@vaux/core/textures/utils/mapFormatToGlType';
-import { mapFormatToGlFormat } from '@vaux/core/textures/utils/mapFormatToGlFormat';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { Texture } from './Texture.js';
+import type { Texture3D } from './Texture3D.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage textures.

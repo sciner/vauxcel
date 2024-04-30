@@ -5,7 +5,7 @@
  * Like a signal:
  *
  * ```js
- * import { Runner } from '@vaux/runner';
+ * import { Runner } from '@vaux/runner.js';
  *
  * const myObject = {
  *     loaded: new Runner('loaded'),
@@ -25,7 +25,7 @@
  * Or for handling calling the same function on many items:
  *
  * ```js
- * import { Runner } from '@vaux/runner';
+ * import { Runner } from '@vaux/runner.js';
  *
  * const myGame = {
  *     update: new Runner('update'),
@@ -107,7 +107,7 @@ export class Runner
      * E.g. A listener passed to this Runner will require a 'complete' function.
      *
      * ```js
-     * import { Runner } from '@vaux/runner';
+     * import { Runner } from '@vaux/runner.js';
      *
      * const complete = new Runner('complete');
      * ```

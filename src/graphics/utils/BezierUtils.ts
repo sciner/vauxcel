@@ -1,4 +1,4 @@
-import { curves } from '../const';
+import { curves } from '../const.js';
 
 /**
  * Utilities for bezier curves

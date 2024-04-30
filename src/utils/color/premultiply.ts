@@ -1,6 +1,6 @@
-import { Color } from '@vaux/color';
-import { BLEND_MODES } from '@vaux/constants';
-import { deprecation } from '../logging/deprecation';
+import { deprecation } from '../logging/deprecation.js';
+import { Color } from '@vaux/color/Color.js';
+import { BLEND_MODES } from '@vaux/constants.js';
 
 /**
  * Corrects PixiJS blend, takes premultiplied alpha into account

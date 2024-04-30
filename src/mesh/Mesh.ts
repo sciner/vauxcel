@@ -1,10 +1,10 @@
-import { DRAW_MODES, Point, Polygon, settings, State } from '@vaux/core';
-import { Container } from '@vaux/display';
-import { MeshBatchUvs } from './MeshBatchUvs';
+import { MeshBatchUvs } from './MeshBatchUvs.js';
+import { DRAW_MODES, Point, Polygon, settings, State } from '@vaux/core/index.js';
+import { Container } from '@vaux/display/index.js';
 
-import type { BLEND_MODES, Buffer, ColorSource, Geometry, IPointData, Renderer, Shader, Texture } from '@vaux/core';
-import type { IDestroyOptions } from '@vaux/display';
-import type { MeshMaterial } from './MeshMaterial';
+import type { MeshMaterial } from './MeshMaterial.js';
+import type { BLEND_MODES, Buffer, ColorSource, Geometry, IPointData, Renderer, Shader, Texture } from '@vaux/core/index.js';
+import type { IDestroyOptions } from '@vaux/display/index.js';
 
 const tempPoint = new Point();
 const tempPolygon = new Polygon();

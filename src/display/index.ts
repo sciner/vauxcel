@@ -1,5 +1,5 @@
 import './settings';
 
-export * from './Bounds';
-export * from './Container';
-export * from './DisplayObject';
+export * from './Bounds.js';
+export * from './Container.js';
+export * from './DisplayObject.js';

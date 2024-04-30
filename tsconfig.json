@@ -2,9 +2,9 @@
     "compilerOptions": {
         "sourceMap": true,
         "inlineSources": true,
-        "module": "ESNext",
-        "target": "ES2021",
-        "moduleResolution": "node",
+        "module": "node16",
+        "target": "ES2022",
+        "moduleResolution": "node16",
         "esModuleInterop": true,
         "noImplicitAny": true,
         "strict": false,
@@ -15,7 +15,7 @@
             "@vaux/*": [
                 "./src/*"
             ],
-            "vauxcel": [
+            "@sciner/vauxcel": [
                 "./src"
             ]
         },

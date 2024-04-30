@@ -1,8 +1,8 @@
-import { Runner } from '@vaux/runner';
+import { Runner } from '@vaux/runner.js';
 
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
 
 /**
  * Base resource class for textures that manages validation and uploading, depending on its type.

@@ -1,8 +1,8 @@
-import { Color } from '@vaux/core';
-import { generateFillStyle } from './generateFillStyle';
+import { generateFillStyle } from './generateFillStyle.js';
+import { Color } from '@vaux/core/index.js';
 
-import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/core';
-import type { TextMetrics, TextStyle } from '@vaux/text';
+import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/core/index.js';
+import type { TextMetrics, TextStyle } from '@vaux/text/index.js';
 
 // TODO: Prevent code duplication b/w drawGlyph & Text#updateText
 

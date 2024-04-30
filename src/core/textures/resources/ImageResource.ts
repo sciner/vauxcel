@@ -1,10 +1,10 @@
-import { ALPHA_MODES } from '@vaux/constants';
-import { settings } from '@vaux/settings';
-import { BaseImageResource } from './BaseImageResource';
+import { BaseImageResource } from './BaseImageResource.js';
+import { ALPHA_MODES } from '@vaux/constants.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
 
 export interface IImageResourceOptions
 {

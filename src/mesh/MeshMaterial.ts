@@ -1,8 +1,38 @@
-import { Color, Matrix, Program, Shader, TextureMatrix } from '@vaux/core';
-import fragment from './shader/mesh.frag';
-import vertex from './shader/mesh.vert';
+import { Color, Matrix, Program, Shader, TextureMatrix } from '@vaux/core/index.js';
 
-import type { ColorSource, Texture, utils } from '@vaux/core';
+import type { ColorSource, Texture, utils } from '@vaux/core/index.js';
+
+const fragment = `#version 100
+
+varying vec2 vTextureCoord;
+uniform vec4 uColor;
+
+uniform sampler2D uSampler;
+
+void main(void)
+{
+    gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;
+}
+`;
+
+const vertex = `#version 100
+
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+uniform mat3 projectionMatrix;
+uniform mat3 translationMatrix;
+uniform mat3 uTextureMatrix;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+
+    vTextureCoord = (uTextureMatrix * vec3(aTextureCoord, 1.0)).xy;
+}
+`;
 
 export interface IMeshMaterialOptions
 {

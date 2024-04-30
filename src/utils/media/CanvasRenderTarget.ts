@@ -1,6 +1,6 @@
-import { settings } from '@vaux/settings';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/settings';
+import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/settings/index.js';
 
 /**
  * Creates a Canvas element of the given size to be used as a target for rendering to.

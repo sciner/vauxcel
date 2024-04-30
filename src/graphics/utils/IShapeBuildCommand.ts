@@ -1,5 +1,5 @@
-import type { GraphicsData } from '../GraphicsData';
-import type { GraphicsGeometry } from '../GraphicsGeometry';
+import type { GraphicsData } from '../GraphicsData.js';
+import type { GraphicsGeometry } from '../GraphicsGeometry.js';
 
 export interface IShapeBuildCommand
 {

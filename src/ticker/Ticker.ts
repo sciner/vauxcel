@@ -1,5 +1,5 @@
-import { UPDATE_PRIORITY } from './const';
-import { TickerListener } from './TickerListener';
+import { UPDATE_PRIORITY } from './const.js';
+import { TickerListener } from './TickerListener.js';
 
 export type TickerCallback<T> = (this: T, dt: number) => any;
 

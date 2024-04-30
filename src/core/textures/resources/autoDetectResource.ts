@@ -1,9 +1,9 @@
-import type { ISize } from '@vaux/math';
-import type { ICubeResourceOptions } from './CubeResource';
-import type { IImageResourceOptions } from './ImageResource';
-import type { Resource } from './Resource';
-import type { ISVGResourceOptions } from './SVGResource';
-import type { IVideoResourceOptions } from './VideoResource';
+import type { ICubeResourceOptions } from './CubeResource.js';
+import type { IImageResourceOptions } from './ImageResource.js';
+import type { Resource } from './Resource.js';
+import type { ISVGResourceOptions } from './SVGResource.js';
+import type { IVideoResourceOptions } from './VideoResource.js';
+import type { ISize } from '@vaux/math/index.js';
 
 /*
  * Allow flexible options for resource plugins

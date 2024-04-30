@@ -1,10 +1,10 @@
-import { MSAA_QUALITY } from '@vaux/constants';
-import { nextPow2 } from '@vaux/utils';
-import { BaseRenderTexture } from './BaseRenderTexture';
-import { RenderTexture } from './RenderTexture';
+import { BaseRenderTexture } from './BaseRenderTexture.js';
+import { RenderTexture } from './RenderTexture.js';
+import { MSAA_QUALITY } from '@vaux/constants.js';
+import { nextPow2 } from '@vaux/utils/index.js';
 
-import type { ISize } from '@vaux/math';
-import type { IBaseTextureOptions } from '../textures/BaseTexture';
+import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { ISize } from '@vaux/math/index.js';
 
 /**
  * Texture pool, used by FilterSystem and plugins.

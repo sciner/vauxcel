@@ -1,13 +1,13 @@
 /* eslint max-depth: [2, 8] */
-import { Color, Rectangle, settings, Texture, utils } from '@vaux/core';
-import { Sprite } from '@vaux/sprite';
-import { TEXT_GRADIENT } from './const';
-import { TextMetrics } from './TextMetrics';
-import { TextStyle } from './TextStyle';
+import { TEXT_GRADIENT } from './const.js';
+import { TextMetrics } from './TextMetrics.js';
+import { TextStyle } from './TextStyle.js';
+import { Color, Rectangle, settings, Texture, utils } from '@vaux/core/index.js';
+import { Sprite } from '@vaux/sprite.js';
 
-import type { ICanvas, ICanvasRenderingContext2D, Renderer } from '@vaux/core';
-import type { IDestroyOptions } from '@vaux/display';
-import type { ITextStyle } from './TextStyle';
+import type { ITextStyle } from './TextStyle.js';
+import type { ICanvas, ICanvasRenderingContext2D, Renderer } from '@vaux/core/index.js';
+import type { IDestroyOptions } from '@vaux/display/index.js';
 
 const defaultDestroyOptions: IDestroyOptions = {
     texture: true,

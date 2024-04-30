@@ -1,12 +1,12 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { DRAW_MODES } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { Shader } from '../shader/Shader';
-import type { ISystem } from '../system/ISystem';
-import type { TransformFeedback } from './TransformFeedback';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { Shader } from '../shader/Shader.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { TransformFeedback } from './TransformFeedback.js';
+import type { DRAW_MODES } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * TransformFeedbackSystem provides TransformFeedback of WebGL2

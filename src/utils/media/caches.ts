@@ -1,4 +1,4 @@
-import type { BaseTexture, Program, Texture } from '@vaux/core';
+import type { BaseTexture, Program, Texture } from '@vaux/core/index.js';
 
 /**
  * @todo Describe property usage

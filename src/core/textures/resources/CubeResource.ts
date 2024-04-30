@@ -1,12 +1,12 @@
-import { TARGETS } from '@vaux/constants';
-import { AbstractMultiResource } from './AbstractMultiResource';
+import { AbstractMultiResource } from './AbstractMultiResource.js';
+import { TARGETS } from '@vaux/constants.js';
 
-import type { ISize } from '@vaux/math';
-import type { ArrayFixed } from '@vaux/utils';
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
-import type { Resource } from './Resource';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
+import type { Resource } from './Resource.js';
+import type { ISize } from '@vaux/math/index.js';
+import type { ArrayFixed } from '@vaux/utils/index.js';
 
 /**
  * Constructor options for CubeResource.
@@ -27,7 +27,7 @@ export interface ICubeResourceOptions extends ISize
  */
 export class CubeResource extends AbstractMultiResource
 {
-    items: ArrayFixed<BaseTexture, 6>;
+    declare items: ArrayFixed<BaseTexture, 6>;
 
     /**
      * In case BaseTextures are supplied, whether to use same resource or bind baseTexture itself.

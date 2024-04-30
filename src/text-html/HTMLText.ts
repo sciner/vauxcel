@@ -1,11 +1,11 @@
-import { Rectangle, settings, Texture, utils } from '@vaux/core';
-import { Sprite } from '@vaux/sprite';
-import { TextStyle } from '@vaux/text';
-import { HTMLTextStyle } from './HTMLTextStyle';
+import { HTMLTextStyle } from './HTMLTextStyle.js';
+import { Rectangle, settings, Texture, utils } from '@vaux/core/index.js';
+import { Sprite } from '@vaux/sprite.js';
+import { TextStyle } from '@vaux/text/index.js';
 
-import type { ImageResource, IRenderer, ISize, Renderer } from '@vaux/core';
-import type { IDestroyOptions } from '@vaux/display';
-import type { ITextStyle } from '@vaux/text';
+import type { ImageResource, IRenderer, ISize, Renderer } from '@vaux/core/index.js';
+import type { IDestroyOptions } from '@vaux/display/index.js';
+import type { ITextStyle } from '@vaux/text/index.js';
 
 /**
  * Alternative to {@link PIXI.Text|Text} but supports multi-style HTML text. There are

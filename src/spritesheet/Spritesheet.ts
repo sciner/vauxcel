@@ -1,6 +1,6 @@
-import { BaseTexture, Rectangle, Texture, utils } from '@vaux/core';
+import { BaseTexture, Rectangle, Texture, utils } from '@vaux/core/index.js';
 
-import type { ImageResource, IPointData, ITextureBorders } from '@vaux/core';
+import type { ImageResource, IPointData, ITextureBorders } from '@vaux/core/index.js';
 
 /**
  * Represents the JSON data for a spritesheet atlas.

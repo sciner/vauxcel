@@ -1,9 +1,9 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { deprecation } from '@vaux/utils';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { deprecation } from '@vaux/utils/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderer } from '../IRenderer';
-import type { ISystem } from '../system/ISystem';
+import type { IRenderer } from '../IRenderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 export interface IRendererPlugins extends GlobalMixins.IRendererPlugins
 {

@@ -1,5 +1,5 @@
-import type { Dict } from '@vaux/utils';
-import type { IRenderingContext } from '../../IRenderer';
+import type { IRenderingContext } from '../../IRenderer.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 // var GL_MAP = {};
 

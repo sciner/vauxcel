@@ -1,4 +1,4 @@
-import type { Renderer } from '../Renderer';
+import type { Renderer } from '../Renderer.js';
 
 /**
  * Interface for systems used by the {@link PIXI.Renderer}.

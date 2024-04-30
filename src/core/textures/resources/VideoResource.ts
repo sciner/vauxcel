@@ -1,7 +1,7 @@
-import { Ticker } from '@vaux/ticker';
-import { BaseImageResource } from './BaseImageResource';
+import { BaseImageResource } from './BaseImageResource.js';
+import { Ticker } from '@vaux/ticker/index.js';
 
-import type { Dict } from '@vaux/utils';
+import type { Dict } from '@vaux/utils/index.js';
 
 export interface IVideoResourceOptions
 {
@@ -24,7 +24,7 @@ export interface IVideoResourceOptionsElement
 export class VideoResource extends BaseImageResource
 {
     /** Override the source to be the video element. */
-    public source: HTMLVideoElement;
+    declare source: HTMLVideoElement;
 
     /**
      * `true` to use Ticker.shared to auto update the base texture.

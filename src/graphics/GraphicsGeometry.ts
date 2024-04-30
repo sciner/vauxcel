@@ -1,3 +1,10 @@
+import { GraphicsData } from './GraphicsData.js';
+import {
+    BATCH_POOL, BatchPart, buildLine,
+    buildPoly,
+    DRAW_CALL_POOL,
+    FILL_COMMANDS
+} from './utils';
 import {
     BaseTexture,
     BatchDrawCall,
@@ -8,18 +15,11 @@ import {
     Point,
     WRAP_MODES
 } from '@vaux/core';
-import { Bounds } from '@vaux/display';
-import { GraphicsData } from './GraphicsData';
-import {
-    BATCH_POOL, BatchPart, buildLine,
-    buildPoly,
-    DRAW_CALL_POOL,
-    FILL_COMMANDS
-} from './utils';
+import { Bounds } from '@vaux/display/index.js';
 
-import type { IPointData, IShape, Matrix, Texture } from '@vaux/core';
-import type { FillStyle } from './styles/FillStyle';
-import type { LineStyle } from './styles/LineStyle';
+import type { FillStyle } from './styles/FillStyle.js';
+import type { LineStyle } from './styles/LineStyle.js';
+import type { IPointData, IShape, Matrix, Texture } from '@vaux/core/index.js';
 
 const tmpPoint = new Point();
 

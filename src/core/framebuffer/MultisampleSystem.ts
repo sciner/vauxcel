@@ -1,10 +1,10 @@
-import { MSAA_QUALITY } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
+import { MSAA_QUALITY } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System that manages the multisample property on the WebGL renderer

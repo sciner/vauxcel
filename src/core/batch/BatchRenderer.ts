@@ -1,27 +1,62 @@
-import { Color } from '@vaux/color';
-import { ENV } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { settings } from '@vaux/settings';
-import { deprecation, log2, nextPow2, premultiplyBlendMode } from '@vaux/utils';
-import { ViewableBuffer } from '../geometry/ViewableBuffer';
-import { checkMaxIfStatementsInShader } from '../shader/utils/checkMaxIfStatementsInShader';
-import { State } from '../state/State';
-import { BaseTexture } from '../textures/BaseTexture';
-import { BatchDrawCall } from './BatchDrawCall';
-import { BatchGeometry } from './BatchGeometry';
-import { BatchShaderGenerator } from './BatchShaderGenerator';
-import { BatchTextureArray } from './BatchTextureArray';
-import { canUploadSameBuffer } from './canUploadSameBuffer';
-import { maxRecommendedTextures } from './maxRecommendedTextures';
-import { ObjectRenderer } from './ObjectRenderer';
-import defaultFragment from './texture.frag';
-import defaultVertex from './texture.vert';
+import { ViewableBuffer } from '../geometry/ViewableBuffer.js';
+import { checkMaxIfStatementsInShader } from '../shader/utils/checkMaxIfStatementsInShader.js';
+import { State } from '../state/State.js';
+import { BaseTexture } from '../textures/BaseTexture.js';
+import { BatchDrawCall } from './BatchDrawCall.js';
+import { BatchGeometry } from './BatchGeometry.js';
+import { BatchShaderGenerator } from './BatchShaderGenerator.js';
+import { BatchTextureArray } from './BatchTextureArray.js';
+import { canUploadSameBuffer } from './canUploadSameBuffer.js';
+import { maxRecommendedTextures } from './maxRecommendedTextures.js';
+import { ObjectRenderer } from './ObjectRenderer.js';
+import { Color } from '@vaux/color/Color.js';
+import { ENV } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { settings } from '@vaux/settings/index.js';
+import { deprecation, log2, nextPow2, premultiplyBlendMode } from '@vaux/utils/index.js';
 
-import type { BLEND_MODES } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Renderer } from '../Renderer';
-import type { Shader } from '../shader/Shader';
-import type { Texture } from '../textures/Texture';
+import type { Renderer } from '../Renderer.js';
+import type { Shader } from '../shader/Shader.js';
+import type { Texture } from '../textures/Texture.js';
+import type { BLEND_MODES } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+
+const defaultFragment = `#version 100
+
+varying vec2 vTextureCoord;
+varying vec4 vColor;
+varying float vTextureId;
+uniform sampler2D uSamplers[%count%];
+
+void main(void){
+    vec4 color;
+    %forloop%
+    gl_FragColor = color * vColor;
+}`;
+
+const defaultVertex = `#version 100
+precision highp float;
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+attribute vec4 aColor;
+attribute float aTextureId;
+
+uniform mat3 projectionMatrix;
+uniform mat3 translationMatrix;
+uniform vec4 tint;
+
+varying vec2 vTextureCoord;
+varying vec4 vColor;
+varying float vTextureId;
+
+void main(void){
+    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+
+    vTextureCoord = aTextureCoord;
+    vTextureId = aTextureId;
+    vColor = aColor * tint;
+}
+`;
 
 /**
  * Interface for elements like Sprite, Mesh etc. for batching.

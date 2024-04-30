@@ -1,11 +1,11 @@
-import { Color } from '@vaux/color';
-import { MIPMAP_MODES, MSAA_QUALITY } from '@vaux/constants';
-import { Framebuffer } from '../framebuffer/Framebuffer';
-import { BaseTexture } from '../textures/BaseTexture';
+import { Framebuffer } from '../framebuffer/Framebuffer.js';
+import { BaseTexture } from '../textures/BaseTexture.js';
+import { Color } from '@vaux/color/Color.js';
+import { MIPMAP_MODES, MSAA_QUALITY } from '@vaux/constants.js';
 
-import type { ColorSource } from '@vaux/color';
-import type { MaskData } from '../mask/MaskData';
-import type { IBaseTextureOptions } from '../textures/BaseTexture';
+import type { MaskData } from '../mask/MaskData.js';
+import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { ColorSource } from '@vaux/color/Color.js';
 
 export interface BaseRenderTexture extends GlobalMixins.BaseRenderTexture, BaseTexture {}
 

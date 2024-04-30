@@ -1,11 +1,11 @@
-import { GC_MODES } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
+import { GC_MODES } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Renderer } from '../Renderer';
-import type { RenderTexture } from '../renderTexture/RenderTexture';
-import type { ISystem } from '../system/ISystem';
-import type { Texture } from './Texture';
+import type { Renderer } from '../Renderer.js';
+import type { RenderTexture } from '../renderTexture/RenderTexture.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { Texture } from './Texture.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 export interface IUnloadableTexture
 {

@@ -1,6 +1,6 @@
-import { BrowserAdapter } from './adapter';
+import { BrowserAdapter } from './adapter.js';
 
-import type { IAdapter } from './adapter';
+import type { IAdapter } from './adapter.js';
 
 interface ISettings
 {

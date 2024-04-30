@@ -1,2 +1,2 @@
-export * from './Spritesheet';
-// export * from './spritesheetAsset';
+export * from './Spritesheet.js';
+// export * from './spritesheetAsset.js';

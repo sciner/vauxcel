@@ -1,12 +1,12 @@
-import { MASK_TYPES } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { SpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter';
-import { MaskData } from './MaskData';
+import { SpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter.js';
+import { MaskData } from './MaskData.js';
+import { MASK_TYPES } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { IMaskTarget } from './MaskData';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { IMaskTarget } from './MaskData.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage masks.

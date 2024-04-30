@@ -1,5 +1,5 @@
 {
-  "name": "vauxcel",
+  "name": "@sciner/vauxcel",
   "version": "0.1.37",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
@@ -26,7 +26,7 @@
     "namespace": "VAUX",
     "mainLib": true,
     "docsName": "Vauxcel",
-    "docsCopyright": "Copyright &copy; 2023 - 2023 Ivan Popelyshev, derived from PixiJS",
+    "docsCopyright": "Copyright &copy; 2023 - 2024 Ivan Popelyshev, derived from PixiJS",
     "docsTitle": "Vauxcel API Documentation",
     "docsDescription": "Documentation for Vauxcel rendering library",
     "docsKeyword": "webgpu, rendering, voxel, shader"
@@ -34,7 +34,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://madcraft.io/",
+  "homepage": "https://tesera.io/",
   "bugs": "https://github.com/sciner/vauxcel/issues",
   "license": "MIT",
   "repository": {
@@ -58,6 +58,7 @@
   "files": [
     "dist/",
     "lib/",
+    "src/",
     "global.d.ts"
   ],
   "dependencies": {
@@ -72,7 +73,6 @@
     "@rollup/plugin-typescript": "^11.1.1",
     "chalk": "^5.2.0",
     "clean-package": "^2.2.0",
-    "colord": "=2.9.3",
     "inquirer": "^9.2.3",
     "rollup": "^3.22.0",
     "rollup-plugin-esbuild": "^5.0.0",
@@ -81,6 +81,6 @@
     "semver": "^7.5.1",
     "ts-patch": "=3.0.0-beta3",
     "ts-transform-paths": "=3.0.0",
-    "typescript": "~5.0.4"
+    "typescript": "~5.4.5"
   }
 }

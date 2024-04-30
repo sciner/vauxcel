@@ -1,6 +1,7 @@
-import { PoolItem } from '@vaux/utils/pool/Pool';
-import { Buffer } from './Buffer';
-import type { Renderer } from '../Renderer';
+import { Buffer } from './Buffer.js';
+import { PoolItem } from '@vaux/utils/pool/Pool.js';
+
+import type { Renderer } from '../Renderer.js';
 
 export class BufferCopyOperation implements PoolItem
 {

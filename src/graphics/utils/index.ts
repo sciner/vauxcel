@@ -5,25 +5,25 @@
  */
 
 // for type only
-import { SHAPES } from '@vaux/core';
-import { buildCircle } from './buildCircle';
-import { buildPoly } from './buildPoly';
-import { buildRectangle } from './buildRectangle';
-import { buildRoundedRectangle } from './buildRoundedRectangle';
+import { buildCircle } from './buildCircle.js';
+import { buildPoly } from './buildPoly.js';
+import { buildRectangle } from './buildRectangle.js';
+import { buildRoundedRectangle } from './buildRoundedRectangle.js';
+import { SHAPES } from '@vaux/core/index.js';
 
-import type { BatchDrawCall } from '@vaux/core';
-import type { BatchPart } from './BatchPart';
-import type { IShapeBuildCommand } from './IShapeBuildCommand';
+import type { BatchPart } from './BatchPart.js';
+import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
+import type { BatchDrawCall } from '@vaux/core/index.js';
 
-export * from './ArcUtils';
-export * from './BatchPart';
-export * from './BezierUtils';
-export * from './buildCircle';
-export * from './buildLine';
-export * from './buildPoly';
-export * from './buildRectangle';
-export * from './buildRoundedRectangle';
-export * from './QuadraticUtils';
+export * from './ArcUtils.js';
+export * from './BatchPart.js';
+export * from './BezierUtils.js';
+export * from './buildCircle.js';
+export * from './buildLine.js';
+export * from './buildPoly.js';
+export * from './buildRectangle.js';
+export * from './buildRoundedRectangle.js';
+export * from './QuadraticUtils.js';
 
 /**
  * Map of fill commands for each shape type.

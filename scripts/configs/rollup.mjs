@@ -24,7 +24,7 @@ const banner = [
 
 const builtInPackages = {
     '@vaux': 'VAUX',
-    'vauxcel': 'VAUX'
+    '@sciner/vauxcel': 'VAUX'
 };
 
 // External dependencies, not bundled

@@ -1,4 +1,4 @@
-import { TYPES } from '@vaux/constants';
+import { TYPES } from '@vaux/constants.js';
 
 /* eslint-disable max-len */
 

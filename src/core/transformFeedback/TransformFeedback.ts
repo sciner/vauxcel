@@ -1,6 +1,6 @@
-import { Runner } from '@vaux/runner';
+import { Runner } from '@vaux/runner.js';
 
-import type { Buffer } from '../geometry/Buffer';
+import type { Buffer } from '../geometry/Buffer.js';
 
 /**
  * A TransformFeedback object wrapping GLTransformFeedback object.

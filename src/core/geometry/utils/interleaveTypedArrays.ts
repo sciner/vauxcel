@@ -1,7 +1,7 @@
-import { getBufferType } from '@vaux/utils';
+import { getBufferType } from '@vaux/utils/index.js';
 
-import type { Dict } from '@vaux/utils';
-import type { ITypedArray } from '../Buffer';
+import type { ITypedArray } from '../Buffer.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 /* eslint-disable object-shorthand */
 const map: Dict<any> = {

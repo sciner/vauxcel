@@ -1,16 +1,16 @@
-import { Point, Rectangle } from '@vaux/math';
-import { settings } from '@vaux/settings';
-import { EventEmitter, getResolutionOfUrl, TextureCache, uid } from '@vaux/utils';
-import { BaseTexture } from './BaseTexture';
-import { ImageResource } from './resources/ImageResource';
-import { TextureUvs } from './TextureUvs';
+import { BaseTexture } from './BaseTexture.js';
+import { ImageResource } from './resources/ImageResource.js';
+import { TextureUvs } from './TextureUvs.js';
+import { Point, Rectangle } from '@vaux/math/index.js';
+import { settings } from '@vaux/settings/index.js';
+import { EventEmitter, getResolutionOfUrl, TextureCache, uid } from '@vaux/utils/index.js';
 
-import type { IPointData } from '@vaux/math';
-import type { IBaseTextureOptions, ImageSource } from './BaseTexture';
-import type { BufferResource, BufferType, IBufferResourceOptions } from './resources/BufferResource';
-import type { CanvasResource } from './resources/CanvasResource';
-import type { Resource } from './resources/Resource';
-import type { TextureMatrix } from './TextureMatrix';
+import type { IBaseTextureOptions, ImageSource } from './BaseTexture.js';
+import type { BufferResource, BufferType, IBufferResourceOptions } from './resources/BufferResource.js';
+import type { CanvasResource } from './resources/CanvasResource.js';
+import type { Resource } from './resources/Resource.js';
+import type { TextureMatrix } from './TextureMatrix.js';
+import type { IPointData } from '@vaux/math/index.js';
 
 const DEFAULT_UVS = new TextureUvs();
 

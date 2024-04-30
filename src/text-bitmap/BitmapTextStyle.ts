@@ -1,5 +1,5 @@
-import type { ColorSource } from '@vaux/core';
-import type { TextStyleAlign } from '@vaux/text';
+import type { ColorSource } from '@vaux/core/index.js';
+import type { TextStyleAlign } from '@vaux/text/index.js';
 
 export interface IBitmapTextStyle
 {

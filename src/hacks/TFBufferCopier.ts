@@ -1,4 +1,4 @@
-import { Buffer, Renderer, Program, Shader, Geometry, BufferCopyOperation, IBufferCopier } from '@vaux/core';
+import { Buffer, BufferCopyOperation, Geometry, IBufferCopier, Program, Renderer, Shader } from '@vaux/core/index.js';
 
 const fragment = `#version 300 es
 precision highp float;

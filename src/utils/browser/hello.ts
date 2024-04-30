@@ -1,4 +1,4 @@
-import { deprecation } from '../logging/deprecation';
+import { deprecation } from '../logging/deprecation.js';
 
 /**
  * @function skipHello

@@ -1,7 +1,7 @@
-import { utils } from '@vaux/core';
+import { utils } from '@vaux/core/index.js';
 
-import type { Polygon } from '@vaux/core';
-import type { IShapeBuildCommand } from './IShapeBuildCommand';
+import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
+import type { Polygon } from '@vaux/core/index.js';
 
 function fixOrientation(points: number[], hole = false)
 {

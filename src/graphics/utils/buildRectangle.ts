@@ -1,5 +1,5 @@
-import type { Rectangle } from '@vaux/core';
-import type { IShapeBuildCommand } from './IShapeBuildCommand';
+import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
+import type { Rectangle } from '@vaux/core/index.js';
 
 /**
  * Builds a rectangle to draw

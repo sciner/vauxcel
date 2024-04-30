@@ -1,4 +1,4 @@
-import { FORMATS, TYPES } from '@vaux/constants';
+import { FORMATS, TYPES } from '@vaux/constants.js';
 
 /**
  * Returns a lookup table that maps each type-format pair to a compatible internal format.

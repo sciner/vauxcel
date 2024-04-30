@@ -1,8 +1,8 @@
-import { MASK_TYPES, Matrix, utils } from '@vaux/core';
-import { DisplayObject } from './DisplayObject';
+import { DisplayObject } from './DisplayObject.js';
+import { MASK_TYPES, Matrix, utils } from '@vaux/core/index.js';
 
-import type { MaskData, Rectangle, Renderer } from '@vaux/core';
-import type { IDestroyOptions } from './DisplayObject';
+import type { IDestroyOptions } from './DisplayObject.js';
+import type { MaskData, Rectangle, Renderer } from '@vaux/core/index.js';
 
 const tempMatrix = new Matrix();
 
@@ -90,7 +90,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
      * Will get automatically set to true if a new child is added, or if a child's zIndex changes.
      */
     public sortDirty: boolean;
-    public parent: Container;
+    declare parent: Container;
     public containerUpdateTransform: () => void;
 
     protected _width: number;

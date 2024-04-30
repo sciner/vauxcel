@@ -1,9 +1,9 @@
-import { Runner } from '@vaux/runner';
-import { Program } from './Program';
-import { UniformGroup } from './UniformGroup';
-import { Renderer } from '../Renderer';
+import { Renderer } from '../Renderer.js';
+import { Program } from './Program.js';
+import { UniformGroup } from './UniformGroup.js';
+import { Runner } from '@vaux/runner.js';
 
-import type { Dict } from '@vaux/utils';
+import type { Dict } from '@vaux/utils/index.js';
 
 /**
  * A helper class for shaders.

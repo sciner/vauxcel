@@ -109,12 +109,20 @@ const fixGlobalTypes = async () =>
 
     if (await pathExists(globalTypes))
     {
+        const buffer_global = await promises.readFile(globalTypes, 'utf8');
+        const global_file = path.resolve(process.cwd(), 'lib/global.d.ts');
+
+        await promises.writeFile(global_file, buffer_global.replaceAll(
+            '@sciner/vauxcel',
+            './index.js'
+        ));
+
         const indexFile = path.resolve(process.cwd(), 'lib/index.d.ts');
         const buffer = await promises.readFile(indexFile, 'utf8');
 
         await promises.writeFile(indexFile, buffer.replace(
-            '/// <reference types="global" />',
-            '/// <reference path="../global.d.ts" />'
+            '/// <reference types="global.js" />',
+            '/// <reference path="./global.d.ts" />'
         ));
     }
 };

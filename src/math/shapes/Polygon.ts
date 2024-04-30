@@ -1,6 +1,6 @@
-import { SHAPES } from '../const';
+import { SHAPES } from '../const.js';
 
-import type { IPointData } from '../IPointData';
+import type { IPointData } from '../IPointData.js';
 
 /**
  * A class to define a shape via user defined coordinates.

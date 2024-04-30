@@ -5,7 +5,7 @@ import {
     ISystem,
     Renderer
 } from '@vaux/core';
-import { LayerPass } from '@vaux/layers/LayerPass';
+import { LayerPass } from '@vaux/layers/LayerPass.js';
 
 export class PassSystem implements ISystem
 {

@@ -1,6 +1,6 @@
-import { ISize, Matrix } from '@vaux/math';
-import { Renderer } from '@vaux/core';
-import { LayerTextureCache } from '@vaux/layers/LayerTextureCache';
+import { Renderer } from '@vaux/core/index.js';
+import { LayerTextureCache } from '@vaux/layers/LayerTextureCache.js';
+import { ISize, Matrix } from '@vaux/math/index.js';
 
 export interface ILayerPassOptions
 {

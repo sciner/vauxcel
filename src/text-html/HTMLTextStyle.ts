@@ -1,5 +1,5 @@
-import { settings, utils } from '@vaux/core';
-import { TextStyle } from '@vaux/text';
+import { settings, utils } from '@vaux/core/index.js';
+import { TextStyle } from '@vaux/text/index.js';
 
 import type {
     ITextStyle,
@@ -163,7 +163,7 @@ export class HTMLTextStyle extends TextStyle
      * @param originalStyle
      * @example
      * import {TextStyle } from 'pixi.js';
-     * import {HTMLTextStyle} from '@vaux/text-html';
+     * import {HTMLTextStyle} from '@vaux/text-html.js';
      * const style = new TextStyle();
      * const htmlStyle = HTMLTextStyle.from(style);
      */

@@ -1,20 +1,44 @@
-import { colord, extend } from 'colord';
-import namesPlugin from 'colord/plugins/names';
+import { colord } from './colord/colord.js';
+import { colorParsers } from './colord/colorParse.js';
+import { colorNamesPlugin } from './colord/names.js';
 
-import type {
-    AnyColor,
-    HslaColor,
-    HslColor,
-    HsvaColor,
-    HsvColor,
-    RgbaColor,
-    RgbColor
-} from 'colord/types';
+import type { AnyColor, HslaColor, HslColor, HsvaColor, HsvColor, RgbaColor, RgbColor } from './colord/types.js';
 
-extend([namesPlugin]);
+colorNamesPlugin(colorParsers);
 
 /**
- * Value types for the constructor of {@link PIXI.Color}.
+ * Pixi supports multiple color formats, including CSS color strings, hex, numbers, and arrays.
+ *
+ * When providing values for any of the color properties, you can use any of the {@link color.ColorSource} formats.
+ * ```typescript
+ * import { Color } from 'pixi.js';
+ *
+ * // All of these are valid:
+ * sprite.tint = 'red';
+ * sprite.tint = 0xff0000;
+ * sprite.tint = '#ff0000';
+ * sprite.tint = new Color('red');
+ *
+ * // Same for graphics fill/stroke colors and other  color values:
+ * graphics.fill({ color: 'red' });
+ * graphics.fill({ color: 0xff0000 });
+ * graphics.stroke({ color: '#ff0000' });
+ * graphics.stroke({ color: new Color('red')};
+ * ```
+ * @namespace color
+ */
+
+/**
+ * RGBA color array.
+ *
+ * `[number, number, number, number]`
+ * @memberof color
+ */
+export type RgbaArray = [number, number, number, number];
+
+/**
+ * Valid formats to use when defining any color properties, also valid for the {@link color.Color} constructor.
+ *
  * These types are extended from [colord](https://www.npmjs.com/package/colord) with some PixiJS-specific extensions.
  *
  * Possible value types are:
@@ -45,21 +69,34 @@ extend([namesPlugin]);
  *   `'hsl(0, 100%, 50%)'`, `'hsl(0deg 100% 50%)'`, `'hsla(0, 100%, 50%, 0.5)'`, `'hsla(0deg 100% 50% / 50%)'`, etc.
  * - HSV(A) objects:
  *   `{ h: 0, s: 100, v: 100 }`, `{ h: 0, s: 100, v: 100, a: 0.5 }`, etc.
- * - {@link PIXI.Color} objects.
- * @memberof PIXI
+ * - {@link color.Color} objects.
  * @since 7.2.0
+ * @memberof color
  */
-export type ColorSource = string | number | number[] | Float32Array | Uint8Array | Uint8ClampedArray
-| HslColor | HslaColor | HsvColor | HsvaColor | RgbColor | RgbaColor | Color |
-// eslint-disable-next-line @typescript-eslint/ban-types
-Number;
+export type ColorSource =
+    | string
+    | number
+    | number[]
+    | Float32Array
+    | Uint8Array
+    | Uint8ClampedArray
+    | HslColor
+    | HslaColor
+    | HsvColor
+    | HsvaColor
+    | RgbColor
+    | RgbaColor
+    | Color
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    | Number;
 
 type ColorSourceTypedArray = Float32Array | Uint8Array | Uint8ClampedArray;
 
 /**
- * Color utility class.
- * @example
+ * Color utility class. Can accept any {@link color.ColorSource} format in its constructor.
+ * ```js
  * import { Color } from 'pixi.js';
+ *
  * new Color('red').toArray(); // [1, 0, 0, 1]
  * new Color(0xff0000).toArray(); // [1, 0, 0, 1]
  * new Color('ff0000').toArray(); // [1, 0, 0, 1]
@@ -76,8 +113,9 @@ type ColorSourceTypedArray = Float32Array | Uint8Array | Uint8ClampedArray;
  * new Color({ h: 0, s: 100, l: 50, a: 0.5 }).toArray(); // [1, 0, 0, 0.5]
  * new Color('hsl(0, 100%, 50%, 50%)').toArray(); // [1, 0, 0, 0.5]
  * new Color({ h: 0, s: 100, v: 100, a: 0.5 }).toArray(); // [1, 0, 0, 0.5]
- * @memberof PIXI
+ * ```
  * @since 7.2.0
+ * @memberof color
  */
 export class Color
 {
@@ -87,16 +125,17 @@ export class Color
      * import { Color } from 'pixi.js';
      * Color.shared.setValue(0xffffff).toHex(); // '#ffffff'
      */
-    static readonly shared = new Color();
+    public static readonly shared = new Color();
 
     /**
      * Temporary Color object for static uses internally.
      * As to not conflict with Color.shared.
      * @ignore
      */
-    private static readonly temp = new Color();
+    private static readonly _temp = new Color();
 
     /** Pattern for hex strings */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly HEX_PATTERN = /^(#|0x)?(([a-f0-9]{3}){1,2}([a-f0-9]{2})?)$/i;
 
     /** Internal color source, from constructor or set value */
@@ -108,8 +147,12 @@ export class Color
     /** Cache color as number */
     private _int: number;
 
+    /** An array of the current Color. Only populated when `toArray` functions are called */
+    private _arrayRgba: number[] | null;
+    private _arrayRgb: number[] | null;
+
     /**
-     * @param {PIXI.ColorSource} value - Optional value to use, if not provided, white is used.
+     * @param {ColorSource} value - Optional value to use, if not provided, white is used.
      */
     constructor(value: ColorSource = 0xffffff)
     {
@@ -147,9 +190,9 @@ export class Color
     /**
      * Set the value, suitable for chaining
      * @param value
-     * @see PIXI.Color.value
+     * @see Color.value
      */
-    setValue(value: ColorSource): this
+    public setValue(value: ColorSource): this
     {
         this.value = value;
 
@@ -168,28 +211,27 @@ export class Color
      * must be assignable to its setter's parameter type. Setting `value` to `null` will throw an `Error`.
      *
      * When getting:
-     * - A return value of `null` means the previous value was overridden (e.g., {@link PIXI.Color.multiply multiply},
-     *   {@link PIXI.Color.premultiply premultiply} or {@link PIXI.Color.round round}).
+     * - A return value of `null` means the previous value was overridden (e.g., {@link Color.multiply multiply},
+     *   {@link Color.premultiply premultiply} or {@link Color.round round}).
      * - Otherwise, the color source used when setting is returned.
-     * @type {PIXI.ColorSource}
      */
     set value(value: ColorSource | null)
     {
         // Support copying from other Color objects
         if (value instanceof Color)
         {
-            this._value = this.cloneSource(value._value);
+            this._value = this._cloneSource(value._value);
             this._int = value._int;
             this._components.set(value._components);
         }
         else if (value === null)
         {
-            throw new Error('Cannot set PIXI.Color#value to null');
+            throw new Error('Cannot set Color#value to null');
         }
-        else if (this._value === null || !this.isSourceEqual(this._value, value))
+        else if (this._value === null || !this._isSourceEqual(this._value, value))
         {
-            this.normalize(value);
-            this._value = this.cloneSource(value);
+            this._normalize(value);
+            this._value = this._cloneSource(value);
         }
     }
     get value(): Exclude<ColorSource, Color> | null
@@ -201,7 +243,7 @@ export class Color
      * Copy a color source internally.
      * @param value - Color source
      */
-    private cloneSource(value: Exclude<ColorSource, Color> | null): Exclude<ColorSource, Color> | null
+    private _cloneSource(value: Exclude<ColorSource, Color> | null): Exclude<ColorSource, Color> | null
     {
         if (typeof value === 'string' || typeof value === 'number' || value instanceof Number || value === null)
         {
@@ -225,7 +267,7 @@ export class Color
      * @param value2 - Second color source
      * @returns `true` if the color sources are equal, `false` otherwise.
      */
-    private isSourceEqual(value1: Exclude<ColorSource, Color>, value2: Exclude<ColorSource, Color>): boolean
+    private _isSourceEqual(value1: Exclude<ColorSource, Color>, value2: Exclude<ColorSource, Color>): boolean
     {
         const type1 = typeof value1;
         const type2 = typeof value2;
@@ -242,8 +284,10 @@ export class Color
             return value1 === value2;
         }
         // Handle Arrays and TypedArrays
-        else if ((Array.isArray(value1) && Array.isArray(value2))
-            || (ArrayBuffer.isView(value1) && ArrayBuffer.isView(value2)))
+        else if (
+            (Array.isArray(value1) && Array.isArray(value2))
+            || (ArrayBuffer.isView(value1) && ArrayBuffer.isView(value2))
+        )
         {
             if (value1.length !== value2.length)
             {
@@ -275,7 +319,7 @@ export class Color
      * import { Color } from 'pixi.js';
      * new Color('white').toRgb(); // returns { r: 1, g: 1, b: 1, a: 1 }
      */
-    toRgba(): RgbaColor
+    public toRgba(): RgbaColor
     {
         const [r, g, b, a] = this._components;
 
@@ -288,7 +332,7 @@ export class Color
      * import { Color } from 'pixi.js';
      * new Color('white').toRgb(); // returns { r: 1, g: 1, b: 1 }
      */
-    toRgb(): RgbColor
+    public toRgb(): RgbColor
     {
         const [r, g, b] = this._components;
 
@@ -296,7 +340,7 @@ export class Color
     }
 
     /** Convert to a CSS-style rgba string: `rgba(255,255,255,1.0)`. */
-    toRgbaString(): string
+    public toRgbaString(): string
     {
         const [r, g, b] = this.toUint8RgbArray();
 
@@ -310,17 +354,49 @@ export class Color
      * new Color('white').toUint8RgbArray(); // returns [255, 255, 255]
      * @param {number[]|Uint8Array|Uint8ClampedArray} [out] - Output array
      */
-    toUint8RgbArray(): number[];
-    toUint8RgbArray<T extends (number[] | Uint8Array | Uint8ClampedArray)>(out: T): T;
-    toUint8RgbArray<T extends (number[] | Uint8Array | Uint8ClampedArray)>(out?: T): T
+    public toUint8RgbArray(): number[];
+    public toUint8RgbArray<T extends number[] | Uint8Array | Uint8ClampedArray>(out: T): T;
+    public toUint8RgbArray<T extends number[] | Uint8Array | Uint8ClampedArray>(out?: T): T
     {
         const [r, g, b] = this._components;
 
-        out = out ?? [] as number[] as T;
+        if (!this._arrayRgb)
+        {
+            this._arrayRgb = [];
+        }
+
+        out = out || this._arrayRgb as T;
 
         out[0] = Math.round(r * 255);
         out[1] = Math.round(g * 255);
         out[2] = Math.round(b * 255);
+
+        return out;
+    }
+
+    /**
+     * Convert to an [R, G, B, A] array of normalized floats (numbers from 0.0 to 1.0).
+     * @example
+     * import { Color } from 'pixi.js';
+     * new Color('white').toArray(); // returns [1, 1, 1, 1]
+     * @param {number[]|Float32Array} [out] - Output array
+     */
+    public toArray(): number[];
+    public toArray<T extends number[] | Float32Array>(out: T): T;
+    public toArray<T extends number[] | Float32Array>(out?: T): T
+    {
+        if (!this._arrayRgba)
+        {
+            this._arrayRgba = [];
+        }
+
+        out = out || this._arrayRgba as T;
+        const [r, g, b, a] = this._components;
+
+        out[0] = r;
+        out[1] = g;
+        out[2] = b;
+        out[3] = a;
 
         return out;
     }
@@ -332,11 +408,16 @@ export class Color
      * new Color('white').toRgbArray(); // returns [1, 1, 1]
      * @param {number[]|Float32Array} [out] - Output array
      */
-    toRgbArray(): number[];
-    toRgbArray<T extends (number[] | Float32Array)>(out: T): T;
-    toRgbArray<T extends (number[] | Float32Array)>(out?: T): T
+    public toRgbArray(): number[];
+    public toRgbArray<T extends number[] | Float32Array>(out: T): T;
+    public toRgbArray<T extends number[] | Float32Array>(out?: T): T
     {
-        out = out ?? [] as number[] as T;
+        if (!this._arrayRgb)
+        {
+            this._arrayRgb = [];
+        }
+
+        out = out || this._arrayRgb as T;
         const [r, g, b] = this._components;
 
         out[0] = r;
@@ -352,9 +433,22 @@ export class Color
      * import { Color } from 'pixi.js';
      * new Color('white').toNumber(); // returns 16777215
      */
-    toNumber(): number
+    public toNumber(): number
     {
         return this._int;
+    }
+
+    /**
+     * Convert to a BGR number
+     * @example
+     * import { Color } from 'pixi.js';
+     * new Color(0xffcc99).toBgrNumber(); // returns 0x99ccff
+     */
+    public toBgrNumber(): number
+    {
+        const [r, g, b] = this.toUint8RgbArray();
+
+        return (b << 16) + (g << 8) + r;
     }
 
     /**
@@ -364,7 +458,7 @@ export class Color
      * new Color(0xffcc99).toLittleEndianNumber(); // returns 0x99ccff
      * @returns {number} - The color as a number in little endian format.
      */
-    toLittleEndianNumber(): number
+    public toLittleEndianNumber(): number
     {
         const value = this._int;
 
@@ -374,18 +468,18 @@ export class Color
     /**
      * Multiply with another color. This action is destructive, and will
      * override the previous `value` property to be `null`.
-     * @param {PIXI.ColorSource} value - The color to multiply by.
+     * @param {ColorSource} value - The color to multiply by.
      */
-    multiply(value: ColorSource): this
+    public multiply(value: ColorSource): this
     {
-        const [r, g, b, a] = Color.temp.setValue(value)._components;
+        const [r, g, b, a] = Color._temp.setValue(value)._components;
 
         this._components[0] *= r;
         this._components[1] *= g;
         this._components[2] *= b;
         this._components[3] *= a;
 
-        this.refreshInt();
+        this._refreshInt();
         this._value = null;
 
         return this;
@@ -396,9 +490,9 @@ export class Color
      * override the previous `value` property to be `null`.
      * @param alpha - The alpha to multiply by.
      * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels.
-     * @returns {PIXI.Color} - Itself.
+     * @returns {Color} - Itself.
      */
-    premultiply(alpha: number, applyToRGB = true): this
+    public premultiply(alpha: number, applyToRGB = true): this
     {
         if (applyToRGB)
         {
@@ -408,7 +502,7 @@ export class Color
         }
         this._components[3] = alpha;
 
-        this.refreshInt();
+        this._refreshInt();
         this._value = null;
 
         return this;
@@ -420,19 +514,19 @@ export class Color
      * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels.
      * @returns {number} tint multiplied by alpha
      */
-    toPremultiplied(alpha: number, applyToRGB = true): number
+    public toPremultiplied(alpha: number, applyToRGB = true): number
     {
         if (alpha === 1.0)
         {
-            return (0xFF << 24) + this._int;
+            return (0xff << 24) + this._int;
         }
         if (alpha === 0.0)
         {
             return applyToRGB ? 0 : this._int;
         }
-        let r = ((this._int >> 16) & 0xFF);
-        let g = ((this._int >> 8) & 0xFF);
-        let b = (this._int & 0xFF);
+        let r = (this._int >> 16) & 0xff;
+        let g = (this._int >> 8) & 0xff;
+        let b = this._int & 0xff;
 
         if (applyToRGB)
         {
@@ -441,7 +535,7 @@ export class Color
             b = ((b * alpha) + 0.5) | 0;
         }
 
-        return (alpha * 255 << 24) + (r << 16) + (g << 8) + b;
+        return ((alpha * 255) << 24) + (r << 16) + (g << 8) + b;
     }
 
     /**
@@ -450,7 +544,7 @@ export class Color
      * import { Color } from 'pixi.js';
      * new Color('white').toHex(); // returns "#ffffff"
      */
-    toHex(): string
+    public toHex(): string
     {
         const hexString = this._int.toString(16);
 
@@ -463,7 +557,7 @@ export class Color
      * import { Color } from 'pixi.js';
      * new Color('white').toHexa(); // returns "#ffffffff"
      */
-    toHexa(): string
+    public toHexa(): string
     {
         const alphaValue = Math.round(this._components[3] * 255);
         const alphaString = alphaValue.toString(16);
@@ -475,7 +569,7 @@ export class Color
      * Set alpha, suitable for chaining.
      * @param alpha
      */
-    setAlpha(alpha: number): this
+    public setAlpha(alpha: number): this
     {
         this._components[3] = this._clamp(alpha);
 
@@ -483,51 +577,10 @@ export class Color
     }
 
     /**
-     * Rounds the specified color according to the step. This action is destructive, and will
-     * override the previous `value` property to be `null`. The alpha component is not rounded.
-     * @param steps - Number of steps which will be used as a cap when rounding colors
-     * @deprecated since 7.3.0
-     */
-    round(steps: number): this
-    {
-        const [r, g, b] = this._components;
-
-        this._components[0] = Math.round(r * steps) / steps;
-        this._components[1] = Math.round(g * steps) / steps;
-        this._components[2] = Math.round(b * steps) / steps;
-        this.refreshInt();
-        this._value = null;
-
-        return this;
-    }
-
-    /**
-     * Convert to an [R, G, B, A] array of normalized floats (numbers from 0.0 to 1.0).
-     * @example
-     * import { Color } from 'pixi.js';
-     * new Color('white').toArray(); // returns [1, 1, 1, 1]
-     * @param {number[]|Float32Array} [out] - Output array
-     */
-    toArray(): number[];
-    toArray<T extends (number[] | Float32Array)>(out: T): T;
-    toArray<T extends (number[] | Float32Array)>(out?: T): T
-    {
-        out = out ?? [] as number[] as T;
-        const [r, g, b, a] = this._components;
-
-        out[0] = r;
-        out[1] = g;
-        out[2] = b;
-        out[3] = a;
-
-        return out;
-    }
-
-    /**
      * Normalize the input value into rgba
      * @param value - Input value
      */
-    private normalize(value: Exclude<ColorSource, Color>): void
+    private _normalize(value: Exclude<ColorSource, Color>): void
     {
         let r: number | undefined;
         let g: number | undefined;
@@ -537,27 +590,36 @@ export class Color
         // Number is a primative so typeof works fine, but in the case
         // that someone creates a class that extends Number, we also
         // need to check for instanceof Number
-        if ((typeof value === 'number' || value instanceof Number)
-            && (value as number) >= 0 && (value as number) <= 0xffffff)
+        if (
+            (typeof value === 'number' || value instanceof Number)
+            && (value as number) >= 0
+            && (value as number) <= 0xffffff
+        )
         {
             const int = value as number; // cast required because instanceof Number is ambiguous for TS
 
-            r = ((int >> 16) & 0xFF) / 255;
-            g = ((int >> 8) & 0xFF) / 255;
-            b = (int & 0xFF) / 255;
+            r = ((int >> 16) & 0xff) / 255;
+            g = ((int >> 8) & 0xff) / 255;
+            b = (int & 0xff) / 255;
             a = 1.0;
         }
-        else if ((Array.isArray(value) || value instanceof Float32Array)
+        else if (
+            (Array.isArray(value) || value instanceof Float32Array)
             // Can be rgb or rgba
-            && value.length >= 3 && value.length <= 4)
+            && value.length >= 3
+            && value.length <= 4
+        )
         {
             // make sure all values are 0 - 1
             value = this._clamp(value);
             [r, g, b, a = 1.0] = value;
         }
-        else if ((value instanceof Uint8Array || value instanceof Uint8ClampedArray)
+        else if (
+            (value instanceof Uint8Array || value instanceof Uint8ClampedArray)
             // Can be rgb or rgba
-            && value.length >= 3 && value.length <= 4)
+            && value.length >= 3
+            && value.length <= 4
+        )
         {
             // make sure all values are 0 - 255
             value = this._clamp(value, 0, 255);
@@ -598,7 +660,7 @@ export class Color
             this._components[1] = g as number;
             this._components[2] = b as number;
             this._components[3] = a as number;
-            this.refreshInt();
+            this._refreshInt();
         }
         else
         {
@@ -607,14 +669,14 @@ export class Color
     }
 
     /** Refresh the internal color rgb number */
-    private refreshInt(): void
+    private _refreshInt(): void
     {
         // Clamp values to 0 - 1
         this._clamp(this._components);
 
         const [r, g, b] = this._components;
 
-        this._int = (((r * 255) << 16) + ((g * 255) << 8) + (b * 255 | 0));
+        this._int = ((r * 255) << 16) + ((g * 255) << 8) + ((b * 255) | 0);
     }
 
     /**
@@ -636,5 +698,51 @@ export class Color
         });
 
         return value;
+    }
+
+    /**
+     * Check if the value is a color-like object
+     * @param value - Value to check
+     * @returns True if the value is a color-like object
+     * @static
+     * @example
+     * import { Color } from 'pixi.js';
+     * Color.isColorLike('white'); // returns true
+     * Color.isColorLike(0xffffff); // returns true
+     * Color.isColorLike([1, 1, 1]); // returns true
+     */
+    public static isColorLike(value: ColorSource): value is ColorSource
+    {
+        return (
+            typeof value === 'number'
+            || typeof value === 'string'
+            || value instanceof Number
+            || value instanceof Color
+            || Array.isArray(value)
+            || value instanceof Uint8Array
+            || value instanceof Uint8ClampedArray
+            || value instanceof Float32Array
+            || ((value as RgbColor).r !== undefined
+                && (value as RgbColor).g !== undefined
+                && (value as RgbColor).b !== undefined)
+            || ((value as RgbaColor).r !== undefined
+                && (value as RgbaColor).g !== undefined
+                && (value as RgbaColor).b !== undefined
+                && (value as RgbaColor).a !== undefined)
+            || ((value as HslColor).h !== undefined
+                && (value as HslColor).s !== undefined
+                && (value as HslColor).l !== undefined)
+            || ((value as HslaColor).h !== undefined
+                && (value as HslaColor).s !== undefined
+                && (value as HslaColor).l !== undefined
+                && (value as HslaColor).a !== undefined)
+            || ((value as HsvColor).h !== undefined
+                && (value as HsvColor).s !== undefined
+                && (value as HsvColor).v !== undefined)
+            || ((value as HsvaColor).h !== undefined
+                && (value as HsvaColor).s !== undefined
+                && (value as HsvaColor).v !== undefined
+                && (value as HsvaColor).a !== undefined)
+        );
     }
 }

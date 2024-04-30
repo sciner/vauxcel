@@ -1,11 +1,11 @@
-import { ALPHA_MODES, BaseTexture, MIPMAP_MODES, Rectangle, settings, Texture, utils } from '@vaux/core';
-import { TextMetrics, TextStyle } from '@vaux/text';
-import { BitmapFontData } from './BitmapFontData';
-import { autoDetectFormat } from './formats';
-import { drawGlyph, extractCharCode, resolveCharacters } from './utils';
+import { BitmapFontData } from './BitmapFontData.js';
+import { autoDetectFormat } from './formats/index.js';
+import { drawGlyph, extractCharCode, resolveCharacters } from './utils/index.js';
+import { ALPHA_MODES, BaseTexture, MIPMAP_MODES, Rectangle, settings, Texture, utils } from '@vaux/core/index.js';
+import { TextMetrics, TextStyle } from '@vaux/text/index.js';
 
-import type { IBaseTextureOptions, ICanvas, ICanvasRenderingContext2D, SCALE_MODES } from '@vaux/core';
-import type { ITextStyle } from '@vaux/text';
+import type { IBaseTextureOptions, ICanvas, ICanvasRenderingContext2D, SCALE_MODES } from '@vaux/core/index.js';
+import type { ITextStyle } from '@vaux/text/index.js';
 
 export interface IBitmapFontCharacter
 {

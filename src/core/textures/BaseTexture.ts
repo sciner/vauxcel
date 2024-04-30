@@ -1,16 +1,18 @@
-import { ALPHA_MODES, MIPMAP_MODES, SCALE_MODES,
-    TARGETS,  WRAP_MODES, TEXTURE_FORMATS } from '@vaux/constants';
-import { settings } from '@vaux/settings';
-import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@vaux/utils';
-import { autoDetectResource } from './resources/autoDetectResource';
-import { BufferResource } from './resources/BufferResource';
-import { Resource } from './resources/Resource';
+import { autoDetectResource } from './resources/autoDetectResource.js';
+import { BufferResource } from './resources/BufferResource.js';
+import { Resource } from './resources/Resource.js';
+import {
+    ALPHA_MODES, MIPMAP_MODES, SCALE_MODES,
+    TARGETS, TEXTURE_FORMATS, WRAP_MODES
+} from '@vaux/constants';
+import { settings } from '@vaux/settings/index.js';
+import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@vaux/utils/index.js';
 
-import type { MSAA_QUALITY } from '@vaux/constants';
-import type { ICanvas } from '@vaux/settings';
-import type { GLTexture } from './GLTexture';
-import type { IAutoDetectOptions } from './resources/autoDetectResource';
-import type { BufferType, IBufferResourceOptions } from './resources/BufferResource';
+import type { GLTexture } from './GLTexture.js';
+import type { IAutoDetectOptions } from './resources/autoDetectResource.js';
+import type { BufferType, IBufferResourceOptions } from './resources/BufferResource.js';
+import type { MSAA_QUALITY } from '@vaux/constants.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 const defaultBufferOptions = {
     scaleMode: SCALE_MODES.NEAREST,

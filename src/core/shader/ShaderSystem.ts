@@ -1,22 +1,21 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { generateUniformsSync, unsafeEvalSupported } from './utils';
-import { generateProgram } from './utils/generateProgram';
-import { generateUniformBufferSync } from './utils/generateUniformBufferSync';
+import { ensurePrecision } from './program/ensurePrecision.js';
+import { setProgramName } from './program/setProgramName.js';
+import { setProgramVersion } from './program/setProgramVersion.js';
+import { generateProgram } from './utils/generateProgram.js';
+import { generateUniformBufferSync } from './utils/generateUniformBufferSync.js';
+import { generateUniformsSync, unsafeEvalSupported } from './utils/index.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { Dict } from '@vaux/utils';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { GLProgram } from './GLProgram';
-import type { Program } from './Program';
-import type { Shader } from './Shader';
-import type { UniformGroup } from './UniformGroup';
-import type { UniformsSyncCallback } from './utils';
-
-import { ensurePrecision } from './program/ensurePrecision';
-import { setProgramName } from './program/setProgramName';
-import { setProgramVersion } from './program/setProgramVersion';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { GLProgram } from './GLProgram.js';
+import type { Program } from './Program.js';
+import type { Shader } from './Shader.js';
+import type { UniformGroup } from './UniformGroup.js';
+import type { UniformsSyncCallback } from './utils/index.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 let UID = 0;
 // default sync data so we don't create a new one each time!
@@ -230,20 +229,20 @@ export class ShaderSystem implements ISystem
         }
         else
 
-        if (!group.autoManage || (group.static && group.uboUpdateId === group.dirtyId))
-        {
-            this.renderer.buffer.update(group.buffer);
-            if (group.uboSize > 0)
+            if (!group.autoManage || (group.static && group.uboUpdateId === group.dirtyId))
             {
-                this.renderer.buffer.bindBufferRange(group.buffer, boundIndex, group.uboOffset, group.uboSize);
-            }
-            else
-            {
-                this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
-            }
+                this.renderer.buffer.update(group.buffer);
+                if (group.uboSize > 0)
+                {
+                    this.renderer.buffer.bindBufferRange(group.buffer, boundIndex, group.uboOffset, group.uboSize);
+                }
+                else
+                {
+                    this.renderer.buffer.bindBufferBase(group.buffer, boundIndex);
+                }
 
-            return;
-        }
+                return;
+            }
 
         group.manualSync?.(glProgram.uniformData, group.uniforms, this.renderer, defaultSyncData);
 

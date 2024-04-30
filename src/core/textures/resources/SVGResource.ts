@@ -1,9 +1,9 @@
-import { settings } from '@vaux/settings';
-import { uid } from '@vaux/utils';
-import { BaseImageResource } from './BaseImageResource';
+import { BaseImageResource } from './BaseImageResource.js';
+import { settings } from '@vaux/settings/index.js';
+import { uid } from '@vaux/utils/index.js';
 
-import type { ISize } from '@vaux/math';
-import type { ICanvas } from '@vaux/settings';
+import type { ISize } from '@vaux/math/index.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 export interface ISVGResourceOptions
 {

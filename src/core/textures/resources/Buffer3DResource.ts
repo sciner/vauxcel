@@ -1,13 +1,13 @@
-import { Resource } from './Resource';
+import { Texture3D } from '../Texture3D.js';
+import { Resource } from './Resource.js';
+import { FORMATS, SCALE_MODES, TARGETS } from '@vaux/constants.js';
+import { Runner } from '@vaux/runner.js';
 
-import type { ISize3D } from '@vaux/math';
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
-import type { BufferType } from './BufferResource';
-import { Runner } from '@vaux/runner';
-import { FORMATS, SCALE_MODES, TARGETS } from '@vaux/constants';
-import { Texture3D } from '../Texture3D';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
+import type { BufferType } from './BufferResource.js';
+import type { ISize3D } from '@vaux/math/index.js';
 
 export function formatToCount(f: FORMATS)
 {

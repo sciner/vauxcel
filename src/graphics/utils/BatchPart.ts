@@ -1,5 +1,5 @@
-import type { FillStyle } from '../styles/FillStyle';
-import type { LineStyle } from '../styles/LineStyle';
+import type { FillStyle } from '../styles/FillStyle.js';
+import type { LineStyle } from '../styles/LineStyle.js';
 
 /**
  * A structure to hold interim batch objects for Graphics.

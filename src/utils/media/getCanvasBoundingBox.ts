@@ -1,6 +1,6 @@
-import { BoundingBox } from './BoundingBox';
+import { BoundingBox } from './BoundingBox.js';
 
-import type { ICanvas } from '@vaux/settings';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 function checkRow(data: Uint8ClampedArray, width: number, y: number)
 {

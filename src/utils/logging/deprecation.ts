@@ -1,4 +1,4 @@
-import type { Dict } from '../types';
+import type { Dict } from '../types.js';
 
 // A map of warning messages already fired
 const warnings: Dict<boolean> = {};

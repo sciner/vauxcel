@@ -1,9 +1,9 @@
-import { Color } from '@vaux/color';
-import { extensions, ExtensionType } from '@vaux/extensions';
+import { Color } from '@vaux/color/Color.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { ColorSource } from '@vaux/color';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { ISystem } from '../system/ISystem';
+import type { ISystem } from '../system/ISystem.js';
+import type { ColorSource } from '@vaux/color/Color.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * Options for the background system.

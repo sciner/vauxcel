@@ -1,6 +1,6 @@
-import { getCanvasBoundingBox } from './getCanvasBoundingBox';
+import { getCanvasBoundingBox } from './getCanvasBoundingBox.js';
 
-import type { ICanvas } from '@vaux/settings';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Trim transparent borders from a canvas.

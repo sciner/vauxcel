@@ -1,12 +1,12 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { Matrix, Rectangle, Transform } from '@vaux/math';
-import { RenderTexture } from './RenderTexture';
+import { RenderTexture } from './RenderTexture.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Matrix, Rectangle, Transform } from '@vaux/math/index.js';
 
-import type { MSAA_QUALITY } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderableContainer, IRenderableObject, IRenderer } from '../IRenderer';
-import type { ISystem } from '../system/ISystem';
-import type { IBaseTextureOptions } from '../textures/BaseTexture';
+import type { IRenderableContainer, IRenderableObject, IRenderer } from '../IRenderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { MSAA_QUALITY } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const tempTransform = new Transform();
 const tempRect = new Rectangle();

@@ -1,4 +1,4 @@
-import type { ITypedArray } from './Buffer';
+import type { ITypedArray } from './Buffer.js';
 
 /**
  * Flexible wrapper around `ArrayBuffer` that also provides typed array views on demand.

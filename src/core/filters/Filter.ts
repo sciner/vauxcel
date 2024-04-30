@@ -1,17 +1,57 @@
-import { BUFFER_BITS, MSAA_QUALITY } from '@vaux/constants';
-import { Program } from '../shader/Program';
-import { Shader } from '../shader/Shader';
-import { State } from '../state/State';
-import defaultFragment from './defaultFilter.frag';
-import defaultVertex from './defaultFilter.vert';
+import { Program } from '../shader/Program.js';
+import { Shader } from '../shader/Shader.js';
+import { State } from '../state/State.js';
+import { BUFFER_BITS, MSAA_QUALITY } from '@vaux/constants.js';
 
-import type { BLEND_MODES, CLEAR_MODES } from '@vaux/constants';
-import type { Dict } from '@vaux/utils';
-import type { RenderTexture } from '../renderTexture/RenderTexture';
-import type { FilterState } from './FilterState';
-import type { FilterSystem } from './FilterSystem';
+import type { RenderTexture } from '../renderTexture/RenderTexture.js';
+import type { FilterState } from './FilterState.js';
+import type { FilterSystem } from './FilterSystem.js';
+import type { BLEND_MODES, CLEAR_MODES } from '@vaux/constants.js';
+import type { Dict } from '@vaux/utils/index.js';
+
+const defaultFragment = `#version 100
+
+varying vec2 vTextureCoord;
+
+uniform sampler2D uSampler;
+
+void main(void){
+   gl_FragColor = texture2D(uSampler, vTextureCoord);
+}
+`;
+
+const defaultVertex = `#version 100
+
+attribute vec2 aVertexPosition;
+
+uniform mat3 projectionMatrix;
+
+varying vec2 vTextureCoord;
+
+uniform vec4 inputSize;
+uniform vec4 outputFrame;
+
+vec4 filterVertexPosition( void )
+{
+    vec2 position = aVertexPosition * max(outputFrame.zw, vec2(0.)) + outputFrame.xy;
+
+    return vec4((projectionMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);
+}
+
+vec2 filterTextureCoord( void )
+{
+    return aVertexPosition * (outputFrame.zw * inputSize.zw);
+}
+
+void main(void)
+{
+    gl_Position = filterVertexPosition();
+    vTextureCoord = filterTextureCoord();
+}
+`;
 
 /**
+
  * A filter is a special shader that applies post-processing effects to an input texture and writes into an output
  * render-target.
  *

@@ -1,18 +1,18 @@
-import { BUFFER_TYPE } from '@vaux/constants';
-import { Runner } from '@vaux/runner';
-import { getBufferType } from '@vaux/utils';
-import { Attribute } from './Attribute';
-import { Buffer } from './Buffer';
-import { interleaveTypedArrays } from './utils/interleaveTypedArrays';
-
-import type { TYPES } from '@vaux/constants';
-import type { Dict } from '@vaux/utils';
-import type { IArrayBuffer } from './Buffer';
-import type { Program } from '../shader/Program';
+import { Attribute } from './Attribute.js';
+import { Buffer } from './Buffer.js';
 import {
     AttributeBaseCallbackStruct,
     generateAttribSyncForGeom
 } from './utils/generateAttributeSync';
+import { interleaveTypedArrays } from './utils/interleaveTypedArrays.js';
+import { BUFFER_TYPE } from '@vaux/constants.js';
+import { Runner } from '@vaux/runner.js';
+import { getBufferType } from '@vaux/utils/index.js';
+
+import type { Program } from '../shader/Program.js';
+import type { IArrayBuffer } from './Buffer.js';
+import type { TYPES } from '@vaux/constants.js';
+import type { Dict } from '@vaux/utils/index.js';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 let UID = 0;

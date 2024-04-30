@@ -1,3 +1,3 @@
-export * from './LayerPass';
-export * from './LayerTextureCache';
-export * from './PassSystem';
+export * from './LayerPass.js';
+export * from './LayerTextureCache.js';
+export * from './PassSystem.js';

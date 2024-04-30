@@ -1,1 +1,1 @@
-export * from './TFBufferCopier';
+export * from './TFBufferCopier.js';

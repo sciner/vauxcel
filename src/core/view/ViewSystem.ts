@@ -1,11 +1,11 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { Rectangle } from '@vaux/math';
-import { settings } from '@vaux/settings';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Rectangle } from '@vaux/math/index.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { ICanvas } from '@vaux/settings';
-import type { IRenderer } from '../IRenderer';
-import type { ISystem } from '../system/ISystem';
+import type { IRenderer } from '../IRenderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Options for the view system.

@@ -1,10 +1,10 @@
-import { ALPHA_MODES } from '@vaux/constants';
-import { Resource } from './Resource';
+import { Resource } from './Resource.js';
+import { ALPHA_MODES } from '@vaux/constants.js';
 
-import type { ISize } from '@vaux/math';
-import type { Renderer } from '../../Renderer';
-import type { BaseTexture } from '../BaseTexture';
-import type { GLTexture } from '../GLTexture';
+import type { Renderer } from '../../Renderer.js';
+import type { BaseTexture } from '../BaseTexture.js';
+import type { GLTexture } from '../GLTexture.js';
+import type { ISize } from '@vaux/math/index.js';
 
 export type BufferType = null | Int8Array | Uint8Array | Uint8ClampedArray
 | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;

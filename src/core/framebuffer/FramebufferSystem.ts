@@ -1,14 +1,14 @@
-import { BUFFER_BITS, ENV, MSAA_QUALITY } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { Rectangle } from '@vaux/math';
-import { settings } from '@vaux/settings';
-import { Framebuffer } from './Framebuffer';
-import { GLFramebuffer } from './GLFramebuffer';
+import { Framebuffer } from './Framebuffer.js';
+import { GLFramebuffer } from './GLFramebuffer.js';
+import { BUFFER_BITS, ENV, MSAA_QUALITY } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Rectangle } from '@vaux/math/index.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const tempRectangle = new Rectangle();
 

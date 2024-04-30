@@ -1,4 +1,4 @@
-import { settings } from '@vaux/settings';
+import { settings } from '@vaux/settings/index.js';
 
 /**
  * The prefix that denotes a URL is for a retina asset.

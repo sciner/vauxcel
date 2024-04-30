@@ -1,7 +1,8 @@
-import { BaseTexture } from './BaseTexture';
-import { Texture3DLayout, TextureLayout3DOptions } from './Texture3DLayout';
-import type { BufferType } from './resources/BufferResource';
-import type { Buffer3DResource } from '@vaux/core';
+import { BaseTexture } from './BaseTexture.js';
+import { Texture3DLayout, TextureLayout3DOptions } from './Texture3DLayout.js';
+
+import type { BufferType } from './resources/BufferResource.js';
+import type { Buffer3DResource } from '@vaux/core/index.js';
 
 let UID = 0;
 

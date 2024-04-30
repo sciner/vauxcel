@@ -1,10 +1,10 @@
-import { MSAA_QUALITY } from '@vaux/constants';
-import { Rectangle } from '@vaux/math';
+import { MSAA_QUALITY } from '@vaux/constants.js';
+import { Rectangle } from '@vaux/math/index.js';
 
-import type { Matrix } from '@vaux/math';
-import type { RenderTexture } from '../renderTexture/RenderTexture';
-import type { Filter } from './Filter';
-import type { IFilterTarget } from './IFilterTarget';
+import type { RenderTexture } from '../renderTexture/RenderTexture.js';
+import type { Filter } from './Filter.js';
+import type { IFilterTarget } from './IFilterTarget.js';
+import type { Matrix } from '@vaux/math/index.js';
 
 /**
  * System plugin to the renderer to manage filter states.

@@ -1,13 +1,13 @@
-import { ENV } from '@vaux/constants';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { settings } from '@vaux/settings';
+import { ENV } from '@vaux/constants.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { settings } from '@vaux/settings/index.js';
 
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { ICanvas } from '@vaux/settings';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { WebGLExtensions } from './WebGLExtensions';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { WebGLExtensions } from './WebGLExtensions.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+import type { ICanvas } from '@vaux/settings/index.js';
 
 let CONTEXT_UID_COUNTER = 0;
 

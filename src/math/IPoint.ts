@@ -1,4 +1,4 @@
-import type { IPointData } from './IPointData';
+import type { IPointData } from './IPointData.js';
 
 export interface IPoint extends IPointData
 {

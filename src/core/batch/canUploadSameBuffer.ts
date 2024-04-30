@@ -1,4 +1,4 @@
-import { isMobile } from '@vaux/utils';
+import { isMobile } from '@vaux/utils/index.js';
 
 /**
  * Uploading the same buffer multiple times in a single frame can cause performance issues.

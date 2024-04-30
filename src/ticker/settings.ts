@@ -1,6 +1,6 @@
-import { settings } from '@vaux/settings';
-import { deprecation } from '@vaux/utils';
-import { Ticker } from './Ticker';
+import { Ticker } from './Ticker.js';
+import { settings } from '@vaux/settings/index.js';
+import { deprecation } from '@vaux/utils/index.js';
 
 Object.defineProperties(settings, {
     /**

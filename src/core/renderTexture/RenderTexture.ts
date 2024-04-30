@@ -1,10 +1,10 @@
-import { Texture } from '../textures/Texture';
-import { BaseRenderTexture } from './BaseRenderTexture';
+import { Texture } from '../textures/Texture.js';
+import { BaseRenderTexture } from './BaseRenderTexture.js';
 
-import type { MSAA_QUALITY } from '@vaux/constants';
-import type { Rectangle } from '@vaux/math';
-import type { Framebuffer } from '../framebuffer/Framebuffer';
-import type { IBaseTextureOptions } from '../textures/BaseTexture';
+import type { Framebuffer } from '../framebuffer/Framebuffer.js';
+import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { MSAA_QUALITY } from '@vaux/constants.js';
+import type { Rectangle } from '@vaux/math/index.js';
 
 /**
  * A RenderTexture is a special texture that allows any PixiJS display object to be rendered to it.
@@ -43,7 +43,7 @@ import type { IBaseTextureOptions } from '../textures/BaseTexture';
  */
 export class RenderTexture extends Texture
 {
-    public baseTexture: BaseRenderTexture;
+    declare baseTexture: BaseRenderTexture;
 
     /**
      * Stores `sourceFrame` when this texture is inside current filter stack.

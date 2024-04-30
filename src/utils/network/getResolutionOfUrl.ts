@@ -1,4 +1,4 @@
-import { settings } from '../settings';
+import { settings } from '../settings.js';
 
 /**
  * get the resolution / device pixel ratio of an asset by looking for the prefix

@@ -1,6 +1,6 @@
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { MaskData } from './MaskData';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { MaskData } from './MaskData.js';
 
 /**
  * System plugin to the renderer to manage specific types of masking operations.

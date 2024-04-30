@@ -1,4 +1,4 @@
-import type { ITypedArray } from '@vaux/core';
+import type { ITypedArray } from '@vaux/core/index.js';
 
 export function getBufferType(
     array: ITypedArray

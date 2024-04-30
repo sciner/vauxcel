@@ -1,4 +1,4 @@
-import type { BaseTexture } from '../textures/BaseTexture';
+import type { BaseTexture } from '../textures/BaseTexture.js';
 
 /**
  * Used by the batcher to build texture batches.

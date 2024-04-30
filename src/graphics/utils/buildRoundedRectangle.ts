@@ -1,7 +1,7 @@
 // for type only
-import { buildCircle } from './buildCircle';
+import { buildCircle } from './buildCircle.js';
 
-import type { IShapeBuildCommand } from './IShapeBuildCommand';
+import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
 
 /**
  * Builds a rounded rectangle to draw

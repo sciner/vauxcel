@@ -1,6 +1,6 @@
-import { MSAA_QUALITY } from '@vaux/constants';
+import { MSAA_QUALITY } from '@vaux/constants.js';
 
-import type { Framebuffer } from './Framebuffer';
+import type { Framebuffer } from './Framebuffer.js';
 
 /**
  * Internal framebuffer for WebGL context.

@@ -1,12 +1,12 @@
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { GLBuffer } from './GLBuffer';
+import { GLBuffer } from './GLBuffer.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
 
-import type { BUFFER_TYPE } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { IRenderingContext } from '../IRenderer';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { Buffer } from './Buffer';
+import type { IRenderingContext } from '../IRenderer.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { Buffer } from './Buffer.js';
+import type { BUFFER_TYPE } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage buffers.

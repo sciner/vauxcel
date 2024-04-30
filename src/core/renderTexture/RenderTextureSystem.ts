@@ -1,16 +1,16 @@
-import { Color } from '@vaux/color';
-import { extensions, ExtensionType } from '@vaux/extensions';
-import { Rectangle } from '@vaux/math';
+import { Color } from '@vaux/color/Color.js';
+import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Rectangle } from '@vaux/math/index.js';
 
-import type { ColorSource } from '@vaux/color';
-import type { BUFFER_BITS } from '@vaux/constants';
-import type { ExtensionMetadata } from '@vaux/extensions';
-import type { ISize } from '@vaux/math';
-import type { MaskData } from '../mask/MaskData';
-import type { Renderer } from '../Renderer';
-import type { ISystem } from '../system/ISystem';
-import type { BaseRenderTexture } from './BaseRenderTexture';
-import type { RenderTexture } from './RenderTexture';
+import type { MaskData } from '../mask/MaskData.js';
+import type { Renderer } from '../Renderer.js';
+import type { ISystem } from '../system/ISystem.js';
+import type { BaseRenderTexture } from './BaseRenderTexture.js';
+import type { RenderTexture } from './RenderTexture.js';
+import type { ColorSource } from '@vaux/color/Color.js';
+import type { BUFFER_BITS } from '@vaux/constants.js';
+import type { ExtensionMetadata } from '@vaux/extensions.js';
+import type { ISize } from '@vaux/math/index.js';
 
 // Temporary rectangle for assigned sourceFrame or destinationFrame
 const tempRect = new Rectangle();

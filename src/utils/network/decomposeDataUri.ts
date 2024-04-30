@@ -1,4 +1,4 @@
-import { DATA_URI } from '../const';
+import { DATA_URI } from '../const.js';
 
 export interface DecomposedDataUri
 {

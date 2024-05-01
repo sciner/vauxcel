@@ -1,6 +1,6 @@
-import { settings } from '@vaux/settings/index.js';
+import { settings } from '@pixi/settings/index.js';
 
-import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/settings/index.js';
+import type { ICanvas, ICanvasRenderingContext2D } from '@pixi/settings/index.js';
 
 /**
  * Creates a Canvas element of the given size to be used as a target for rendering to.

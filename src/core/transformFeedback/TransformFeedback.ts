@@ -1,4 +1,4 @@
-import { Runner } from '@vaux/runner.js';
+import { Runner } from '@pixi/runner.js';
 
 import type { Buffer } from '../geometry/Buffer.js';
 

@@ -1,5 +1,5 @@
+import { settings } from '@pixi/core/index.js';
 import { XMLFormat } from './XMLFormat.js';
-import { settings } from '@vaux/core/index.js';
 
 import type { BitmapFontData } from '../BitmapFontData.js';
 

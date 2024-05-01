@@ -1,4 +1,4 @@
-import { Matrix } from '@vaux/math/index.js';
+import { Matrix } from '@pixi/math/index.js';
 
 import type { Texture } from './Texture.js';
 

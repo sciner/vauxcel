@@ -1,10 +1,10 @@
+import { DRAW_MODES, Point, Polygon, settings, State } from '@pixi/core/index.js';
+import { Container } from '@pixi/display/index.js';
 import { MeshBatchUvs } from './MeshBatchUvs.js';
-import { DRAW_MODES, Point, Polygon, settings, State } from '@vaux/core/index.js';
-import { Container } from '@vaux/display/index.js';
 
+import type { BLEND_MODES, Buffer, ColorSource, Geometry, IPointData, Renderer, Shader, Texture } from '@pixi/core/index.js';
+import type { IDestroyOptions } from '@pixi/display/index.js';
 import type { MeshMaterial } from './MeshMaterial.js';
-import type { BLEND_MODES, Buffer, ColorSource, Geometry, IPointData, Renderer, Shader, Texture } from '@vaux/core/index.js';
-import type { IDestroyOptions } from '@vaux/display/index.js';
 
 const tempPoint = new Point();
 const tempPolygon = new Polygon();
@@ -30,7 +30,7 @@ export interface Mesh extends GlobalMixins.Mesh {}
 export class Mesh<T extends Shader = MeshMaterial> extends Container
 {
     /**
-     * Used by the @vaux/canvas-mesh package to draw meshes using canvas.
+     * Used by the @pixi/canvas-mesh package to draw meshes using canvas.
      * Added here because we cannot mixin a static property to Mesh type.
      * @ignore
      */

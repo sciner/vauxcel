@@ -1,8 +1,3 @@
-import { curves, LINE_CAP, LINE_JOIN } from './const.js';
-import { GraphicsGeometry } from './GraphicsGeometry.js';
-import { FillStyle } from './styles/FillStyle.js';
-import { LineStyle } from './styles/LineStyle.js';
-import { ArcUtils, BezierUtils, QuadraticUtils } from './utils/index.js';
 import {
     BLEND_MODES,
     Circle,
@@ -19,11 +14,16 @@ import {
     State,
     Texture,
     UniformGroup,
-} from '@vaux/core';
-import { Container } from '@vaux/display/index.js';
+} from '@pixi/core';
+import { Container } from '@pixi/display/index.js';
+import { curves, LINE_CAP, LINE_JOIN } from './const.js';
+import { GraphicsGeometry } from './GraphicsGeometry.js';
+import { FillStyle } from './styles/FillStyle.js';
+import { LineStyle } from './styles/LineStyle.js';
+import { ArcUtils, BezierUtils, QuadraticUtils } from './utils/index.js';
 
-import type { BatchDrawCall, ColorSource, IPointData, IShape, Renderer } from '@vaux/core/index.js';
-import type { IDestroyOptions } from '@vaux/display/index.js';
+import type { BatchDrawCall, ColorSource, IPointData, IShape, Renderer } from '@pixi/core/index.js';
+import type { IDestroyOptions } from '@pixi/display/index.js';
 
 /**
  * Batch element computed from Graphics geometry.

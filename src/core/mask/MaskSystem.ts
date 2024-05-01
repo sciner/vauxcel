@@ -1,12 +1,12 @@
+import { MASK_TYPES } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { SpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter.js';
 import { MaskData } from './MaskData.js';
-import { MASK_TYPES } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { IMaskTarget } from './MaskData.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage masks.

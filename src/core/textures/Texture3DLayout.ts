@@ -1,4 +1,4 @@
-import { IPointData3D, ISize3D } from '@vaux/math/index.js';
+import { IPointData3D, ISize3D } from '@pixi/math/index.js';
 
 export interface TextureLayout3DOptions
 {

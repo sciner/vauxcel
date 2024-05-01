@@ -1,6 +1,6 @@
-import { Color, Matrix, Program, Shader, TextureMatrix } from '@vaux/core/index.js';
+import { Color, Matrix, Program, Shader, TextureMatrix } from '@pixi/core/index.js';
 
-import type { ColorSource, Texture, utils } from '@vaux/core/index.js';
+import type { ColorSource, Texture, utils } from '@pixi/core/index.js';
 
 const fragment = `#version 100
 

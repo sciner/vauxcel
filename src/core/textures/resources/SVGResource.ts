@@ -1,9 +1,9 @@
+import { settings } from '@pixi/settings/index.js';
+import { uid } from '@pixi/utils/index.js';
 import { BaseImageResource } from './BaseImageResource.js';
-import { settings } from '@vaux/settings/index.js';
-import { uid } from '@vaux/utils/index.js';
 
-import type { ISize } from '@vaux/math/index.js';
-import type { ICanvas } from '@vaux/settings/index.js';
+import type { ISize } from '@pixi/math/index.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 
 export interface ISVGResourceOptions
 {

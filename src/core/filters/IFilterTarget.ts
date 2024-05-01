@@ -1,4 +1,4 @@
-import type { Rectangle } from '@vaux/math/index.js';
+import type { Rectangle } from '@pixi/math/index.js';
 
 export interface IFilterTarget
 {

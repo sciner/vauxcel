@@ -1,6 +1,6 @@
+import { TYPES } from '@pixi/constants.js';
 import { Buffer } from '../geometry/Buffer.js';
 import { Geometry } from '../geometry/Geometry.js';
-import { TYPES } from '@vaux/constants.js';
 
 /**
  * Geometry used to batch standard PIXI content (e.g. Mesh, Sprite, Graphics objects).

@@ -1,3 +1,6 @@
+import { BUFFER_TYPE } from '@pixi/constants.js';
+import { Runner } from '@pixi/runner.js';
+import { getBufferType } from '@pixi/utils/index.js';
 import { Attribute } from './Attribute.js';
 import { Buffer } from './Buffer.js';
 import {
@@ -5,14 +8,11 @@ import {
     generateAttribSyncForGeom
 } from './utils/generateAttributeSync';
 import { interleaveTypedArrays } from './utils/interleaveTypedArrays.js';
-import { BUFFER_TYPE } from '@vaux/constants.js';
-import { Runner } from '@vaux/runner.js';
-import { getBufferType } from '@vaux/utils/index.js';
 
+import type { TYPES } from '@pixi/constants.js';
+import type { Dict } from '@pixi/utils/index.js';
 import type { Program } from '../shader/Program.js';
 import type { IArrayBuffer } from './Buffer.js';
-import type { TYPES } from '@vaux/constants.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 let UID = 0;

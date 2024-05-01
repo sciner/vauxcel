@@ -1,6 +1,6 @@
-import { Buffer, Geometry, TYPES } from '@vaux/core/index.js';
+import { Buffer, Geometry, TYPES } from '@pixi/core/index.js';
 
-import type { IArrayBuffer } from '@vaux/core/index.js';
+import type { IArrayBuffer } from '@pixi/core/index.js';
 
 /**
  * Standard 2D geometry used in PixiJS.

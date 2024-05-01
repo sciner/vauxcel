@@ -1,5 +1,5 @@
-import { settings, utils } from '@vaux/core/index.js';
-import { TextStyle } from '@vaux/text/index.js';
+import { settings, utils } from '@pixi/core/index.js';
+import { TextStyle } from '@pixi/text/index.js';
 
 import type {
     ITextStyle,
@@ -7,7 +7,7 @@ import type {
     TextStyleFontWeight,
     TextStyleLineJoin,
     TextStyleTextBaseline
-} from '@vaux/text';
+} from '@pixi/text';
 
 /**
  * HTMLText support more white-space options.
@@ -163,7 +163,7 @@ export class HTMLTextStyle extends TextStyle
      * @param originalStyle
      * @example
      * import {TextStyle } from 'pixi.js';
-     * import {HTMLTextStyle} from '@vaux/text-html.js';
+     * import {HTMLTextStyle} from '@pixi/text-html.js';
      * const style = new TextStyle();
      * const htmlStyle = HTMLTextStyle.from(style);
      */

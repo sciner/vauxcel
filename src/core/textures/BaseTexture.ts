@@ -1,18 +1,18 @@
-import { autoDetectResource } from './resources/autoDetectResource.js';
-import { BufferResource } from './resources/BufferResource.js';
-import { Resource } from './resources/Resource.js';
 import {
     ALPHA_MODES, MIPMAP_MODES, SCALE_MODES,
     TARGETS, TEXTURE_FORMATS, WRAP_MODES
-} from '@vaux/constants';
-import { settings } from '@vaux/settings/index.js';
-import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@vaux/utils/index.js';
+} from '@pixi/constants';
+import { settings } from '@pixi/settings/index.js';
+import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@pixi/utils/index.js';
+import { autoDetectResource } from './resources/autoDetectResource.js';
+import { BufferResource } from './resources/BufferResource.js';
+import { Resource } from './resources/Resource.js';
 
+import type { MSAA_QUALITY } from '@pixi/constants.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { GLTexture } from './GLTexture.js';
 import type { IAutoDetectOptions } from './resources/autoDetectResource.js';
 import type { BufferType, IBufferResourceOptions } from './resources/BufferResource.js';
-import type { MSAA_QUALITY } from '@vaux/constants.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 const defaultBufferOptions = {
     scaleMode: SCALE_MODES.NEAREST,

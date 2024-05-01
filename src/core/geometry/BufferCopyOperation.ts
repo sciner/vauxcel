@@ -1,5 +1,5 @@
+import { PoolItem } from '@pixi/utils/pool/Pool.js';
 import { Buffer } from './Buffer.js';
-import { PoolItem } from '@vaux/utils/pool/Pool.js';
 
 import type { Renderer } from '../Renderer.js';
 

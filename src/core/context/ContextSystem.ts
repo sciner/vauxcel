@@ -1,13 +1,13 @@
-import { ENV } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { settings } from '@vaux/settings/index.js';
+import { ENV } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { settings } from '@pixi/settings/index.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { WebGLExtensions } from './WebGLExtensions.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 let CONTEXT_UID_COUNTER = 0;
 

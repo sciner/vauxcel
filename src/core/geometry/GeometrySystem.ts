@@ -1,19 +1,19 @@
+import { BUFFER_TYPE, ENV } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { settings } from '@pixi/settings/index.js';
 import { Buffer } from './Buffer.js';
 import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation.js';
 import { GeometryPerGL, GeometryPerShader } from './Geometry.js';
-import { BUFFER_TYPE, ENV } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { settings } from '@vaux/settings/index.js';
 
+import type { DRAW_MODES } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { Dict } from '@pixi/utils/index.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { Program } from '../shader/Program.js';
 import type { Shader } from '../shader/Shader.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { Geometry } from './Geometry.js';
-import type { DRAW_MODES } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 const byteSizeMap: {[key: number]: number} = {
     5126: 4, 5123: 2, 5121: 1,

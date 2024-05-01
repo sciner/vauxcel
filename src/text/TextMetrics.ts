@@ -1,7 +1,7 @@
-import { settings } from '@vaux/core/index.js';
+import { settings } from '@pixi/core/index.js';
 
+import type { ICanvas, ICanvasRenderingContext2D, ICanvasRenderingContext2DSettings } from '@pixi/core/index.js';
 import type { TextStyle, TextStyleWhiteSpace } from './TextStyle.js';
-import type { ICanvas, ICanvasRenderingContext2D, ICanvasRenderingContext2DSettings } from '@vaux/core/index.js';
 
 // The type for Intl.Segmenter is only available since TypeScript 4.7.2, so let's make a polyfill for it.
 interface ISegmentData

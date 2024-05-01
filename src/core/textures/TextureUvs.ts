@@ -1,6 +1,6 @@
-import { groupD8 } from '@vaux/math/index.js';
+import { groupD8 } from '@pixi/math/index.js';
 
-import type { ISize, Rectangle } from '@vaux/math/index.js';
+import type { ISize, Rectangle } from '@pixi/math/index.js';
 
 /**
  * Stores a texture's frame in UV coordinates, in

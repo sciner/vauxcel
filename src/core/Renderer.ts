@@ -1,11 +1,17 @@
+import { RENDERER_TYPE } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Matrix } from '@pixi/math/index.js';
+import { settings } from '@pixi/settings/index.js';
+import { deprecation, isWebGLSupported } from '@pixi/utils/index.js';
 import { UniformGroup } from './shader/UniformGroup.js';
 import { SystemManager } from './system/SystemManager.js';
-import { RENDERER_TYPE } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Matrix } from '@vaux/math/index.js';
-import { settings } from '@vaux/settings/index.js';
-import { deprecation, isWebGLSupported } from '@vaux/utils/index.js';
 
+import type { ColorSource } from '@pixi/color/Color.js';
+import type { MSAA_QUALITY } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { PassSystem } from '@pixi/layers/index.js';
+import type { Rectangle } from '@pixi/math/index.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { BackgroundSystem } from './background/BackgroundSystem.js';
 import type { BatchSystem } from './batch/BatchSystem.js';
 import type { ContextSystem } from './context/ContextSystem.js';
@@ -33,12 +39,6 @@ import type { TextureGCSystem } from './textures/TextureGCSystem.js';
 import type { TextureSystem } from './textures/TextureSystem.js';
 import type { TransformFeedbackSystem } from './transformFeedback/TransformFeedbackSystem.js';
 import type { ViewSystem } from './view/ViewSystem.js';
-import type { ColorSource } from '@vaux/color/Color.js';
-import type { MSAA_QUALITY } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { PassSystem } from '@vaux/layers/index.js';
-import type { Rectangle } from '@vaux/math/index.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Renderer extends GlobalMixins.Renderer {}
@@ -280,7 +280,7 @@ export class Renderer extends SystemManager<Renderer> implements IRenderer
 
     /**
      * Create renderer if WebGL is available. Overrideable
-     * by the **@vaux/canvas-renderer** package to allow fallback.
+     * by the **@pixi/canvas-renderer** package to allow fallback.
      * throws error if WebGL is not available.
      * @param _options
      * @private

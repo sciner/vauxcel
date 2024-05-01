@@ -1,4 +1,4 @@
-import type { Dict } from '@vaux/utils/index.js';
+import type { Dict } from '@pixi/utils/index.js';
 
 /**
  * @private

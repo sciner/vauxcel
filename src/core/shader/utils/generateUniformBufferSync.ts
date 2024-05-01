@@ -1,11 +1,11 @@
 import { mapSize } from './mapSize.js';
 import { uniformParsers } from './uniformParsers.js';
 
+import type { Dict } from '@pixi/utils/index.js';
 import type { Buffer } from '../../geometry/Buffer.js';
 import type { Renderer } from '../../Renderer.js';
 import type { IUniformData } from '../Program.js';
 import type { UniformGroup } from '../UniformGroup.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 export type UniformsSyncCallback = (...args: any[]) => void;
 

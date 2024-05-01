@@ -1,4 +1,4 @@
-import type { ITypedArray } from '@vaux/core/index.js';
+import type { ITypedArray } from '@pixi/core/index.js';
 
 export function getBufferType(
     array: ITypedArray

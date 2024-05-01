@@ -1,3 +1,8 @@
+import { Color } from '@pixi/color/Color.js';
+import { ENV } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { settings } from '@pixi/settings/index.js';
+import { deprecation, log2, nextPow2, premultiplyBlendMode } from '@pixi/utils/index.js';
 import { ViewableBuffer } from '../geometry/ViewableBuffer.js';
 import { checkMaxIfStatementsInShader } from '../shader/utils/checkMaxIfStatementsInShader.js';
 import { State } from '../state/State.js';
@@ -9,17 +14,12 @@ import { BatchTextureArray } from './BatchTextureArray.js';
 import { canUploadSameBuffer } from './canUploadSameBuffer.js';
 import { maxRecommendedTextures } from './maxRecommendedTextures.js';
 import { ObjectRenderer } from './ObjectRenderer.js';
-import { Color } from '@vaux/color/Color.js';
-import { ENV } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { settings } from '@vaux/settings/index.js';
-import { deprecation, log2, nextPow2, premultiplyBlendMode } from '@vaux/utils/index.js';
 
+import type { BLEND_MODES } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { Shader } from '../shader/Shader.js';
 import type { Texture } from '../textures/Texture.js';
-import type { BLEND_MODES } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const defaultFragment = `#version 100
 

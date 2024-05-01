@@ -1,4 +1,4 @@
-import { TYPES } from '@vaux/constants.js';
+import { TYPES } from '@pixi/constants.js';
 
 /* eslint-disable max-len */
 

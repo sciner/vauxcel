@@ -1,4 +1,4 @@
-import { PRECISION } from '@vaux/constants.js';
+import { PRECISION } from '@pixi/constants.js';
 
 /**
  * Sets the float precision on the shader, ensuring the device supports the request precision.

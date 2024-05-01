@@ -1,4 +1,4 @@
-import { Runner } from '@vaux/runner.js';
+import { Runner } from '@pixi/runner.js';
 
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture } from '../BaseTexture.js';

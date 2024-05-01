@@ -1,4 +1,4 @@
-import { settings } from '@vaux/settings/index.js';
+import { settings } from '@pixi/settings/index.js';
 
 function assertPath(path: string)
 {

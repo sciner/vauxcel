@@ -1,5 +1,5 @@
-import { Runner } from '@vaux/runner.js';
-import { EventEmitter } from '@vaux/utils/index.js';
+import { Runner } from '@pixi/runner.js';
+import { EventEmitter } from '@pixi/utils/index.js';
 
 import type { IRenderer } from '../IRenderer.js';
 import type { ISystem, ISystemConstructor } from './ISystem.js';

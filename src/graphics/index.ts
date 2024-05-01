@@ -13,8 +13,8 @@ import {
     QuadraticUtils,
 } from './utils';
 
+import type { BatchDrawCall, SHAPES } from '@pixi/core/index.js';
 import type { IShapeBuildCommand } from './utils/IShapeBuildCommand.js';
-import type { BatchDrawCall, SHAPES } from '@vaux/core/index.js';
 
 export * from './const.js';
 export * from './Graphics.js';

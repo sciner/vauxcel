@@ -1,6 +1,6 @@
+import type { IShape, Matrix, SHAPES } from '@pixi/core/index.js';
 import type { FillStyle } from './styles/FillStyle.js';
 import type { LineStyle } from './styles/LineStyle.js';
-import type { IShape, Matrix, SHAPES } from '@vaux/core/index.js';
 
 /**
  * A class to contain data useful for Graphics objects

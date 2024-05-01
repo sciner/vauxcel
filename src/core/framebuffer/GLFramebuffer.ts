@@ -1,4 +1,4 @@
-import { MSAA_QUALITY } from '@vaux/constants.js';
+import { MSAA_QUALITY } from '@pixi/constants.js';
 
 import type { Framebuffer } from './Framebuffer.js';
 

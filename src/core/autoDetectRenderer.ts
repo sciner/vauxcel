@@ -1,7 +1,7 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { IRenderer, IRendererOptions } from './IRenderer.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Renderer options supplied to `autoDetectRenderer`.

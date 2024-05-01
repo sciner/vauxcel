@@ -113,7 +113,7 @@ const fixGlobalTypes = async () =>
         const global_file = path.resolve(process.cwd(), 'lib/global.d.ts');
 
         await promises.writeFile(global_file, buffer_global.replaceAll(
-            '@sciner/vauxcel',
+            '@sciner/pixi',
             './index.js'
         ));
 

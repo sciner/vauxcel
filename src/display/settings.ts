@@ -1,5 +1,5 @@
+import { settings, utils } from '@pixi/core/index.js';
 import { Container } from './Container.js';
-import { settings, utils } from '@vaux/core/index.js';
 
 Object.defineProperties(settings, {
     /**

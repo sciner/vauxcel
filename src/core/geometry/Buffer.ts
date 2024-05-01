@@ -1,5 +1,5 @@
-import { BUFFER_TYPE } from '@vaux/constants.js';
-import { Runner } from '@vaux/runner.js';
+import { BUFFER_TYPE } from '@pixi/constants.js';
+import { Runner } from '@pixi/runner.js';
 
 import type { GLBuffer } from './GLBuffer.js';
 

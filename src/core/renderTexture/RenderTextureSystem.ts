@@ -1,16 +1,16 @@
-import { Color } from '@vaux/color/Color.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Rectangle } from '@vaux/math/index.js';
+import { Color } from '@pixi/color/Color.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Rectangle } from '@pixi/math/index.js';
 
+import type { ColorSource } from '@pixi/color/Color.js';
+import type { BUFFER_BITS } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { ISize } from '@pixi/math/index.js';
 import type { MaskData } from '../mask/MaskData.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { BaseRenderTexture } from './BaseRenderTexture.js';
 import type { RenderTexture } from './RenderTexture.js';
-import type { ColorSource } from '@vaux/color/Color.js';
-import type { BUFFER_BITS } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { ISize } from '@vaux/math/index.js';
 
 // Temporary rectangle for assigned sourceFrame or destinationFrame
 const tempRect = new Rectangle();

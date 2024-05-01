@@ -1,8 +1,8 @@
 import { BaseTexture } from './BaseTexture.js';
 import { Texture3DLayout, TextureLayout3DOptions } from './Texture3DLayout.js';
 
+import type { Buffer3DResource } from '@pixi/core/index.js';
 import type { BufferType } from './resources/BufferResource.js';
-import type { Buffer3DResource } from '@vaux/core/index.js';
 
 let UID = 0;
 

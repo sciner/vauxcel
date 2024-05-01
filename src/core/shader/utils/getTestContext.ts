@@ -1,5 +1,5 @@
-import { ENV } from '@vaux/constants.js';
-import { settings } from '@vaux/settings/index.js';
+import { ENV } from '@pixi/constants.js';
+import { settings } from '@pixi/settings/index.js';
 
 const unknownContext = {};
 let context: WebGLRenderingContext | WebGL2RenderingContext = unknownContext as any;

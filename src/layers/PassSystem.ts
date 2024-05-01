@@ -4,8 +4,8 @@ import {
     ExtensionType,
     ISystem,
     Renderer
-} from '@vaux/core';
-import { LayerPass } from '@vaux/layers/LayerPass.js';
+} from '@pixi/core';
+import { LayerPass } from '@pixi/layers/LayerPass.js';
 
 export class PassSystem implements ISystem
 {

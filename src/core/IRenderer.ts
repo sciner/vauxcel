@@ -1,3 +1,6 @@
+import type { MSAA_QUALITY, RENDERER_TYPE } from '@pixi/constants.js';
+import type { Matrix, Rectangle, Transform } from '@pixi/math/index.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { IRendererPlugins } from './plugin/PluginSystem.js';
 import type { IGenerateTextureOptions } from './renderTexture/GenerateTextureSystem.js';
 import type { RenderTexture } from './renderTexture/RenderTexture.js';
@@ -10,9 +13,6 @@ import type {
     ViewSystemOptions,
 } from './systems';
 import type { ImageSource } from './textures/BaseTexture.js';
-import type { MSAA_QUALITY, RENDERER_TYPE } from '@vaux/constants.js';
-import type { Matrix, Rectangle, Transform } from '@vaux/math/index.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Interface for DisplayObject to interface with Renderer.

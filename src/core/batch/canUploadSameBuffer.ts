@@ -1,4 +1,4 @@
-import { isMobile } from '@vaux/utils/index.js';
+import { isMobile } from '@pixi/utils/index.js';
 
 /**
  * Uploading the same buffer multiple times in a single frame can cause performance issues.

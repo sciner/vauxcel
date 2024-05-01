@@ -1,6 +1,6 @@
-import { Renderer, RenderTexture } from '@vaux/core/index.js';
-import { Matrix, Rectangle } from '@vaux/math/index.js';
-import { settings } from '@vaux/settings/index.js';
+import { Renderer, RenderTexture } from '@pixi/core/index.js';
+import { Matrix, Rectangle } from '@pixi/math/index.js';
+import { settings } from '@pixi/settings/index.js';
 
 import type { LayerPass } from './LayerPass.js';
 

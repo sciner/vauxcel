@@ -1,13 +1,13 @@
+import { BUFFER_BITS, MSAA_QUALITY } from '@pixi/constants.js';
 import { Program } from '../shader/Program.js';
 import { Shader } from '../shader/Shader.js';
 import { State } from '../state/State.js';
-import { BUFFER_BITS, MSAA_QUALITY } from '@vaux/constants.js';
 
+import type { BLEND_MODES, CLEAR_MODES } from '@pixi/constants.js';
+import type { Dict } from '@pixi/utils/index.js';
 import type { RenderTexture } from '../renderTexture/RenderTexture.js';
 import type { FilterState } from './FilterState.js';
 import type { FilterSystem } from './FilterSystem.js';
-import type { BLEND_MODES, CLEAR_MODES } from '@vaux/constants.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 const defaultFragment = `#version 100
 

@@ -1,11 +1,11 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Rectangle } from '@vaux/math/index.js';
-import { settings } from '@vaux/settings/index.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Rectangle } from '@pixi/math/index.js';
+import { settings } from '@pixi/settings/index.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 import type { IRenderer } from '../IRenderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { ICanvas } from '@vaux/settings/index.js';
 
 /**
  * Options for the view system.

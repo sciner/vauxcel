@@ -12,10 +12,10 @@
         "downlevelIteration": true,
         "baseUrl": "./",
         "paths": {
-            "@vaux/*": [
+            "@pixi/*": [
                 "./src/*"
             ],
-            "@sciner/vauxcel": [
+            "@sciner/pixi": [
                 "./src"
             ]
         },

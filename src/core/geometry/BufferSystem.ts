@@ -1,12 +1,12 @@
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { GLBuffer } from './GLBuffer.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
 
+import type { BUFFER_TYPE } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { Buffer } from './Buffer.js';
-import type { BUFFER_TYPE } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage buffers.

@@ -1,8 +1,8 @@
+import { MASK_TYPES, Matrix, utils } from '@pixi/core/index.js';
 import { DisplayObject } from './DisplayObject.js';
-import { MASK_TYPES, Matrix, utils } from '@vaux/core/index.js';
 
+import type { MaskData, Rectangle, Renderer } from '@pixi/core/index.js';
 import type { IDestroyOptions } from './DisplayObject.js';
-import type { MaskData, Rectangle, Renderer } from '@vaux/core/index.js';
 
 const tempMatrix = new Matrix();
 
@@ -638,7 +638,7 @@ export class Container<T extends DisplayObject = DisplayObject> extends DisplayO
      * advised to employ **culling** to automatically skip rendering objects outside of the current screen.
      * See [cullable]{@link PIXI.DisplayObject#cullable} and [cullArea]{@link PIXI.DisplayObject#cullArea}.
      * Other culling methods might be better suited for a large number static objects; see
-     * [@vaux-essentials/cull]{@link https://www.npmjs.com/package/@vaux-essentials/cull} and
+     * [@pixi-essentials/cull]{@link https://www.npmjs.com/package/@pixi-essentials/cull} and
      * [pixi-cull]{@link https://www.npmjs.com/package/pixi-cull}.
      *
      * The [renderAdvanced]{@link PIXI.Container#renderAdvanced} method is internally used when when masking or

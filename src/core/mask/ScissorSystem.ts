@@ -1,11 +1,11 @@
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Matrix, Rectangle } from '@pixi/math/index.js';
+import { settings } from '@pixi/settings/index.js';
 import { AbstractMaskSystem } from './AbstractMaskSystem.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Matrix, Rectangle } from '@vaux/math/index.js';
-import { settings } from '@vaux/settings/index.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { MaskData } from './MaskData.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const tempMatrix = new Matrix();
 const rectPool: Rectangle[] = [];

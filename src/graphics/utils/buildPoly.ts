@@ -1,7 +1,7 @@
-import { utils } from '@vaux/core/index.js';
+import { utils } from '@pixi/core/index.js';
 
+import type { Polygon } from '@pixi/core/index.js';
 import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
-import type { Polygon } from '@vaux/core/index.js';
 
 function fixOrientation(points: number[], hole = false)
 {

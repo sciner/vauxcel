@@ -1,6 +1,6 @@
+import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@pixi/constants.js';
+import { Runner } from '@pixi/runner.js';
 import { BaseTexture } from '../textures/BaseTexture.js';
-import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@vaux/constants.js';
-import { Runner } from '@vaux/runner.js';
 
 import type { GLFramebuffer } from './GLFramebuffer.js';
 

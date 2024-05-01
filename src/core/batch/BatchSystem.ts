@@ -1,11 +1,11 @@
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { ObjectRenderer } from './ObjectRenderer.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { BaseTexture } from '../textures/BaseTexture.js';
 import type { BatchTextureArray } from './BatchTextureArray.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * System plugin to the renderer to manage batching.

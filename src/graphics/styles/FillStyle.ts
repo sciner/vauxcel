@@ -1,6 +1,6 @@
-import { Texture } from '@vaux/core/index.js';
+import { Texture } from '@pixi/core/index.js';
 
-import type { Matrix } from '@vaux/core/index.js';
+import type { Matrix } from '@pixi/core/index.js';
 
 /**
  * Fill style object for Graphics.

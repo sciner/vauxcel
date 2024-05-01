@@ -1,10 +1,10 @@
-import { MSAA_QUALITY } from '@vaux/constants.js';
-import { Rectangle } from '@vaux/math/index.js';
+import { MSAA_QUALITY } from '@pixi/constants.js';
+import { Rectangle } from '@pixi/math/index.js';
 
+import type { Matrix } from '@pixi/math/index.js';
 import type { RenderTexture } from '../renderTexture/RenderTexture.js';
 import type { Filter } from './Filter.js';
 import type { IFilterTarget } from './IFilterTarget.js';
-import type { Matrix } from '@vaux/math/index.js';
 
 /**
  * System plugin to the renderer to manage filter states.

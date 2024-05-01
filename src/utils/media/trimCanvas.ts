@@ -1,6 +1,6 @@
 import { getCanvasBoundingBox } from './getCanvasBoundingBox.js';
 
-import type { ICanvas } from '@vaux/settings/index.js';
+import type { ICanvas } from '@pixi/settings/index.js';
 
 /**
  * Trim transparent borders from a canvas.

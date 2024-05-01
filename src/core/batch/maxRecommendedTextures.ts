@@ -1,5 +1,5 @@
-import { settings } from '@vaux/settings/index.js';
-import { isMobile } from '@vaux/utils/index.js';
+import { settings } from '@pixi/settings/index.js';
+import { isMobile } from '@pixi/utils/index.js';
 
 /**
  * The maximum recommended texture units to use.

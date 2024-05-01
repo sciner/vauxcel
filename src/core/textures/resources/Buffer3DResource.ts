@@ -1,13 +1,13 @@
+import { FORMATS, SCALE_MODES, TARGETS } from '@pixi/constants.js';
+import { Runner } from '@pixi/runner.js';
 import { Texture3D } from '../Texture3D.js';
 import { Resource } from './Resource.js';
-import { FORMATS, SCALE_MODES, TARGETS } from '@vaux/constants.js';
-import { Runner } from '@vaux/runner.js';
 
+import type { ISize3D } from '@pixi/math/index.js';
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture } from '../BaseTexture.js';
 import type { GLTexture } from '../GLTexture.js';
 import type { BufferType } from './BufferResource.js';
-import type { ISize3D } from '@vaux/math/index.js';
 
 export function formatToCount(f: FORMATS)
 {

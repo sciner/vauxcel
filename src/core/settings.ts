@@ -1,13 +1,13 @@
+import { ENV } from '@pixi/constants.js';
+import { settings } from '@pixi/settings/index.js';
+import { deprecation } from '@pixi/utils/index.js';
 import { BatchRenderer } from './batch/BatchRenderer.js';
 import { Filter } from './filters/Filter.js';
 import { Program } from './shader/Program.js';
 import { BackgroundSystem, ContextSystem, StartupSystem, TextureGCSystem, ViewSystem } from './systems.js';
 import { BaseTexture } from './textures/BaseTexture.js';
-import { ENV } from '@vaux/constants.js';
-import { settings } from '@vaux/settings/index.js';
-import { deprecation } from '@vaux/utils/index.js';
 
-import type { GC_MODES, MIPMAP_MODES, MSAA_QUALITY, PRECISION, SCALE_MODES, WRAP_MODES } from '@vaux/constants.js';
+import type { GC_MODES, MIPMAP_MODES, MSAA_QUALITY, PRECISION, SCALE_MODES, WRAP_MODES } from '@pixi/constants.js';
 
 /**
  * The maximum support for using WebGL. If a device does not

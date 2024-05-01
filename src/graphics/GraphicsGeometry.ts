@@ -1,10 +1,3 @@
-import { GraphicsData } from './GraphicsData.js';
-import {
-    BATCH_POOL, BatchPart, buildLine,
-    buildPoly,
-    DRAW_CALL_POOL,
-    FILL_COMMANDS
-} from './utils';
 import {
     BaseTexture,
     BatchDrawCall,
@@ -14,12 +7,19 @@ import {
     DRAW_MODES,
     Point,
     WRAP_MODES
-} from '@vaux/core';
-import { Bounds } from '@vaux/display/index.js';
+} from '@pixi/core';
+import { Bounds } from '@pixi/display/index.js';
+import { GraphicsData } from './GraphicsData.js';
+import {
+    BATCH_POOL, BatchPart, buildLine,
+    buildPoly,
+    DRAW_CALL_POOL,
+    FILL_COMMANDS
+} from './utils';
 
+import type { IPointData, IShape, Matrix, Texture } from '@pixi/core/index.js';
 import type { FillStyle } from './styles/FillStyle.js';
 import type { LineStyle } from './styles/LineStyle.js';
-import type { IPointData, IShape, Matrix, Texture } from '@vaux/core/index.js';
 
 const tmpPoint = new Point();
 

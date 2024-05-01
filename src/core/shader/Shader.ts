@@ -1,9 +1,9 @@
+import { Runner } from '@pixi/runner.js';
 import { Renderer } from '../Renderer.js';
 import { Program } from './Program.js';
 import { UniformGroup } from './UniformGroup.js';
-import { Runner } from '@vaux/runner.js';
 
-import type { Dict } from '@vaux/utils/index.js';
+import type { Dict } from '@pixi/utils/index.js';
 
 /**
  * A helper class for shaders.

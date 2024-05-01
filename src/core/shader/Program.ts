@@ -1,5 +1,5 @@
-import { PRECISION } from '@vaux/constants.js';
-import { isMobile, ProgramCache } from '@vaux/utils/index.js';
+import { PRECISION } from '@pixi/constants.js';
+import { isMobile, ProgramCache } from '@pixi/utils/index.js';
 
 import type { GLProgram } from './GLProgram.js';
 

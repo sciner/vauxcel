@@ -1,8 +1,8 @@
 // for type only
-import { SHAPES } from '@vaux/core/index.js';
+import { SHAPES } from '@pixi/core/index.js';
 
+import type { Circle, Ellipse, RoundedRectangle } from '@pixi/core/index.js';
 import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
-import type { Circle, Ellipse, RoundedRectangle } from '@vaux/core/index.js';
 
 /**
  * Builds a circle to draw

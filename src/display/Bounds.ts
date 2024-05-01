@@ -1,6 +1,6 @@
-import { Rectangle } from '@vaux/core/index.js';
+import { Rectangle } from '@pixi/core/index.js';
 
-import type { IPointData, Matrix, Transform } from '@vaux/core/index.js';
+import type { IPointData, Matrix, Transform } from '@pixi/core/index.js';
 
 /**
  * 'Builder' pattern for bounds rectangles.

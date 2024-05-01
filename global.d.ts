@@ -55,35 +55,35 @@ declare namespace GlobalMixins
         /** @deprecated since 7.1.0 */
         FILTER_RESOLUTION: number;
         /** @deprecated since 7.1.0 */
-        FILTER_MULTISAMPLE: import('@sciner/vauxcel').MSAA_QUALITY;
+        FILTER_MULTISAMPLE: import('@sciner/pixi').MSAA_QUALITY;
         /** @deprecated since 7.1.0 */
         SPRITE_MAX_TEXTURES: number;
         /** @deprecated since 7.1.0 */
         SPRITE_BATCH_SIZE: number;
         /** @deprecated since 7.1.0 */
-        MIPMAP_TEXTURES: import('@sciner/vauxcel').MIPMAP_MODES;
+        MIPMAP_TEXTURES: import('@sciner/pixi').MIPMAP_MODES;
         /** @deprecated since 7.1.0 */
         ANISOTROPIC_LEVEL: number;
         /** @deprecated since 7.1.0 */
-        WRAP_MODE: import('@sciner/vauxcel').WRAP_MODES;
+        WRAP_MODE: import('@sciner/pixi').WRAP_MODES;
         /** @deprecated since 7.1.0 */
-        SCALE_MODE: import('@sciner/vauxcel').SCALE_MODES;
+        SCALE_MODE: import('@sciner/pixi').SCALE_MODES;
         /** @deprecated since 7.1.0 */
         CAN_UPLOAD_SAME_BUFFER: boolean;
         /** @deprecated since 7.1.0 */
-        PRECISION_VERTEX: import('@sciner/vauxcel').PRECISION,
+        PRECISION_VERTEX: import('@sciner/pixi').PRECISION,
         /** @deprecated since 7.1.0 */
-        PRECISION_FRAGMENT: import('@sciner/vauxcel').PRECISION,
+        PRECISION_FRAGMENT: import('@sciner/pixi').PRECISION,
         /** @deprecated since 7.1.0 */
-        GC_MODE: import('@sciner/vauxcel').GC_MODES,
+        GC_MODE: import('@sciner/pixi').GC_MODES,
         /** @deprecated since 7.1.0 */
         GC_MAX_IDLE: number,
         /** @deprecated since 7.1.0 */
         GC_MAX_CHECK_COUNT: number,
 
-        RENDER_OPTIONS: import('@sciner/vauxcel').IRendererOptions;
+        RENDER_OPTIONS: import('@sciner/pixi').IRendererOptions;
         STRICT_TEXTURE_CACHE: boolean;
-        PREFER_ENV: import('@sciner/vauxcel').ENV;
+        PREFER_ENV: import('@sciner/pixi').ENV;
     }
 }
 
@@ -152,7 +152,7 @@ declare namespace GlobalMixins
 {
     interface Application
     {
-        ticker: import('@sciner/vauxcel').Ticker;
+        ticker: import('@sciner/pixi').Ticker;
         stop(): void;
         start(): void;
     }
@@ -233,7 +233,7 @@ declare namespace GlobalMixins
 {
     interface IBitmapFontResource
     {
-        bitmapFont: import('@sciner/vauxcel').BitmapFont;
+        bitmapFont: import('@sciner/pixi').BitmapFont;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface

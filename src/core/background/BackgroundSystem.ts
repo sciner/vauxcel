@@ -1,9 +1,9 @@
-import { Color } from '@vaux/color/Color.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { Color } from '@pixi/color/Color.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { ColorSource } from '@pixi/color/Color.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ColorSource } from '@vaux/color/Color.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * Options for the background system.

@@ -1,7 +1,7 @@
 import { Buffer } from '../geometry/Buffer.js';
 import { Geometry } from '../geometry/Geometry.js';
 
-import type { Rectangle } from '@vaux/math/index.js';
+import type { Rectangle } from '@pixi/math/index.js';
 
 /**
  * Helper class to create a quad with uvs like in v4

@@ -1,12 +1,12 @@
+import { TARGETS } from '@pixi/constants.js';
 import { AbstractMultiResource } from './AbstractMultiResource.js';
-import { TARGETS } from '@vaux/constants.js';
 
+import type { ISize } from '@pixi/math/index.js';
+import type { ArrayFixed } from '@pixi/utils/index.js';
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture } from '../BaseTexture.js';
 import type { GLTexture } from '../GLTexture.js';
 import type { Resource } from './Resource.js';
-import type { ISize } from '@vaux/math/index.js';
-import type { ArrayFixed } from '@vaux/utils/index.js';
 
 /**
  * Constructor options for CubeResource.

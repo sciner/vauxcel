@@ -1,12 +1,12 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { DRAW_MODES } from '@pixi/constants.js';
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { Shader } from '../shader/Shader.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { TransformFeedback } from './TransformFeedback.js';
-import type { DRAW_MODES } from '@vaux/constants.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * TransformFeedbackSystem provides TransformFeedback of WebGL2

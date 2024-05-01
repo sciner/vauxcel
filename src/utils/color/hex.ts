@@ -1,5 +1,5 @@
+import { Color } from '@pixi/color/Color.js';
 import { deprecation } from '../logging/deprecation.js';
-import { Color } from '@vaux/color/Color.js';
 
 /**
  * Converts a hexadecimal color number to an [R, G, B] array of normalized floats (numbers from 0.0 to 1.0).

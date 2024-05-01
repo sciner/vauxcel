@@ -5,15 +5,15 @@
  */
 
 // for type only
+import { SHAPES } from '@pixi/core/index.js';
 import { buildCircle } from './buildCircle.js';
 import { buildPoly } from './buildPoly.js';
 import { buildRectangle } from './buildRectangle.js';
 import { buildRoundedRectangle } from './buildRoundedRectangle.js';
-import { SHAPES } from '@vaux/core/index.js';
 
+import type { BatchDrawCall } from '@pixi/core/index.js';
 import type { BatchPart } from './BatchPart.js';
 import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
-import type { BatchDrawCall } from '@vaux/core/index.js';
 
 export * from './ArcUtils.js';
 export * from './BatchPart.js';

@@ -1,14 +1,14 @@
+import { BUFFER_BITS, ENV, MSAA_QUALITY } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Rectangle } from '@pixi/math/index.js';
+import { settings } from '@pixi/settings/index.js';
 import { Framebuffer } from './Framebuffer.js';
 import { GLFramebuffer } from './GLFramebuffer.js';
-import { BUFFER_BITS, ENV, MSAA_QUALITY } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Rectangle } from '@vaux/math/index.js';
-import { settings } from '@vaux/settings/index.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 const tempRectangle = new Rectangle();
 

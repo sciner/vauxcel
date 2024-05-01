@@ -1,7 +1,7 @@
-import { TEXT_GRADIENT } from '@vaux/text/index.js';
+import { TEXT_GRADIENT } from '@pixi/text/index.js';
 
-import type { ICanvas, ICanvasRenderingContext2D } from '@vaux/core/index.js';
-import type { TextMetrics, TextStyle } from '@vaux/text/index.js';
+import type { ICanvas, ICanvasRenderingContext2D } from '@pixi/core/index.js';
+import type { TextMetrics, TextStyle } from '@pixi/text/index.js';
 
 // TODO: Prevent code duplication b/w generateFillStyle & Text#generateFillStyle
 

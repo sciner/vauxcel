@@ -1,5 +1,5 @@
+import type { Rectangle } from '@pixi/core/index.js';
 import type { IShapeBuildCommand } from './IShapeBuildCommand.js';
-import type { Rectangle } from '@vaux/core/index.js';
 
 /**
  * Builds a rectangle to draw

@@ -1,11 +1,13 @@
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { ensurePrecision } from './program/ensurePrecision.js';
 import { setProgramName } from './program/setProgramName.js';
 import { setProgramVersion } from './program/setProgramVersion.js';
 import { generateProgram } from './utils/generateProgram.js';
 import { generateUniformBufferSync } from './utils/generateUniformBufferSync.js';
 import { generateUniformsSync, unsafeEvalSupported } from './utils/index.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { Dict } from '@pixi/utils/index.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
@@ -14,8 +16,6 @@ import type { Program } from './Program.js';
 import type { Shader } from './Shader.js';
 import type { UniformGroup } from './UniformGroup.js';
 import type { UniformsSyncCallback } from './utils/index.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 let UID = 0;
 // default sync data so we don't create a new one each time!
@@ -90,7 +90,7 @@ export class ShaderSystem implements ISystem
     }
 
     /**
-     * Overrideable function by `@vaux/unsafe-eval` to silence
+     * Overrideable function by `@pixi/unsafe-eval` to silence
      * throwing an error if platform doesn't support unsafe-evals.
      * @private
      */
@@ -99,7 +99,7 @@ export class ShaderSystem implements ISystem
         if (!unsafeEvalSupported())
         {
             throw new Error('Current environment does not allow unsafe-eval, '
-                + 'please use @vaux/unsafe-eval module to enable support.');
+                + 'please use @pixi/unsafe-eval module to enable support.');
         }
     }
 
@@ -183,7 +183,7 @@ export class ShaderSystem implements ISystem
     }
 
     /**
-     * Overrideable by the @vaux/unsafe-eval package to use static syncUniforms instead.
+     * Overrideable by the @pixi/unsafe-eval package to use static syncUniforms instead.
      * @param group
      * @param glProgram
      * @param syncData

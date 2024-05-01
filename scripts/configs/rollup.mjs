@@ -23,8 +23,8 @@ const banner = [
 ].join('\n');
 
 const builtInPackages = {
-    '@vaux': 'VAUX',
-    '@sciner/vauxcel': 'VAUX'
+    '@pixi': 'PIXI',
+    '@sciner/pixi': 'PIXI'
 };
 
 // External dependencies, not bundled
@@ -81,10 +81,10 @@ let footer;
 // If we're adding to the main PIXI namespace, we need to
 // make sure we don't override the PIXI global, so we'll do this
 // to insert the output of the extension into the PIXI global
-if (namespace === 'VAUX' && !mainLib)
+if (namespace === 'PIXI' && !mainLib)
 {
     namespace = pkg.name.replace(/[^a-z-]/ig, '_').replace(/-/g, '');
-    footer = `Object.assign(VAUX, ${namespace});`;
+    footer = `Object.assign(PIXI, ${namespace});`;
 }
 
 export default [

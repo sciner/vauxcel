@@ -1,8 +1,8 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderer } from '../IRenderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 /**
  * Options for the startup system.

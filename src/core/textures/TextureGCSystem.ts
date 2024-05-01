@@ -1,11 +1,11 @@
-import { GC_MODES } from '@vaux/constants.js';
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { GC_MODES } from '@pixi/constants.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { RenderTexture } from '../renderTexture/RenderTexture.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { Texture } from './Texture.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
 
 export interface IUnloadableTexture
 {

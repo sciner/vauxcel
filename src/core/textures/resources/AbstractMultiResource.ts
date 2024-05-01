@@ -2,8 +2,8 @@ import { BaseTexture } from '../BaseTexture.js';
 import { autoDetectResource } from './autoDetectResource.js';
 import { Resource } from './Resource.js';
 
+import type { ISize } from '@pixi/math/index.js';
 import type { IAutoDetectOptions } from './autoDetectResource.js';
-import type { ISize } from '@vaux/math/index.js';
 
 /**
  * Resource that can manage several resource (items) inside.

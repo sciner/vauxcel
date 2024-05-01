@@ -1,6 +1,6 @@
+import { TYPES } from '@pixi/constants.js';
 import { IRenderingContext } from '../../IRenderer.js';
 import { BufferSystem } from '../BufferSystem.js';
-import { TYPES } from '@vaux/constants.js';
 
 import type { Attribute } from '../Attribute.js';
 import type { Buffer } from '../Buffer.js';

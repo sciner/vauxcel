@@ -1,8 +1,8 @@
-import { BLEND_MODES, Color, ObservablePoint, Point, Rectangle, settings, Texture, utils } from '@vaux/core/index.js';
-import { Bounds, Container } from '@vaux/display/index.js';
+import { BLEND_MODES, Color, ObservablePoint, Point, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
+import { Bounds, Container } from '@pixi/display/index.js';
 
-import type { ColorSource, IBaseTextureOptions, IPointData, Renderer, TextureSource } from '@vaux/core/index.js';
-import type { IDestroyOptions } from '@vaux/display/index.js';
+import type { ColorSource, IBaseTextureOptions, IPointData, Renderer, TextureSource } from '@pixi/core/index.js';
+import type { IDestroyOptions } from '@pixi/display/index.js';
 
 const tempPoint = new Point();
 const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);

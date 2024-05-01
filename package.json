@@ -1,6 +1,6 @@
 {
-  "name": "@sciner/vauxcel",
-  "version": "0.1.37",
+  "name": "@sciner/pixi",
+  "version": "0.2.0",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
   "contributors": [
@@ -23,7 +23,7 @@
     "lint": [
       "src"
     ],
-    "namespace": "VAUX",
+    "namespace": "PIXI",
     "mainLib": true,
     "docsName": "Vauxcel",
     "docsCopyright": "Copyright &copy; 2023 - 2024 Ivan Popelyshev, derived from PixiJS",

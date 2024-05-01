@@ -1,4 +1,4 @@
-import { SAMPLER_TYPES } from '@vaux/constants.js';
+import { SAMPLER_TYPES } from '@pixi/constants.js';
 
 /**
  * Returns a lookup table that maps each internal format to the compatible sampler type.

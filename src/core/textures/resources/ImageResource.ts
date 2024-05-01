@@ -1,6 +1,6 @@
+import { ALPHA_MODES } from '@pixi/constants.js';
+import { settings } from '@pixi/settings/index.js';
 import { BaseImageResource } from './BaseImageResource.js';
-import { ALPHA_MODES } from '@vaux/constants.js';
-import { settings } from '@vaux/settings/index.js';
 
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture } from '../BaseTexture.js';

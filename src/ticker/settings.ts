@@ -1,6 +1,6 @@
+import { settings } from '@pixi/settings/index.js';
+import { deprecation } from '@pixi/utils/index.js';
 import { Ticker } from './Ticker.js';
-import { settings } from '@vaux/settings/index.js';
-import { deprecation } from '@vaux/utils/index.js';
 
 Object.defineProperties(settings, {
     /**

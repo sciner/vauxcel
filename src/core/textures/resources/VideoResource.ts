@@ -1,7 +1,7 @@
+import { Ticker } from '@pixi/ticker/index.js';
 import { BaseImageResource } from './BaseImageResource.js';
-import { Ticker } from '@vaux/ticker/index.js';
 
-import type { Dict } from '@vaux/utils/index.js';
+import type { Dict } from '@pixi/utils/index.js';
 
 export interface IVideoResourceOptions
 {

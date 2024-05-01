@@ -1,6 +1,6 @@
+import { ALPHA_MODES } from '@pixi/constants.js';
+import { determineCrossOrigin } from '@pixi/utils/index.js';
 import { Resource } from './Resource.js';
-import { ALPHA_MODES } from '@vaux/constants.js';
-import { determineCrossOrigin } from '@vaux/utils/index.js';
 
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture, ImageSource } from '../BaseTexture.js';

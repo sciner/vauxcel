@@ -1,11 +1,11 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { Matrix } from '@pixi/math/index.js';
 import type { IRenderableObject, IRendererRenderOptions } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { RenderTexture } from '../renderTexture/RenderTexture.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { Matrix } from '@vaux/math/index.js';
 
 /**
  * system that provides a render function that focussing on rendering Pixi Scene Graph objects

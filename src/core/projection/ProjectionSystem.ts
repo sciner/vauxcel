@@ -1,10 +1,10 @@
-import { extensions, ExtensionType } from '@vaux/extensions.js';
-import { Matrix } from '@vaux/math/index.js';
+import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { Matrix } from '@pixi/math/index.js';
 
+import type { ExtensionMetadata } from '@pixi/extensions.js';
+import type { Rectangle } from '@pixi/math/index.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { ExtensionMetadata } from '@vaux/extensions.js';
-import type { Rectangle } from '@vaux/math/index.js';
 
 /**
  * System plugin to the renderer to manage the projection matrix.

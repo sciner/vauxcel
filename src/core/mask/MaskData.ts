@@ -1,11 +1,11 @@
+import { MASK_TYPES } from '@pixi/constants.js';
 import { Filter } from '../filters/Filter.js';
-import { MASK_TYPES } from '@vaux/constants.js';
 
+import type { MSAA_QUALITY } from '@pixi/constants.js';
+import type { Matrix, Rectangle } from '@pixi/math/index.js';
 import type { IFilterTarget } from '../filters/IFilterTarget.js';
 import type { ISpriteMaskFilter } from '../filters/spriteMask/SpriteMaskFilter.js';
 import type { Renderer } from '../Renderer.js';
-import type { MSAA_QUALITY } from '@vaux/constants.js';
-import type { Matrix, Rectangle } from '@vaux/math/index.js';
 
 export interface IMaskTarget extends IFilterTarget
 {

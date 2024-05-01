@@ -1,6 +1,6 @@
-import { Renderer } from '@vaux/core/index.js';
-import { LayerTextureCache } from '@vaux/layers/LayerTextureCache.js';
-import { ISize, Matrix } from '@vaux/math/index.js';
+import { Renderer } from '@pixi/core/index.js';
+import { LayerTextureCache } from '@pixi/layers/LayerTextureCache.js';
+import { ISize, Matrix } from '@pixi/math/index.js';
 
 export interface ILayerPassOptions
 {

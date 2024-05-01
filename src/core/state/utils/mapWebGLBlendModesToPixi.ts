@@ -1,4 +1,4 @@
-import { BLEND_MODES } from '@vaux/constants.js';
+import { BLEND_MODES } from '@pixi/constants.js';
 
 /**
  * Maps gl blend combinations to WebGL.

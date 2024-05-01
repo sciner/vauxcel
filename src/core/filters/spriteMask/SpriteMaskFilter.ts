@@ -1,14 +1,14 @@
+import { Matrix } from '@pixi/math/index.js';
 import { TextureMatrix } from '../../textures/TextureMatrix.js';
 import { Filter } from '../Filter.js';
-import { Matrix } from '@vaux/math/index.js';
 
+import type { CLEAR_MODES } from '@pixi/constants.js';
+import type { Point } from '@pixi/math/index.js';
+import type { Dict } from '@pixi/utils/index.js';
 import type { IMaskTarget } from '../../mask/MaskData.js';
 import type { RenderTexture } from '../../renderTexture/RenderTexture.js';
 import type { Texture } from '../../textures/Texture.js';
 import type { FilterSystem } from '../FilterSystem.js';
-import type { CLEAR_MODES } from '@vaux/constants.js';
-import type { Point } from '@vaux/math/index.js';
-import type { Dict } from '@vaux/utils/index.js';
 
 const fragment = `#version 100
 

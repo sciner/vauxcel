@@ -1,4 +1,4 @@
-import type { Buffer, TextureMatrix } from '@vaux/core/index.js';
+import type { Buffer, TextureMatrix } from '@pixi/core/index.js';
 
 /**
  * Class controls cache for UV mapping from Texture normal space to BaseTexture normal space.

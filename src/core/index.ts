@@ -11,14 +11,14 @@ import './settings/index.js';
 export const VERSION = '$_VERSION';
 
 // Export dependencies
-export * from '@vaux/color/index.js';
-export * from '@vaux/constants.js';
-export * from '@vaux/extensions.js';
-export * from '@vaux/math/index.js';
-export * from '@vaux/runner.js';
-export * from '@vaux/settings/index.js';
-export * from '@vaux/ticker/index.js';
-export * as utils from '@vaux/utils/index.js';
+export * from '@pixi/color/index.js';
+export * from '@pixi/constants.js';
+export * from '@pixi/extensions.js';
+export * from '@pixi/math/index.js';
+export * from '@pixi/runner.js';
+export * from '@pixi/settings/index.js';
+export * from '@pixi/ticker/index.js';
+export * as utils from '@pixi/utils/index.js';
 
 // Export core
 export * from './autoDetectRenderer.js';

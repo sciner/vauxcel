@@ -1,7 +1,7 @@
+import { Matrix } from '@pixi/math/index.js';
 import { Program } from '../shader/Program.js';
 import { Shader } from '../shader/Shader.js';
 import { UniformGroup } from '../shader/UniformGroup.js';
-import { Matrix } from '@vaux/math/index.js';
 
 /**
  * Helper that generates batching multi-texture shader. Use it with your new BatchRenderer

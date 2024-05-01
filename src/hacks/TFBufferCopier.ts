@@ -1,4 +1,4 @@
-import { Buffer, BufferCopyOperation, Geometry, IBufferCopier, Program, Renderer, Shader } from '@vaux/core/index.js';
+import { Buffer, BufferCopyOperation, Geometry, IBufferCopier, Program, Renderer, Shader } from '@pixi/core/index.js';
 
 const fragment = `#version 300 es
 precision highp float;

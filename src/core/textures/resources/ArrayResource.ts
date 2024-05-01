@@ -1,11 +1,11 @@
+import { TARGETS } from '@pixi/constants.js';
 import { AbstractMultiResource } from './AbstractMultiResource.js';
-import { TARGETS } from '@vaux/constants.js';
 
+import type { ISize } from '@pixi/math/index.js';
 import type { Renderer } from '../../Renderer.js';
 import type { BaseTexture } from '../BaseTexture.js';
 import type { GLTexture } from '../GLTexture.js';
 import type { BaseImageResource } from './BaseImageResource.js';
-import type { ISize } from '@vaux/math/index.js';
 
 /**
  * A resource that contains a number of sources.

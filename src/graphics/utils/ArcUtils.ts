@@ -1,5 +1,5 @@
+import { PI_2 } from '@pixi/core/index.js';
 import { curves } from '../const.js';
-import { PI_2 } from '@vaux/core/index.js';
 
 interface IArcLikeShape
 {

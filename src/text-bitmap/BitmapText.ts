@@ -1,13 +1,13 @@
+import { BLEND_MODES, Color, ObservablePoint, Point, Program, settings, Texture, utils } from '@pixi/core/index.js';
+import { Container } from '@pixi/display/index.js';
+import { Mesh, MeshGeometry, MeshMaterial } from '@pixi/mesh/index.js';
 import { BitmapFont } from './BitmapFont.js';
 import { extractCharCode, splitTextToCharacters } from './utils/index.js';
-import { BLEND_MODES, Color, ObservablePoint, Point, Program, settings, Texture, utils } from '@vaux/core/index.js';
-import { Container } from '@vaux/display/index.js';
-import { Mesh, MeshGeometry, MeshMaterial } from '@vaux/mesh/index.js';
 
+import type { ColorSource, Rectangle, Renderer } from '@pixi/core/index.js';
+import type { IDestroyOptions } from '@pixi/display/index.js';
+import type { TextStyleAlign } from '@pixi/text/index.js';
 import type { IBitmapTextStyle } from './BitmapTextStyle.js';
-import type { ColorSource, Rectangle, Renderer } from '@vaux/core/index.js';
-import type { IDestroyOptions } from '@vaux/display/index.js';
-import type { TextStyleAlign } from '@vaux/text/index.js';
 
 const msdfFrag = `#version 100
 // Pixi texture info

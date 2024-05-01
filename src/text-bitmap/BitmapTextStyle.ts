@@ -1,5 +1,5 @@
-import type { ColorSource } from '@vaux/core/index.js';
-import type { TextStyleAlign } from '@vaux/text/index.js';
+import type { ColorSource } from '@pixi/core/index.js';
+import type { TextStyleAlign } from '@pixi/text/index.js';
 
 export interface IBitmapTextStyle
 {

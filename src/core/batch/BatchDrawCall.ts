@@ -1,7 +1,7 @@
-import { DRAW_MODES } from '@vaux/constants.js';
+import { DRAW_MODES } from '@pixi/constants.js';
 
+import type { BLEND_MODES } from '@pixi/constants.js';
 import type { BatchTextureArray } from './BatchTextureArray.js';
-import type { BLEND_MODES } from '@vaux/constants.js';
 
 /**
  * Used by the batcher to draw batches.

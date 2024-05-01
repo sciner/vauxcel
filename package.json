@@ -1,6 +1,6 @@
 {
   "name": "@sciner/pixi",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
   "contributors": [
@@ -59,11 +59,10 @@
     "dist/",
     "lib/",
     "src/",
-    "global.d.ts"
+    "index.mjs",
+    "global.d.ts",
+    "tsconfig.json"
   ],
-  "dependencies": {
-    "@webgpu/types": "=0.1.32"
-  },
   "devDependencies": {
     "@pixi/eslint-config": "^4.0.1",
     "@rollup/plugin-commonjs": "^24.0.0",

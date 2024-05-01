@@ -2,9 +2,9 @@
     "compilerOptions": {
         "sourceMap": true,
         "inlineSources": true,
-        "module": "node16",
-        "target": "ES2022",
-        "moduleResolution": "node16",
+        "module": "ESNext",
+        "target": "ES2021",
+        "moduleResolution": "node",
         "esModuleInterop": true,
         "noImplicitAny": true,
         "strict": false,

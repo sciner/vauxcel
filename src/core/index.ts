@@ -1,4 +1,4 @@
-import './settings/index.js';
+import './settings.js';
 
 /**
  * @namespace PIXI

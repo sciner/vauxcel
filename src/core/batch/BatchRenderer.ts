@@ -3,6 +3,7 @@ import { ENV } from '@pixi/constants.js';
 import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { settings } from '@pixi/settings/index.js';
 import { deprecation, log2, nextPow2, premultiplyBlendMode } from '@pixi/utils/index.js';
+import { topologyToGlMap } from '../geometry/GeometrySystem.js';
 import { ViewableBuffer } from '../geometry/ViewableBuffer.js';
 import { checkMaxIfStatementsInShader } from '../shader/utils/checkMaxIfStatementsInShader.js';
 import { State } from '../state/State.js';
@@ -651,7 +652,7 @@ export class BatchRenderer extends ObjectRenderer
 
             this.state.blendMode = blend;
             stateSystem.set(this.state);
-            gl.drawElements(type, size, gl.UNSIGNED_SHORT, start * 2);
+            gl.drawElements(topologyToGlMap[type], size, gl.UNSIGNED_SHORT, start * 2);
         }
     }
 

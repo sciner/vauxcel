@@ -1,6 +1,7 @@
-import { TYPES } from '@pixi/constants.js';
 import { IRenderingContext } from '../../IRenderer.js';
 import { BufferSystem } from '../BufferSystem.js';
+import { getAttributeInfoFromFormat } from './getAttributeInfoFromFormat.js';
+import { getGlTypeFromFormat } from './getGlTypeFromFormat.js';
 
 import type { Attribute } from '../Attribute.js';
 import type { Buffer } from '../Buffer.js';
@@ -27,7 +28,7 @@ export function generateAttributesSignature(attributes: Attribute[])
         {
             s += '|';
         }
-        s += `${attr.buffer}/${attr.size}${attr.type}/${attr.stride}/${attr.start}`;
+        s += `${attr.buffer}/${attr.format}/${attr.stride}/${attr.start}`;
     }
 
     return s;
@@ -42,7 +43,7 @@ export function generateAttributeSync(attributes: Attribute[], genBuffers: boole
     for (let i = 0; i < attributes.length; i++)
     {
         const attr = attributes[i];
-        const bufInd = attr.buffer;
+        const bufInd = attr.buffer_index;
 
         if (genBuffers && lastBuffer !== bufInd)
         {
@@ -55,17 +56,18 @@ if (lastBuffer !== buffers[${bufInd}]) {
             bufSyncCount++;
         }
 
-        const type = attr.type || TYPES.FLOAT;
+        const attr_info = getAttributeInfoFromFormat(attr.format);
+        const type = getGlTypeFromFormat(attr.format);
 
-        if (attr.int)
+        if (attr.format.substring(1, 4) === 'int')
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribIPointer(locations[${i}], ${attr.size}, ${type}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})`);
+            funcFragments.push(`gl.vertexAttribIPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})`);
         }
         else
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribPointer(locations[${i}], ${attr.size}, ${type}, ${attr.normalized}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})\n`);
+            funcFragments.push(`gl.vertexAttribPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr_info.normalised}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})\n`);
         }
     }
     let syncFunc: AttributeBaseCallback;
@@ -86,7 +88,7 @@ if (lastBuffer !== buffers[${bufInd}]) {
     return {
         syncFunc,
         bufSyncCount,
-        bufFirstIndex: attributes[0].buffer,
+        bufFirstIndex: attributes[0].buffer_index,
         stride: attributes[0].stride
     };
 }
@@ -102,10 +104,10 @@ export function generateAttribSyncForGeom(geom: Geometry)
     {
         const attr = attributes[i];
 
-        if (attr.instance && !attr.hasSingleValue)
+        if (attr.instance)
         {
             instAttribs.push(attr);
-            if (firstBuf !== attr.buffer)
+            if (firstBuf !== attr.buffer_index)
             {
                 if (firstBuf !== -1)
                 {
@@ -113,7 +115,7 @@ export function generateAttribSyncForGeom(geom: Geometry)
                 }
                 else
                 {
-                    firstBuf = attr.buffer;
+                    firstBuf = attr.buffer_index;
                 }
             }
         }

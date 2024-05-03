@@ -1,6 +1,7 @@
 import { extensions, ExtensionType } from '@pixi/extensions.js';
+import { topologyToGlMap } from '../geometry/GeometrySystem.js';
 
-import type { DRAW_MODES } from '@pixi/constants.js';
+import type { Topology } from '@pixi/constants.js';
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
@@ -75,16 +76,17 @@ export class TransformFeedbackSystem implements ISystem
      * @param drawMode - DrawMode for TransformFeedback
      * @param shader - A Shader used by TransformFeedback. Current bound shader will be used if not provided.
      */
-    beginTransformFeedback(drawMode: DRAW_MODES, shader?: Shader)
+    beginTransformFeedback(topology: Topology, shader?: Shader)
     {
         const { gl, renderer } = this;
+        const gl_draw_mode = topologyToGlMap[topology];
 
         if (shader)
         {
             renderer.shader.bind(shader);
         }
 
-        gl.beginTransformFeedback(drawMode);
+        gl.beginTransformFeedback(gl_draw_mode);
     }
 
     /** End TransformFeedback */

@@ -1,30 +1,17 @@
-import { BUFFER_TYPE } from '@pixi/constants.js';
+import { BUFFER_TYPE, Topology } from '@pixi/constants.js';
 import { Runner } from '@pixi/runner.js';
-import { getBufferType } from '@pixi/utils/index.js';
-import { Attribute } from './Attribute.js';
-import { Buffer } from './Buffer.js';
+import { Attribute, AttributesOption, ensureIsAttribute } from './Attribute.js';
+import { Buffer, ensureIsBuffer, TypedArray } from './Buffer.js';
 import {
     AttributeBaseCallbackStruct,
     generateAttribSyncForGeom
 } from './utils/generateAttributeSync';
-import { interleaveTypedArrays } from './utils/interleaveTypedArrays.js';
+import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat.js';
 
-import type { TYPES } from '@pixi/constants.js';
-import type { Dict } from '@pixi/utils/index.js';
 import type { Program } from '../shader/Program.js';
 import type { IArrayBuffer } from './Buffer.js';
 
-const byteSizeMap: {[key: number]: number} = { 5126: 4, 5123: 2, 5121: 1 };
 let UID = 0;
-
-/* eslint-disable object-shorthand */
-const map: Dict<any> = {
-    Float32Array: Float32Array,
-    Uint32Array: Uint32Array,
-    Int32Array: Int32Array,
-    Uint8Array: Uint8Array,
-    Uint16Array: Uint16Array,
-};
 
 export class GeometryPerGL
 {
@@ -56,6 +43,27 @@ export class GeometryPerShader
     }
 }
 
+export type IndexBufferArray = Uint16Array | Uint32Array;
+
+/**
+ * the interface that describes the structure of the geometry
+ * @memberof rendering
+ */
+export interface GeometryDescriptor
+{
+    /** an optional label to easily identify the geometry */
+    label?: string;
+    /** the attributes that make up the geometry */
+    attributes: Record<string, AttributesOption>;
+    /** optional index buffer for this geometry */
+    indexBuffer?: Buffer | TypedArray | number[];
+    /** the topology of the geometry, defaults to 'triangle-list' */
+    topology?: Topology;
+    proto?: Geometry;
+
+    instanceCount?: number;
+}
+
 /* eslint-disable max-len */
 
 /**
@@ -77,6 +85,8 @@ export class GeometryPerShader
  */
 export class Geometry
 {
+    public topology: Topology;
+    public proto: Geometry;
     public buffers: Array<Buffer>;
     public bufferStride: Array<number>;
     public indexBuffer: Buffer;
@@ -105,7 +115,7 @@ export class Geometry
      * A map of renderer IDs to webgl VAOs
      * @type {object}
      */
-    glVertexArrayObjects: {[key: number]: GeometryPerGL};
+    glVertexArrayObjects: {[key: number]: GeometryPerGL} = {};
     disposeRunner: Runner;
     /**
      * stores invalid vao's
@@ -115,21 +125,73 @@ export class Geometry
     /** Count of existing (not destroyed) meshes that reference this geometry. */
     refCount: number;
 
-    /**
-     * @param buffers - An array of buffers. optional.
-     * @param attributes - Of the geometry, optional structure of the attributes layout
-     */
-    constructor(buffers: Array<Buffer> = [], attributes: {[key: string]: Attribute} = {})
+    constructor(options: GeometryDescriptor = { attributes: {} })
     {
-        this.buffers = buffers;
+        const proto = this.proto = options.proto || null;
 
-        this.bufferStride = [];
+        this.indexBuffer = options.indexBuffer ? ensureIsBuffer(options.indexBuffer, true) : proto?.indexBuffer || null;
+        this.instanceCount = options.instanceCount || 1;
 
-        this.indexBuffer = null;
+        if (proto)
+        {
+            this.buffers = proto.buffers.slice(0);
+            this.bufferStride = proto.bufferStride.slice(0);
+            this.attributes = proto.attributes;
+            this.topology = options.topology || proto.topology;
+            this.instanced = proto.instanced;
 
-        this.attributes = attributes;
+            for (const i in options.attributes)
+            {
+                const attr = options.attributes[i];
 
-        this.glVertexArrayObjects = {};
+                if (this.attributes[i])
+                {
+                    const buf_ind = this.attributes[i].buffer_index;
+
+                    if (attr instanceof Buffer)
+                    {
+                        this.buffers[buf_ind] = attr;
+
+                        // attr.on('update', this.onBufferUpdate, this);
+                        // attr.on('change', this.onBufferUpdate, this);
+                    }
+                }
+                else
+                {
+                    // WTF
+                }
+            }
+        }
+        else
+        {
+            this.buffers = [];
+            this.bufferStride = [];
+            this.topology = options.topology || 'triangle-list';
+            this.instanced = false;
+
+            this.attributes = options.attributes as any;
+            for (const i in options.attributes)
+            {
+                const attr = this.attributes[i]
+                    = new Attribute(ensureIsAttribute(options.attributes[i]));
+
+                attr.buffer_index = this.buffers.indexOf(attr.buffer);
+
+                this.instanced = this.instanced || attr.instance;
+
+                if (attr.buffer_index === -1)
+                {
+                    attr.buffer_index = this.buffers.length;
+
+                    this.buffers.push(attr.buffer);
+
+                    // two events here - one for a resize (new buffer change)
+                    // and one for an update (existing buffer change)
+                    // attribute.buffer.on('update', this.onBufferUpdate, this);
+                    // attribute.buffer.on('change', this.onBufferUpdate, this);
+                }
+            }
+        }
 
         this.id = UID++;
 
@@ -138,68 +200,6 @@ export class Geometry
 
         this.disposeRunner = new Runner('disposeGeometry');
         this.refCount = 0;
-    }
-
-    /**
-     *
-     * Adds an attribute to the geometry
-     * Note: `stride` and `start` should be `undefined` if you dont know them, not 0!
-     * @param id - the name of the attribute (matching up to a shader)
-     * @param {PIXI.Buffer|number[]} buffer - the buffer that holds the data of the attribute . You can also provide an Array and a buffer will be created from it.
-     * @param size - the size of the attribute. If you have 2 floats per vertex (eg position x and y) this would be 2
-     * @param normalized - should the data be normalized.
-     * @param [type=PIXI.TYPES.FLOAT] - what type of number is the attribute. Check {@link PIXI.TYPES} to see the ones available
-     * @param [stride=0] - How far apart, in bytes, the start of each value is. (used for interleaving data)
-     * @param [start=0] - How far into the array to start reading values (used for interleaving data)
-     * @param instance - Instancing flag
-     * @returns - Returns self, useful for chaining.
-     */
-    addAttribute(id: string, buffer: Buffer | Float32Array | Uint32Array | Array<number>, size = 0, normalized = false,
-        type?: TYPES, stride?: number, start?: number, instance = false): this
-    {
-        if (!buffer)
-        {
-            throw new Error('You must pass a buffer when creating an attribute');
-        }
-
-        // check if this is a buffer!
-        if (!(buffer instanceof Buffer))
-        {
-            // its an array!
-            if (buffer instanceof Array)
-            {
-                buffer = new Float32Array(buffer);
-            }
-
-            buffer = new Buffer(buffer);
-        }
-
-        const ids = id.split('|');
-
-        if (ids.length > 1)
-        {
-            for (let i = 0; i < ids.length; i++)
-            {
-                this.addAttribute(ids[i], buffer, size, normalized, type);
-            }
-
-            return this;
-        }
-
-        let bufferIndex = this.buffers.indexOf(buffer);
-
-        if (bufferIndex === -1)
-        {
-            this.buffers.push(buffer);
-            bufferIndex = this.buffers.length - 1;
-        }
-
-        this.attributes[id] = new Attribute(bufferIndex, size, normalized, type, stride, start, instance);
-
-        // assuming that if there is instanced data then this will be drawn with instancing!
-        this.instanced = this.instanced || instance;
-
-        return this;
     }
 
     /**
@@ -219,7 +219,7 @@ export class Geometry
      */
     getBuffer(id: string): Buffer
     {
-        return this.buffers[this.getAttribute(id).buffer];
+        return this.buffers[this.getAttribute(id).buffer_index];
     }
 
     /**
@@ -263,64 +263,16 @@ export class Geometry
         return this.indexBuffer;
     }
 
-    /**
-     * This function modifies the structure so that all current attributes become interleaved into a single buffer
-     * This can be useful if your model remains static as it offers a little performance boost
-     * @returns - Returns self, useful for chaining.
-     */
-    interleave(): Geometry
-    {
-        // a simple check to see if buffers are already interleaved..
-        if (this.buffers.length === 1 || (this.buffers.length === 2 && this.indexBuffer)) return this;
-
-        // assume already that no buffers are interleaved
-        const arrays = [];
-        const sizes = [];
-        const interleavedBuffer = new Buffer();
-        let i;
-
-        for (i in this.attributes)
-        {
-            const attribute = this.attributes[i];
-
-            const buffer = this.buffers[attribute.buffer];
-
-            arrays.push(buffer.data);
-
-            sizes.push((attribute.size * byteSizeMap[attribute.type]) / 4);
-
-            attribute.buffer = 0;
-        }
-
-        interleavedBuffer.data = interleaveTypedArrays(arrays, sizes);
-
-        for (i = 0; i < this.buffers.length; i++)
-        {
-            if (this.buffers[i] !== this.indexBuffer)
-            {
-                this.buffers[i].destroy();
-            }
-        }
-
-        this.buffers = [interleavedBuffer];
-
-        if (this.indexBuffer)
-        {
-            this.buffers.push(this.indexBuffer);
-        }
-
-        return this;
-    }
-
     /** Get the size of the geometries, in vertices. */
     getSize(): number
     {
         for (const i in this.attributes)
         {
             const attribute = this.attributes[i];
-            const buffer = this.buffers[attribute.buffer];
+            const buffer = this.buffers[attribute.buffer_index];
+            const attr_info = getAttributeInfoFromFormat(attribute.format);
 
-            return (buffer.data as any).length / ((attribute.stride / 4) || attribute.size);
+            return (buffer.data as any).length / ((attribute.stride / 4) || attr_info.size);
         }
 
         return 0;
@@ -340,43 +292,6 @@ export class Geometry
         this.buffers = null;
         this.indexBuffer = null;
         this.attributes = null;
-    }
-
-    /**
-     * Returns a clone of the geometry.
-     * @returns - A new clone of this geometry.
-     */
-    clone(): Geometry
-    {
-        const geometry = new Geometry();
-
-        for (let i = 0; i < this.buffers.length; i++)
-        {
-            geometry.buffers[i] = new Buffer(this.buffers[i].data.slice(0));
-        }
-
-        for (const i in this.attributes)
-        {
-            const attrib = this.attributes[i];
-
-            geometry.attributes[i] = new Attribute(
-                attrib.buffer,
-                attrib.size,
-                attrib.normalized,
-                attrib.type,
-                attrib.stride,
-                attrib.start,
-                attrib.instance
-            );
-        }
-
-        if (this.indexBuffer)
-        {
-            geometry.indexBuffer = geometry.buffers[this.buffers.indexOf(this.indexBuffer)];
-            geometry.indexBuffer.type = BUFFER_TYPE.ELEMENT_ARRAY_BUFFER;
-        }
-
-        return geometry;
     }
 
     detachBuffers()
@@ -410,110 +325,6 @@ export class Geometry
         this.buffers[ind] = newBuffer;
     }
 
-    /**
-     * Merges an array of geometries into a new single one.
-     *
-     * Geometry attribute styles must match for this operation to work.
-     * @param geometries - array of geometries to merge
-     * @returns - Shiny new geometry!
-     */
-    static merge(geometries: Array<Geometry>): Geometry
-    {
-        // todo add a geometry check!
-        // also a size check.. cant be too big!]
-
-        const geometryOut = new Geometry();
-
-        const arrays = [];
-        const sizes: Array<number> = [];
-        const offsets = [];
-
-        let geometry;
-
-        // pass one.. get sizes..
-        for (let i = 0; i < geometries.length; i++)
-        {
-            geometry = geometries[i];
-
-            for (let j = 0; j < geometry.buffers.length; j++)
-            {
-                sizes[j] = sizes[j] || 0;
-                sizes[j] += geometry.buffers[j].data.length;
-                offsets[j] = 0;
-            }
-        }
-
-        // build the correct size arrays..
-        for (let i = 0; i < geometry.buffers.length; i++)
-        {
-            // TODO types!
-            arrays[i] = new map[getBufferType(geometry.buffers[i].data)](sizes[i]);
-            geometryOut.buffers[i] = new Buffer(arrays[i]);
-        }
-
-        // pass to set data..
-        for (let i = 0; i < geometries.length; i++)
-        {
-            geometry = geometries[i];
-
-            for (let j = 0; j < geometry.buffers.length; j++)
-            {
-                arrays[j].set(geometry.buffers[j].data, offsets[j]);
-                offsets[j] += geometry.buffers[j].data.length;
-            }
-        }
-
-        geometryOut.attributes = geometry.attributes;
-
-        if (geometry.indexBuffer)
-        {
-            geometryOut.indexBuffer = geometryOut.buffers[geometry.buffers.indexOf(geometry.indexBuffer)];
-            geometryOut.indexBuffer.type = BUFFER_TYPE.ELEMENT_ARRAY_BUFFER;
-
-            let offset = 0;
-            let stride = 0;
-            let offset2 = 0;
-            let bufferIndexToCount = 0;
-
-            // get a buffer
-            for (let i = 0; i < geometry.buffers.length; i++)
-            {
-                if (geometry.buffers[i] !== geometry.indexBuffer)
-                {
-                    bufferIndexToCount = i;
-                    break;
-                }
-            }
-
-            // figure out the stride of one buffer..
-            for (const i in geometry.attributes)
-            {
-                const attribute = geometry.attributes[i];
-
-                if ((attribute.buffer | 0) === bufferIndexToCount)
-                {
-                    stride += ((attribute.size * byteSizeMap[attribute.type]) / 4);
-                }
-            }
-
-            // time to off set all indexes..
-            for (let i = 0; i < geometries.length; i++)
-            {
-                const indexBufferData = geometries[i].indexBuffer.data;
-
-                for (let j = 0; j < indexBufferData.length; j++)
-                {
-                    geometryOut.indexBuffer.data[j + offset2] += offset;
-                }
-
-                offset += geometries[i].buffers[bufferIndexToCount].data.length / (stride);
-                offset2 += indexBufferData.length;
-            }
-        }
-
-        return geometryOut;
-    }
-
     getAttributeBaseCallback()
     {
         if (!this._attributeBaseCallback)
@@ -532,7 +343,7 @@ export class Geometry
         {
             const attr = this.attributes[i];
 
-            if (attr.instance && !attr.hasSingleValue)
+            if (attr.instance)
             {
                 instAttribs.push(attr);
             }
@@ -549,7 +360,7 @@ export class Geometry
         {
             const attr = this.attributes[i];
 
-            if (attr.instance && !attr.hasSingleValue)
+            if (attr.instance)
             {
                 instAttribs.push(i);
             }
@@ -561,9 +372,9 @@ export class Geometry
     /**
      * if buffer is used in instanced attribs, returns 1
      * otherwise, returns number of vertices per instance
-     * @param bufInd
+     * @param buf_ind
      */
-    getVertexPerInstance(bufInd: number)
+    getVertexPerInstance(buf_ind: number)
     {
         if (this.vertexPerInstance === 1)
         {
@@ -571,7 +382,7 @@ export class Geometry
         }
         for (const key in this.attributes)
         {
-            if (this.attributes[key].buffer === bufInd)
+            if (this.attributes[key].buffer_index === buf_ind)
             {
                 if (!this.attributes[key].instance)
                 {

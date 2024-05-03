@@ -265,7 +265,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      * @param {PIXI.WRAP_MODES} [options.wrapMode] - Wrap mode for textures
      * @param {PIXI.SCALE_MODES} [options.scaleMode] - Default scale mode, linear, nearest
      * @param {PIXI.FORMATS} [options.format] - GL format type
-     * @param {PIXI.TYPES} [options.type] - GL data type
+     * @param {PIXI.GL_TYPES} [options.type] - GL data type
      * @param {PIXI.TARGETS} [options.target] - GL texture target
      * @param {PIXI.ALPHA_MODES} [options.alphaMode] - Pre multiply the image alpha
      * @param {number} [options.width=0] - Width of the texture
@@ -722,7 +722,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      * @param {PIXI.FORMATS} [options.format] - The format is not given, the type is inferred from the
      *        type of the buffer: `RGBA` if Float32Array, Int8Array, Uint8Array, or Uint8ClampedArray,
      *        otherwise `RGBA_INTEGER`.
-     * @param {PIXI.TYPES} [options.type] - The type is not given, the type is inferred from the
+     * @param {PIXI.GL_TYPES} [options.type] - The type is not given, the type is inferred from the
      *        type of the buffer. Maps Float32Array to `FLOAT`, Int32Array to `INT`, Uint32Array to
      *        `UNSIGNED_INT`, Int16Array to `SHORT`, Uint16Array to `UNSIGNED_SHORT`, Int8Array to `BYTE`,
      *        Uint8Array/Uint8ClampedArray to `UNSIGNED_BYTE`.

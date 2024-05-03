@@ -1,4 +1,4 @@
-import { CLEAR_MODES, DRAW_MODES, MSAA_QUALITY } from '@pixi/constants.js';
+import { CLEAR_MODES, MSAA_QUALITY } from '@pixi/constants.js';
 import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { Matrix, Point, Rectangle } from '@pixi/math/index.js';
 import { RenderTexturePool } from '../renderTexture/RenderTexturePool.js';
@@ -478,12 +478,12 @@ export class FilterSystem implements ISystem
             this.quadUv.map(input._frame, input.filterFrame);
 
             renderer.geometry.bind(this.quadUv);
-            renderer.geometry.draw(DRAW_MODES.TRIANGLES);
+            renderer.geometry.draw('triangle-list');
         }
         else
         {
             renderer.geometry.bind(this.quad);
-            renderer.geometry.draw(DRAW_MODES.TRIANGLE_STRIP);
+            renderer.geometry.draw('triangle-strip');
         }
     }
 

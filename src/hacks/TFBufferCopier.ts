@@ -1,4 +1,14 @@
-import { Buffer, BufferCopyOperation, Geometry, IBufferCopier, Program, Renderer, Shader } from '@pixi/core/index.js';
+import {
+    AttributesOption,
+    Buffer,
+    BufferCopyOperation,
+    Geometry,
+    IBufferCopier,
+    Program,
+    Renderer,
+    Shader,
+} from '@pixi/core/index.js';
+import { Dict } from '@pixi/utils';
 
 const fragment = `#version 300 es
 precision highp float;
@@ -39,12 +49,19 @@ precision highp int;
     return code;
 }
 
-function genAttribs(geom: Geometry, buf: Buffer, elemSize: number, elemCount: number)
+function genAttribs(buf: Buffer, elemSize: number, elemCount: number): Dict<AttributesOption>
 {
+    const attr: Dict<AttributesOption> = {};
+
     for (let i = 1; i <= elemCount; i++)
     {
-        geom.addAttribute(`a_silly${i}`, buf, elemSize);
+        attr[`a_silly${i}`] = {
+            buffer: buf,
+            format: `float32x${elemSize}}` as any
+        };
     }
+
+    return attr;
 }
 
 function genVaryings(elemCount: number): string[]
@@ -109,8 +126,9 @@ export class TFBufferCopier implements IBufferCopier
     initGeom()
     {
         this.tempBuffer = new Buffer(new Float32Array());
-        this.geom = new Geometry();
-        genAttribs(this.geom, this.tempBuffer, this.elemSize, this.elemCount);
+        this.geom = new Geometry({
+            attributes: genAttribs(this.tempBuffer, this.elemSize, this.elemCount)
+        });
     }
 
     doCopy(renderer: Renderer, src: Buffer, target: Buffer, strideBytes: number,

@@ -1,7 +1,7 @@
 import { getBufferType } from '@pixi/utils/index.js';
 
 import type { Dict } from '@pixi/utils/index.js';
-import type { ITypedArray } from '../Buffer.js';
+import type { TypedArray } from '../Buffer.js';
 
 /* eslint-disable object-shorthand */
 const map: Dict<any> = {
@@ -11,7 +11,7 @@ const map: Dict<any> = {
     Uint8Array: Uint8Array,
 };
 
-export function interleaveTypedArrays(arrays: Array<ITypedArray>, sizes: Array<number>): Float32Array
+export function interleaveTypedArrays(arrays: Array<TypedArray>, sizes: Array<number>): Float32Array
 {
     let outSize = 0;
     let stride = 0;

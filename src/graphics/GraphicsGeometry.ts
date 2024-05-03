@@ -4,9 +4,8 @@ import {
     BatchGeometry,
     BatchTextureArray,
     Color,
-    DRAW_MODES,
-    Point,
-    WRAP_MODES
+    Point, Topology,
+    WRAP_MODES,
 } from '@pixi/core';
 import { Bounds } from '@pixi/display/index.js';
 import { GraphicsData } from './GraphicsData.js';
@@ -579,13 +578,13 @@ export class GraphicsGeometry extends BatchGeometry
         currentGroup.texArray.count = 0;
         currentGroup.start = 0;
         currentGroup.size = 0;
-        currentGroup.type = DRAW_MODES.TRIANGLES;
+        currentGroup.type = 'triangle-list';
 
         let textureCount = 0;
         let currentTexture = null;
         let textureId = 0;
         let native = false;
-        let drawMode = DRAW_MODES.TRIANGLES;
+        let drawMode: Topology = 'triangle-list';
 
         let index = 0;
 
@@ -607,7 +606,7 @@ export class GraphicsGeometry extends BatchGeometry
             if (native !== !!style.native)
             {
                 native = !!style.native;
-                drawMode = native ? DRAW_MODES.LINES : DRAW_MODES.TRIANGLES;
+                drawMode = native ? 'line-list' : 'triangle-list';
 
                 // force the batch to break!
                 currentTexture = null;

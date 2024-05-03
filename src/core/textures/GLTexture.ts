@@ -1,4 +1,4 @@
-import { FORMATS, TYPES } from '@pixi/constants.js';
+import { FORMATS, GL_TYPES } from '@pixi/constants.js';
 
 /**
  * Internal texture for WebGL context.
@@ -54,7 +54,7 @@ export class GLTexture
         this.dirtyStyleId = -1;
         this.mipmap = false;
         this.wrapMode = 33071;
-        this.type = TYPES.UNSIGNED_BYTE;
+        this.type = GL_TYPES.UNSIGNED_BYTE;
         this.internalFormat = FORMATS.RGBA;
         this.dataLength = 0;
 

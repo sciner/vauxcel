@@ -1,4 +1,4 @@
-import type { ITypedArray } from './Buffer.js';
+import type { TypedArray } from './Buffer.js';
 
 /**
  * Flexible wrapper around `ArrayBuffer` that also provides typed array views on demand.
@@ -113,7 +113,7 @@ export class ViewableBuffer
      *    `uint16`, `int32`, `uint32`, and `float32`.
      * @returns - typed array of given type
      */
-    view(type: string): ITypedArray
+    view(type: string): TypedArray
     {
         return (this as any)[`${type}View`];
     }

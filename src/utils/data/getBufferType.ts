@@ -1,7 +1,7 @@
-import type { ITypedArray } from '@pixi/core/index.js';
+import type { TypedArray } from '@pixi/core/index.js';
 
 export function getBufferType(
-    array: ITypedArray
+    array: TypedArray
 ): 'Float32Array' | 'Uint32Array' | 'Int32Array' | 'Uint16Array' | 'Uint8Array' | null
 {
     if (array.BYTES_PER_ELEMENT === 4)

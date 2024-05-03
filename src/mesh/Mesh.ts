@@ -1,4 +1,4 @@
-import { DRAW_MODES, Point, Polygon, settings, State } from '@pixi/core/index.js';
+import { Point, Polygon, settings, State, Topology } from '@pixi/core/index.js';
 import { Container } from '@pixi/display/index.js';
 import { MeshBatchUvs } from './MeshBatchUvs.js';
 
@@ -50,7 +50,7 @@ export class Mesh<T extends Shader = MeshMaterial> extends Container
     public state: State;
 
     /** The way the Mesh should be drawn, can be any of the {@link PIXI.DRAW_MODES} constants. */
-    public drawMode: DRAW_MODES;
+    public topology: Topology;
 
     /**
      * Typically the index of the IndexBuffer where to start drawing.
@@ -101,14 +101,14 @@ export class Mesh<T extends Shader = MeshMaterial> extends Container
      *        if no state is provided, uses {@link PIXI.State.for2d} to create a 2D state for PixiJS.
      * @param drawMode - The drawMode, can be any of the {@link PIXI.DRAW_MODES} constants.
      */
-    constructor(geometry: Geometry, shader: T, state?: State, drawMode: DRAW_MODES = DRAW_MODES.TRIANGLES)
+    constructor(geometry: Geometry, shader: T, state?: State, topology: Topology = 'triangle-list')
     {
         super();
 
         this.geometry = geometry;
         this.shader = shader;
         this.state = state || State.for2d();
-        this.drawMode = drawMode;
+        this.topology = topology;
         this.start = 0;
         this.size = 0;
 
@@ -276,7 +276,7 @@ export class Mesh<T extends Shader = MeshMaterial> extends Container
         // TODO benchmark check for attribute size..
         if (
             shader.batchable
-            && this.drawMode === DRAW_MODES.TRIANGLES
+            && this.topology === 'triangle-list'
             && vertices.length < Mesh.BATCHABLE_SIZE * 2
         )
         {
@@ -315,7 +315,7 @@ export class Mesh<T extends Shader = MeshMaterial> extends Container
         renderer.geometry.bind(this.geometry, shader);
 
         // then render it
-        renderer.geometry.draw(this.drawMode, this.size, this.start, this.geometry.instanceCount);
+        renderer.geometry.draw(this.topology, this.size, this.start, this.geometry.instanceCount);
     }
 
     /**
@@ -448,7 +448,7 @@ export class Mesh<T extends Shader = MeshMaterial> extends Container
         const points = tempPolygon.points;
         const indices = this.geometry.getIndex().data;
         const len = indices.length;
-        const step = this.drawMode === 4 ? 3 : 1;
+        const step = this.topology === 'triangle-list' ? 3 : 1;
 
         for (let i = 0; i + 2 < len; i += step)
         {

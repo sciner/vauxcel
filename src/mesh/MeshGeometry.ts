@@ -1,4 +1,4 @@
-import { Buffer, Geometry, TYPES } from '@pixi/core/index.js';
+import { Buffer, Geometry } from '@pixi/core/index.js';
 
 import type { IArrayBuffer } from '@pixi/core/index.js';
 
@@ -35,15 +35,23 @@ export class MeshGeometry extends Geometry
      */
     constructor(vertices?: IArrayBuffer, uvs?: IArrayBuffer, index?: IArrayBuffer)
     {
-        super();
-
         const verticesBuffer = new Buffer(vertices);
         const uvsBuffer = new Buffer(uvs, true);
         const indexBuffer = new Buffer(index, true, true);
 
-        this.addAttribute('aVertexPosition', verticesBuffer, 2, false, TYPES.FLOAT)
-            .addAttribute('aTextureCoord', uvsBuffer, 2, false, TYPES.FLOAT)
-            .addIndex(indexBuffer);
+        super({
+            attributes: {
+                aVertexPosition: {
+                    buffer: verticesBuffer,
+                    format: 'float32x2'
+                },
+                aTextureCoord: {
+                    buffer: uvsBuffer,
+                    format: 'float32x2'
+                }
+            },
+            indexBuffer
+        });
 
         this._updateId = -1;
     }

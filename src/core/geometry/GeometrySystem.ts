@@ -1,11 +1,12 @@
-import { BUFFER_TYPE, ENV } from '@pixi/constants.js';
+import { BUFFER_TYPE, ENV, Topology } from '@pixi/constants.js';
 import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { settings } from '@pixi/settings/index.js';
 import { Buffer } from './Buffer.js';
 import { BufferCopyOperation, IBufferCopier } from './BufferCopyOperation.js';
 import { GeometryPerGL, GeometryPerShader } from './Geometry.js';
+import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat.js';
+import { getGlTypeFromFormat } from './utils/getGlTypeFromFormat.js';
 
-import type { DRAW_MODES } from '@pixi/constants.js';
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Dict } from '@pixi/utils/index.js';
 import type { IRenderingContext } from '../IRenderer.js';
@@ -15,9 +16,12 @@ import type { Shader } from '../shader/Shader.js';
 import type { ISystem } from '../system/ISystem.js';
 import type { Geometry } from './Geometry.js';
 
-const byteSizeMap: {[key: number]: number} = {
-    5126: 4, 5123: 2, 5121: 1,
-    5125: 4, 5124: 4, 5122: 2, 5120: 1
+export const topologyToGlMap = {
+    'point-list': 0x0000,
+    'line-list': 0x0001,
+    'line-strip': 0x0003,
+    'triangle-list': 0x0004,
+    'triangle-strip': 0x0005
 };
 
 /**
@@ -306,7 +310,7 @@ export class GeometrySystem implements ISystem
 
         if (geometry.attributeDirty)
         {
-            this.checkAttributes(geometry, program);
+            this.checkAttributes(geometry);
         }
 
         // @TODO: We don't know if VAO is supported.
@@ -337,7 +341,7 @@ export class GeometrySystem implements ISystem
         return gps;
     }
 
-    checkAttributes(geometry: Geometry, program: Program)
+    checkAttributes(geometry: Geometry)
     {
         if (!geometry.attributeDirty)
         {
@@ -358,43 +362,35 @@ export class GeometrySystem implements ISystem
 
         for (const j in attributes)
         {
-            if (!attributes[j].size && program.attributeData[j])
-            {
-                attributes[j].size = program.attributeData[j].size;
-            }
-            else if (!attributes[j].size)
-            {
-                console.warn(`PIXI Geometry attribute '${j}' size cannot be determined (likely the bound shader does not have the attribute)`);  // eslint-disable-line
-            }
+            const bufIndex = attributes[j].buffer_index;
+            const attr_info = getAttributeInfoFromFormat(attributes[j].format);
 
-            const bufIndex = attributes[j].buffer;
-
-            tempStride[bufIndex] += attributes[j].size * byteSizeMap[attributes[j].type];
+            tempStride[bufIndex] += attr_info.stride;
             geometry.bufferStride[bufIndex] = tempStride[bufIndex];
         }
 
         for (const j in attributes)
         {
             const attribute = attributes[j];
-            const attribSize = attribute.size;
+            const attr_info = getAttributeInfoFromFormat(attributes[j].format);
 
             if (attribute.stride === undefined)
             {
-                if (tempStride[attribute.buffer] === attribSize * byteSizeMap[attribute.type])
+                if (tempStride[attribute.buffer_index] === attr_info.stride)
                 {
                     attribute.stride = 0;
                 }
                 else
                 {
-                    attribute.stride = tempStride[attribute.buffer];
+                    attribute.stride = tempStride[attribute.buffer_index];
                 }
             }
 
             if (attribute.start === undefined)
             {
-                attribute.start = tempStart[attribute.buffer];
+                attribute.start = tempStart[attribute.buffer_index];
 
-                tempStart[attribute.buffer] += attribSize * byteSizeMap[attribute.type];
+                tempStart[attribute.buffer_index] += attr_info.stride;
             }
         }
     }
@@ -590,10 +586,12 @@ export class GeometrySystem implements ISystem
         for (const j in attributes)
         {
             const attribute = attributes[j];
-            const buffer = buffers[attribute.buffer];
+            const buffer = buffers[attribute.buffer_index];
             const glBuffer = buffer._glBuffers[CONTEXT_UID];
 
-            if (program.attributeData[j])
+            const program_attrib = program.attributeData[j];
+
+            if (program_attrib)
             {
                 if (!glBuffer || lastBuffer !== glBuffer)
                 {
@@ -601,28 +599,30 @@ export class GeometrySystem implements ISystem
                     lastBuffer = buffer._glBuffers[CONTEXT_UID];
                 }
 
-                const location = program.attributeData[j].location;
+                const location = program_attrib.location;
+                const attr_info = getAttributeInfoFromFormat(attribute.format);
+                const type = getGlTypeFromFormat(attribute.format);
 
                 // TODO introduce state again
                 // we can optimise this for older devices that have no VAOs
                 gl.enableVertexAttribArray(location);
 
-                if (attribute.int)
+                if (attribute.format.substring(1, 4) === 'int')
                 {
                     gl.vertexAttribIPointer(location,
-                        attribute.size,
-                        attribute.type || gl.INT,
+                        attr_info.size,
+                        type,
                         attribute.stride,
-                        attribute.start);
+                        attribute.offset);
                 }
                 else
                 {
                     gl.vertexAttribPointer(location,
-                        attribute.size,
-                        attribute.type || gl.FLOAT,
-                        attribute.normalized,
+                        attr_info.size,
+                        type,
+                        attr_info.normalised,
                         attribute.stride,
-                        attribute.start);
+                        attribute.offset);
                 }
 
                 if (attribute.instance)
@@ -630,7 +630,7 @@ export class GeometrySystem implements ISystem
                     // TODO calculate instance count based of this...
                     if (this.hasInstance)
                     {
-                        gl.vertexAttribDivisor(location, attribute.divisor);
+                        gl.vertexAttribDivisor(location, 1);
                     }
                     else
                     {
@@ -643,7 +643,7 @@ export class GeometrySystem implements ISystem
 
     /**
      * Draws the currently bound geometry.
-     * @param type - The type primitive to render.
+     * @param topology - The type primitive to render.
      * @param size - The number of elements to be rendered. If not specified, all vertices after the
      *  starting vertex will be drawn.
      * @param start - The starting vertex in the geometry to start drawing from. If not specified,
@@ -651,14 +651,15 @@ export class GeometrySystem implements ISystem
      * @param instanceCount - The number of instances of the set of elements to execute. If not specified,
      *  all instances will be drawn.
      */
-    draw(type: DRAW_MODES, size?: number, start?: number, instanceCount?: number): this
+    draw(topology?: Topology, size?: number, start?: number, instanceCount?: number): this
     {
         const { gl } = this;
         const geometry = this._activeGeometry;
+        const gl_draw_mode = topologyToGlMap[geometry.topology || topology];
 
         if (this._activeGPS.emulateBaseInstance !== 0)
         {
-            this.drawBI(type, size, start, instanceCount, 0);
+            this.drawBI(gl_draw_mode, size, start, instanceCount, 0);
         }
 
         // TODO.. this should not change so maybe cache the function?
@@ -673,13 +674,13 @@ export class GeometrySystem implements ISystem
                 if (geometry.instanced)
                 {
                     /* eslint-disable max-len */
-                    gl.drawElementsInstanced(type, size || geometry.indexBuffer.data.length, glType, (start || 0) * byteSize, instanceCount || 1);
+                    gl.drawElementsInstanced(gl_draw_mode, size || geometry.indexBuffer.data.length, glType, (start || 0) * byteSize, instanceCount || 1);
                     /* eslint-enable max-len */
                 }
                 else
                 {
                     /* eslint-disable max-len */
-                    gl.drawElements(type, size || geometry.indexBuffer.data.length, glType, (start || 0) * byteSize);
+                    gl.drawElements(gl_draw_mode, size || geometry.indexBuffer.data.length, glType, (start || 0) * byteSize);
                     /* eslint-enable max-len */
                 }
             }
@@ -691,17 +692,17 @@ export class GeometrySystem implements ISystem
         else if (geometry.instanced)
         {
             // TODO need a better way to calculate size..
-            gl.drawArraysInstanced(type, start, size || geometry.getSize(), instanceCount || 1);
+            gl.drawArraysInstanced(gl_draw_mode, start, size || geometry.getSize(), instanceCount || 1);
         }
         else
         {
-            gl.drawArrays(type, start, size || geometry.getSize());
+            gl.drawArrays(gl_draw_mode, start, size || geometry.getSize());
         }
 
         return this;
     }
 
-    drawBI(type: DRAW_MODES, size: number, start: number, instanceCount: number, baseInstance = 0)
+    drawBI(gl_draw_mode: number, size: number, start: number, instanceCount: number, baseInstance = 0)
     {
         const { renderer } = this;
         const { gl } = renderer;
@@ -712,7 +713,7 @@ export class GeometrySystem implements ISystem
 
         if (bvbi)
         {
-            bvbi.drawArraysInstancedBaseInstanceWEBGL(type, start, size, instanceCount, baseInstance);
+            bvbi.drawArraysInstancedBaseInstanceWEBGL(gl_draw_mode, start, size, instanceCount, baseInstance);
         }
         else
         {
@@ -737,7 +738,7 @@ export class GeometrySystem implements ISystem
                     gps.emulateBaseInstance = baseInstance;
                     attribSync.syncFunc(gl, gps.instLocations, baseInstance);
                 }
-                gl.drawArraysInstanced(type, start, size, instanceCount);
+                gl.drawArraysInstanced(gl_draw_mode, start, size, instanceCount);
             }
             else
             {
@@ -750,12 +751,12 @@ export class GeometrySystem implements ISystem
                     this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstance,
                         bufferSystem, buffers, this._activeBB);
                 }
-                gl.drawArraysInstanced(type, start, size, instanceCount);
+                gl.drawArraysInstanced(gl_draw_mode, start, size, instanceCount);
             }
         }
     }
 
-    multiDrawArraysBVBI(type: DRAW_MODES, firsts: Int32Array, counts: Int32Array,
+    multiDrawArraysBVBI(firsts: Int32Array, counts: Int32Array,
         instanceCounts: Int32Array, instanceOffsets: Uint32Array, rangeCount: number): void
     {
         const { renderer } = this;
@@ -763,13 +764,14 @@ export class GeometrySystem implements ISystem
         const geometry = this._activeGeometry;
         const gps = this._activeGPS;
         const program = this.renderer.shader.shader.program;
+        const gl_draw_mode = topologyToGlMap[geometry.topology];
 
         const { md_bvbi } = renderer.context.extensions;
 
         if (md_bvbi)
         {
             md_bvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
-                type,
+                gl_draw_mode,
                 firsts, 0,
                 counts, 0,
                 instanceCounts, 0,
@@ -796,7 +798,7 @@ export class GeometrySystem implements ISystem
                         gps.emulateBaseInstance = instanceOffsets[i];
                         attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
                     }
-                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
                 }
             }
             else
@@ -812,13 +814,13 @@ export class GeometrySystem implements ISystem
                         this._activeBB = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
                             bufferSystem, buffers, this._activeBB);
                     }
-                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
                 }
             }
         }
     }
 
-    multiDrawArraysBVBI_offset(type: DRAW_MODES, firsts: Int32Array, counts: Int32Array,
+    multiDrawArraysBVBI_offset(firsts: Int32Array, counts: Int32Array,
         instanceCounts: Int32Array, instanceOffsets: Uint32Array, rangeCount: number, rangeOffset: number): void
     {
         const { renderer } = this;
@@ -826,13 +828,14 @@ export class GeometrySystem implements ISystem
         const geometry = this._activeGeometry;
         const gps = this._activeGPS;
         const program = this.renderer.shader.shader.program;
+        const gl_draw_mode = topologyToGlMap[geometry.topology];
 
         const { md_bvbi } = renderer.context.extensions;
 
         if (md_bvbi)
         {
             md_bvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
-                type,
+                gl_draw_mode,
                 firsts, rangeOffset,
                 counts, rangeOffset,
                 instanceCounts, rangeOffset,
@@ -859,7 +862,7 @@ export class GeometrySystem implements ISystem
                         gps.emulateBaseInstance = instanceOffsets[i];
                         attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i]);
                     }
-                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
                 }
             }
             else
@@ -875,7 +878,7 @@ export class GeometrySystem implements ISystem
                         this._activeBB = attribSync.syncFunc(gl, gps.instLocations, instanceOffsets[i],
                             bufferSystem, buffers, this._activeBB);
                     }
-                    gl.drawArraysInstanced(type, 0, counts[i], instanceCounts[i]);
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
                 }
             }
         }

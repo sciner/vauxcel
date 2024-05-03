@@ -276,52 +276,56 @@ export enum BLEND_MODES
     INVERSE = 30,
 }
 
+export type Topology =
+    'point-list'
+    | 'line-list'
+    | 'line-strip'
+    | 'triangle-list'
+    | 'triangle-strip';
+
+export const DRAW_MODES = {
+    POINTS: 'point-list',
+    LINES: 'line-list',
+    LINE_STRIP: 'line-strip',
+    TRIANGLES: 'triangle-list',
+    TRIANGLE_STRIP: 'triangle-strip',
+};
+
 /**
- * Various webgl draw modes. These can be used to specify which GL drawMode to use
- * under certain situations and renderers.
- * @memberof PIXI
- * @static
- * @enum {number}
+ * The different types of vertex formats supported by the renderer
+ * @memberof rendering
  */
-export enum DRAW_MODES
-// eslint-disable-next-line @typescript-eslint/indent
-{
-    /**
-     * To draw a series of points.
-     * @default 0
-     */
-    POINTS,
-    /**
-     *  To draw a series of unconnected line segments (individual lines).
-     * @default 1
-     */
-    LINES,
-    /**
-     *  To draw a series of connected line segments. It also joins the first and last vertices to form a loop.
-     * @default 2
-     */
-    LINE_LOOP,
-    /**
-     * To draw a series of connected line segments.
-     * @default 3
-     */
-    LINE_STRIP,
-    /**
-     * To draw a series of separate triangles.
-     * @default 4
-     */
-    TRIANGLES,
-    /**
-     * To draw a series of connected triangles in strip fashion.
-     * @default 5
-     */
-    TRIANGLE_STRIP,
-    /**
-     * To draw a series of connected triangles sharing the first vertex in a fan-like fashion.
-     * @default 6
-     */
-    TRIANGLE_FAN,
-}
+export type VertexFormat =
+    | 'uint8x2'
+    | 'uint8x4'
+    | 'sint8x2'
+    | 'sint8x4'
+    | 'unorm8x2'
+    | 'unorm8x4'
+    | 'snorm8x2'
+    | 'snorm8x4'
+    | 'uint16x2'
+    | 'uint16x4'
+    | 'sint16x2'
+    | 'sint16x4'
+    | 'unorm16x2'
+    | 'unorm16x4'
+    | 'snorm16x2'
+    | 'snorm16x4'
+    | 'float16x2'
+    | 'float16x4'
+    | 'float32'
+    | 'float32x2'
+    | 'float32x3'
+    | 'float32x4'
+    | 'uint32'
+    | 'uint32x2'
+    | 'uint32x3'
+    | 'uint32x4'
+    | 'sint32'
+    | 'sint32x2'
+    | 'sint32x3'
+    | 'sint32x4';
 
 export type TEXTURE_FORMATS =
 // eslint-disable-next-line @typescript-eslint/indent
@@ -508,7 +512,7 @@ export enum TARGETS
  * @static
  * @enum {number}
  */
-export enum TYPES
+export enum GL_TYPES
 // eslint-disable-next-line @typescript-eslint/indent
 {
     /**

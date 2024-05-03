@@ -1,6 +1,17 @@
-import { TYPES } from '@pixi/constants.js';
+import { VertexFormat } from '@pixi/constants.js';
+import { Buffer, ensureIsBuffer, TypedArray } from './Buffer.js';
 
 /* eslint-disable max-len */
+
+/**
+ * The attribute options used by the constructor for adding geometries attributes
+ * extends {@link rendering.Attribute} but allows for the buffer to be a typed or number array
+ * @memberof rendering
+ */
+export type AttributesOption = Omit<IAttribute, 'buffer'> & { buffer: Buffer | TypedArray | number[]}
+| Buffer | TypedArray | number[];
+
+export type IAttribute = Partial<Attribute>;
 
 /**
  * Holds the information for a single attribute structure required to render geometry.
@@ -11,60 +22,45 @@ import { TYPES } from '@pixi/constants.js';
  */
 export class Attribute
 {
-    public buffer: number;
-    public size: number;
-    public normalized: boolean;
-    public type: TYPES;
-    public stride: number;
-    public start: number;
-    public instance: boolean;
-    public divisor: number;
-    public int: boolean;
-    public hasSingleValue: boolean;
-
+    buffer: Buffer;
+    buffer_index = -1;
+    /** the format of the attribute */
+    format: VertexFormat;
+    /** set where the shader location is for this attribute */
+    location: number;
+    /** the stride of the data in the buffer*/
+    stride: number;
+    /** the offset of the attribute from the buffer, defaults to 0 */
+    offset: number;
+    /** is this an instanced buffer? (defaults to false) */
+    instance: boolean;
     /**
-     * @param buffer - the id of the buffer that this attribute will look for
-     * @param size - the size of the attribute. If you have 2 floats per vertex (eg position x and y) this would be 2.
-     * @param normalized - should the data be normalized.
-     * @param {PIXI.TYPES} [type=PIXI.TYPES.FLOAT] - what type of number is the attribute. Check {@link PIXI.TYPES} to see the ones available
-     * @param [stride=0] - How far apart, in bytes, the start of each value is. (used for interleaving data)
-     * @param [start=0] - How far into the array to start reading values (used for interleaving data)
-     * @param [instance=false] - Whether the geometry is instanced.
-     * @param [divisor=1] - Divisor to use when doing instanced rendering
+     * The starting vertex in the geometry to start drawing from. If not specified,
+     *  drawing will start from the first vertex.
      */
-    constructor(buffer: number, size = 0, normalized = false, type = TYPES.FLOAT, stride?: number, start?: number, instance?: boolean, divisor = 1)
+    start: number;
+
+    constructor(attr: IAttribute)
     {
-        this.buffer = buffer;
-        this.size = size;
-        this.normalized = normalized;
-        this.type = type;
-        this.stride = stride;
-        this.start = start;
-        this.instance = instance;
-        this.divisor = divisor;
-        this.int = !normalized && (type === TYPES.INT || type === TYPES.UNSIGNED_INT
-            || type === TYPES.SHORT || type === TYPES.UNSIGNED_SHORT
-            || type === TYPES.BYTE || type === TYPES.UNSIGNED_BYTE);
-        this.hasSingleValue = false;
+        this.buffer = attr.buffer || null;
+        this.format = attr.format || 'float32';
+        this.stride = attr.stride || 0;
+        this.offset = attr.offset || 0;
+        this.instance = attr.instance || false;
+        this.location = attr.location || -1;
+    }
+}
+
+export function ensureIsAttribute(attribute: AttributesOption): IAttribute
+{
+    if (attribute instanceof Buffer || Array.isArray(attribute) || (attribute as TypedArray).BYTES_PER_ELEMENT)
+    {
+        attribute = {
+            buffer: attribute as Buffer | TypedArray | number[],
+        };
     }
 
-    /** Destroys the Attribute. */
-    destroy(): void
-    {
-        this.buffer = null;
-    }
+    (attribute as Attribute).buffer = ensureIsBuffer(attribute.buffer as Buffer | TypedArray | number[], false);
 
-    /**
-     * Helper function that creates an Attribute based on the information provided
-     * @param buffer - the id of the buffer that this attribute will look for
-     * @param [size=0] - the size of the attribute. If you have 2 floats per vertex (eg position x and y) this would be 2
-     * @param [normalized=false] - should the data be normalized.
-     * @param [type=PIXI.TYPES.FLOAT] - what type of number is the attribute. Check {@link PIXI.TYPES} to see the ones available
-     * @param [stride=0] - How far apart, in bytes, the start of each value is. (used for interleaving data)
-     * @returns - A new {@link PIXI.Attribute} based on the information provided
-     */
-    static from(buffer: number, size?: number, normalized?: boolean, type?: TYPES, stride?: number): Attribute
-    {
-        return new Attribute(buffer, size, normalized, type, stride);
-    }
+    return attribute as Attribute;
 }

@@ -1,4 +1,4 @@
-import { DRAW_MODES } from '@pixi/constants.js';
+import { Topology } from '@pixi/constants.js';
 
 import type { BLEND_MODES } from '@pixi/constants.js';
 import type { BatchTextureArray } from './BatchTextureArray.js';
@@ -11,7 +11,7 @@ import type { BatchTextureArray } from './BatchTextureArray.js';
 export class BatchDrawCall
 {
     texArray: BatchTextureArray;
-    type: DRAW_MODES;
+    type: Topology;
     blend: BLEND_MODES;
     start: number;
     size: number;
@@ -23,7 +23,7 @@ export class BatchDrawCall
     {
         this.texArray = null;
         this.blend = 0;
-        this.type = DRAW_MODES.TRIANGLES;
+        this.type = 'triangle-list';
 
         this.start = 0;
         this.size = 0;

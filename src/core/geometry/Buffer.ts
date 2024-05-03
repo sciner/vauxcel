@@ -16,20 +16,9 @@ export interface IArrayBuffer extends ArrayBuffer // eslint-disable-line @typesc
 {
 }
 
-/**
- * PixiJS classes use this type instead of ArrayBuffer and typed arrays
- * to support expressions like `geometry.buffers[0].data[0] = position.x`.
- *
- * Gives access to indexing and `length` field.
- * - @popelyshev: If data is actually ArrayBuffer and throws Exception on indexing - its user problem :)
- * @memberof PIXI
- */
-export interface ITypedArray extends IArrayBuffer
-{
-    readonly length: number;
-    [index: number]: number;
-    readonly BYTES_PER_ELEMENT: number;
-}
+/** All the various typed arrays that exist in js */
+// eslint-disable-next-line max-len
+export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
 
 /**
  * A wrapper for data so that it can be used and uploaded by WebGL
@@ -41,9 +30,9 @@ export class Buffer
      * The data in the buffer, as a typed array
      * @type {PIXI.IArrayBuffer}
      */
-    public data: ITypedArray;
+    public data: TypedArray;
 
-    public _dataInt32: ITypedArray = null;
+    public _dataInt32: TypedArray = null;
 
     /**
      * Instead of data, you can specify byte length
@@ -78,7 +67,7 @@ export class Buffer
      */
     constructor(data?: IArrayBuffer, _static = true, index = false)
     {
-        this.data = data as ITypedArray || null;
+        this.data = data as TypedArray || null;
 
         this.byteLength = 0;
         this._glBuffers = {};
@@ -106,7 +95,7 @@ export class Buffer
         {
             data = new Float32Array(data);
         }
-        this.data = (data as ITypedArray) || this.data;
+        this.data = (data as TypedArray) || this.data;
         this._updateID++;
     }
 
@@ -166,4 +155,29 @@ export class Buffer
 
         return new Buffer(data);
     }
+}
+
+export function ensureIsBuffer(buffer: Buffer | TypedArray | number[], index: boolean): Buffer
+{
+    if (!(buffer instanceof Buffer))
+    {
+        // let usage: number = index ? BufferUsage.INDEX : BufferUsage.VERTEX;
+
+        // its an array!
+        if (buffer instanceof Array)
+        {
+            if (index)
+            {
+                buffer = new Uint32Array(buffer);
+            }
+            else
+            {
+                buffer = new Float32Array(buffer);
+            }
+        }
+
+        buffer = new Buffer(buffer, true, index);
+    }
+
+    return buffer;
 }

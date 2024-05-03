@@ -20,28 +20,41 @@ export class QuadUv extends Geometry
 
     constructor()
     {
-        super();
-
-        this.vertices = new Float32Array([
+        const vertices = new Float32Array([
             -1, -1,
             1, -1,
             1, 1,
             -1, 1,
         ]);
 
-        this.uvs = new Float32Array([
+        const uvs = new Float32Array([
             0, 0,
             1, 0,
             1, 1,
             0, 1,
         ]);
 
-        this.vertexBuffer = new Buffer(this.vertices);
-        this.uvBuffer = new Buffer(this.uvs);
+        const vertexBuffer = new Buffer(vertices);
+        const uvBuffer = new Buffer(uvs);
 
-        this.addAttribute('aVertexPosition', this.vertexBuffer)
-            .addAttribute('aTextureCoord', this.uvBuffer)
-            .addIndex([0, 1, 2, 0, 2, 3]);
+        super({
+            attributes: {
+                aVertexPosition: {
+                    buffer: vertexBuffer,
+                    format: 'float32x2'
+                },
+                aTextureCoord: {
+                    buffer: uvBuffer,
+                    format: 'float32x2'
+                }
+            },
+            indexBuffer: [0, 1, 2, 0, 2, 3]
+        });
+
+        this.vertices = vertices;
+        this.uvs = uvs;
+        this.vertexBuffer = vertexBuffer;
+        this.uvBuffer = uvBuffer;
     }
 
     /**

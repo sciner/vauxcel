@@ -8,14 +8,19 @@ export class Quad extends Geometry
 {
     constructor()
     {
-        super();
-
-        this.addAttribute('aVertexPosition', new Float32Array([
-            0, 0,
-            1, 0,
-            1, 1,
-            0, 1,
-        ]))
-            .addIndex([0, 1, 3, 2]);
+        super({
+            attributes: {
+                aVertexPosition: {
+                    buffer: new Float32Array([
+                        0, 0,
+                        1, 0,
+                        1, 1,
+                        0, 1,
+                    ]),
+                    format: 'float32x2',
+                }
+            },
+            indexBuffer: [0, 1, 3, 2]
+        });
     }
 }

@@ -20,8 +20,7 @@ export class BatchGeometryProto extends Geometry
                     buffer: buf
                 },
                 aColor: {
-                    location: 0,
-                    format: 'uint8x4',
+                    format: 'unorm8x4',
                     offset: 4 * 4,
                     buffer: buf
                 },
@@ -73,8 +72,8 @@ export class BatchGeometry extends Geometry
             proto: BatchGeometryProto.inst
         });
 
-        this._buffer = new Buffer(null, _static, false);
+        this._buffer = buf;
 
-        this._indexBuffer = new Buffer(null, _static, true);
+        this._indexBuffer = index_buf;
     }
 }

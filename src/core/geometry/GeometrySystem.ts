@@ -351,13 +351,13 @@ export class GeometrySystem implements ISystem
         geometry.attributeDirty = false;
         const buffers = geometry.buffers;
         const attributes = geometry.attributes;
-        const tempStride: Dict<number> = {};
-        const tempStart: Dict<number> = {};
+        const temp_stride: Dict<number> = {};
+        const temp_offset: Dict<number> = {};
 
         for (const j in buffers)
         {
-            tempStride[j] = 0;
-            tempStart[j] = 0;
+            temp_stride[j] = 0;
+            temp_offset[j] = 0;
         }
 
         for (const j in attributes)
@@ -365,8 +365,8 @@ export class GeometrySystem implements ISystem
             const bufIndex = attributes[j].buffer_index;
             const attr_info = getAttributeInfoFromFormat(attributes[j].format);
 
-            tempStride[bufIndex] += attr_info.stride;
-            geometry.bufferStride[bufIndex] = tempStride[bufIndex];
+            temp_stride[bufIndex] += attr_info.stride;
+            geometry.bufferStride[bufIndex] = temp_stride[bufIndex];
         }
 
         for (const j in attributes)
@@ -376,21 +376,21 @@ export class GeometrySystem implements ISystem
 
             if (attribute.stride === undefined)
             {
-                if (tempStride[attribute.buffer_index] === attr_info.stride)
+                if (temp_stride[attribute.buffer_index] === attr_info.stride)
                 {
                     attribute.stride = 0;
                 }
                 else
                 {
-                    attribute.stride = tempStride[attribute.buffer_index];
+                    attribute.stride = temp_stride[attribute.buffer_index];
                 }
             }
 
-            if (attribute.start === undefined)
+            if (attribute.offset === undefined)
             {
-                attribute.start = tempStart[attribute.buffer_index];
+                attribute.offset = temp_offset[attribute.buffer_index];
 
-                tempStart[attribute.buffer_index] += attr_info.stride;
+                temp_offset[attribute.buffer_index] += attr_info.stride;
             }
         }
     }

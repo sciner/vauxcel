@@ -161,6 +161,16 @@ export class Geometry
                     // WTF
                 }
             }
+
+            if (this.indexBuffer)
+            {
+                const ind = this.buffers.indexOf(proto.indexBuffer);
+
+                if (ind >= 0)
+                {
+                    this.buffers[ind] = this.indexBuffer;
+                }
+            }
         }
         else
         {
@@ -190,6 +200,11 @@ export class Geometry
                     // attribute.buffer.on('update', this.onBufferUpdate, this);
                     // attribute.buffer.on('change', this.onBufferUpdate, this);
                 }
+            }
+
+            if (this.indexBuffer)
+            {
+                this.buffers.push(this.indexBuffer);
             }
         }
 

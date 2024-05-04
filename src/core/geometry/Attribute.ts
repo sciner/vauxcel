@@ -31,7 +31,7 @@ export class Attribute
     /** the stride of the data in the buffer*/
     stride: number;
     /** the offset of the attribute from the buffer, defaults to 0 */
-    offset: number;
+    offset: number | undefined;
     /** is this an instanced buffer? (defaults to false) */
     instance: boolean;
     /**
@@ -45,7 +45,7 @@ export class Attribute
         this.buffer = attr.buffer || null;
         this.format = attr.format || 'float32';
         this.stride = attr.stride || 0;
-        this.offset = attr.offset || 0;
+        this.offset = attr.offset || undefined;
         this.instance = attr.instance || false;
         this.location = attr.location || -1;
     }

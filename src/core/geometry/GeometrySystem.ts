@@ -362,11 +362,11 @@ export class GeometrySystem implements ISystem
 
         for (const j in attributes)
         {
-            const bufIndex = attributes[j].buffer_index;
+            const buf_index = attributes[j].buffer_index;
             const attr_info = getAttributeInfoFromFormat(attributes[j].format);
 
-            temp_stride[bufIndex] += attr_info.stride;
-            geometry.bufferStride[bufIndex] = temp_stride[bufIndex];
+            temp_stride[buf_index] += attr_info.stride;
+            geometry.bufferStride[buf_index] = temp_stride[buf_index];
         }
 
         for (const j in attributes)

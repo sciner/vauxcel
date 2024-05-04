@@ -16,17 +16,14 @@ export class BatchGeometryProto extends Geometry
                 },
                 aTextureCoord: {
                     format: 'float32x2',
-                    offset: 2 * 4,
                     buffer: buf
                 },
                 aColor: {
                     format: 'unorm8x4',
-                    offset: 4 * 4,
                     buffer: buf
                 },
                 aTextureId: {
                     format: 'float32',
-                    offset: 5 * 4,
                     buffer: buf
                 }
             },

@@ -57,7 +57,7 @@ function genAttribs(buf: Buffer, elemSize: number, elemCount: number): Dict<Attr
     {
         attr[`a_silly${i}`] = {
             buffer: buf,
-            format: `float32x${elemSize}}` as any
+            format: `float32x${elemSize}` as any
         };
     }
 

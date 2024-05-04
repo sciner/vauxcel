@@ -209,10 +209,6 @@ export class Geometry
         }
 
         this.id = UID++;
-
-        this.instanced = false;
-        this.instanceCount = 1;
-
         this.disposeRunner = new Runner('disposeGeometry');
         this.refCount = 0;
     }

@@ -1,5 +1,5 @@
 import { VertexFormat } from '@pixi/constants.js';
-import { Buffer, ensureIsBuffer, TypedArray } from './Buffer.js';
+import { Buffer, BufferOption, ensureIsBuffer, TypedArray } from './Buffer.js';
 
 /* eslint-disable max-len */
 
@@ -8,8 +8,7 @@ import { Buffer, ensureIsBuffer, TypedArray } from './Buffer.js';
  * extends {@link rendering.Attribute} but allows for the buffer to be a typed or number array
  * @memberof rendering
  */
-export type AttributesOption = Omit<IAttribute, 'buffer'> & { buffer: Buffer | TypedArray | number[]}
-| Buffer | TypedArray | number[];
+export type AttributesOption = Omit<IAttribute, 'buffer'> & { buffer?: BufferOption } | BufferOption | VertexFormat;
 
 export type IAttribute = Partial<Attribute>;
 
@@ -46,12 +45,12 @@ export class Attribute
         this.format = attr.format || 'float32';
         this.stride = attr.stride || undefined;
         this.offset = attr.offset || undefined;
-        this.instance = attr.instance || false;
+        this.instance = attr.instance || undefined;
         this.location = attr.location || -1;
     }
 }
 
-export function ensureIsAttribute(attribute: AttributesOption): IAttribute
+export function ensureIsAttribute(attribute: AttributesOption, default_buffer?: Buffer, default_instance?: boolean): IAttribute
 {
     if (attribute instanceof Buffer || Array.isArray(attribute) || (attribute as TypedArray).BYTES_PER_ELEMENT)
     {
@@ -59,8 +58,23 @@ export function ensureIsAttribute(attribute: AttributesOption): IAttribute
             buffer: attribute as Buffer | TypedArray | number[],
         };
     }
+    else if (typeof attribute === 'string')
+    {
+        attribute = {
+            buffer: default_buffer,
+            format: attribute as VertexFormat
+        };
+    }
 
-    (attribute as Attribute).buffer = ensureIsBuffer(attribute.buffer as Buffer | TypedArray | number[], false);
+    if (attribute.buffer)
+    {
+        (attribute as Attribute).buffer = ensureIsBuffer(attribute.buffer as Buffer | TypedArray | number[], false);
+    }
+    else
+    {
+        (attribute as Attribute).buffer = default_buffer;
+        (attribute as Attribute).instance = default_instance;
+    }
 
     return attribute as Attribute;
 }

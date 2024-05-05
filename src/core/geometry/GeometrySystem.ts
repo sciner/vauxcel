@@ -8,7 +8,6 @@ import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat.j
 import { getGlTypeFromFormat } from './utils/getGlTypeFromFormat.js';
 
 import type { ExtensionMetadata } from '@pixi/extensions.js';
-import type { Dict } from '@pixi/utils/index.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { Program } from '../shader/Program.js';
@@ -308,11 +307,6 @@ export class GeometrySystem implements ISystem
             return gps;
         }
 
-        if (geometry.attributeDirty)
-        {
-            this.checkAttributes(geometry);
-        }
-
         // @TODO: We don't know if VAO is supported.
         gps = new GeometryPerShader(gl.createVertexArray());
 
@@ -339,60 +333,6 @@ export class GeometrySystem implements ISystem
         bufferSystem.unbind(BUFFER_TYPE.ARRAY_BUFFER);
 
         return gps;
-    }
-
-    checkAttributes(geometry: Geometry)
-    {
-        if (!geometry.attributeDirty)
-        {
-            return;
-        }
-
-        geometry.attributeDirty = false;
-        const buffers = geometry.buffers;
-        const attributes = geometry.attributes;
-        const temp_stride: Dict<number> = {};
-        const temp_offset: Dict<number> = {};
-
-        for (const j in buffers)
-        {
-            temp_stride[j] = 0;
-            temp_offset[j] = 0;
-        }
-
-        for (const j in attributes)
-        {
-            const buf_index = attributes[j].buffer_index;
-            const attr_info = getAttributeInfoFromFormat(attributes[j].format);
-
-            temp_stride[buf_index] += attr_info.stride;
-            geometry.bufferStride[buf_index] = temp_stride[buf_index];
-        }
-
-        for (const j in attributes)
-        {
-            const attribute = attributes[j];
-            const attr_info = getAttributeInfoFromFormat(attributes[j].format);
-
-            if (attribute.stride === undefined)
-            {
-                if (temp_stride[attribute.buffer_index] === attr_info.stride)
-                {
-                    attribute.stride = 0;
-                }
-                else
-                {
-                    attribute.stride = temp_stride[attribute.buffer_index];
-                }
-            }
-
-            if (attribute.offset === undefined)
-            {
-                attribute.offset = temp_offset[attribute.buffer_index];
-
-                temp_offset[attribute.buffer_index] += attr_info.stride;
-            }
-        }
     }
 
     regenVao(geometry: Geometry, glGeom: GeometryPerGL)

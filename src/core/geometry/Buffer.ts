@@ -20,6 +20,7 @@ export interface IArrayBuffer extends ArrayBuffer // eslint-disable-line @typesc
 // eslint-disable-next-line max-len
 export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
 
+export type BufferOption = Buffer | TypedArray | number[];
 /**
  * A wrapper for data so that it can be used and uploaded by WebGL
  * @memberof PIXI
@@ -157,7 +158,7 @@ export class Buffer
     }
 }
 
-export function ensureIsBuffer(buffer: Buffer | TypedArray | number[], index: boolean): Buffer
+export function ensureIsBuffer(buffer: BufferOption, index: boolean): Buffer
 {
     if (!(buffer instanceof Buffer))
     {

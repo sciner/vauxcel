@@ -49,16 +49,13 @@ precision highp int;
     return code;
 }
 
-function genAttribs(buf: Buffer, elemSize: number, elemCount: number): Dict<AttributesOption>
+function genAttribs(elemSize: number, elemCount: number): Dict<AttributesOption>
 {
     const attr: Dict<AttributesOption> = {};
 
     for (let i = 1; i <= elemCount; i++)
     {
-        attr[`a_silly${i}`] = {
-            buffer: buf,
-            format: `float32x${elemSize}` as any
-        };
+        attr[`a_silly${i}`] = `float32x${elemSize}` as any;
     }
 
     return attr;
@@ -127,7 +124,8 @@ export class TFBufferCopier implements IBufferCopier
     {
         this.tempBuffer = new Buffer(new Float32Array());
         this.geom = new Geometry({
-            attributes: genAttribs(this.tempBuffer, this.elemSize, this.elemCount)
+            vertexBuffer: this.tempBuffer,
+            attributes: genAttribs(this.elemSize, this.elemCount)
         });
     }
 

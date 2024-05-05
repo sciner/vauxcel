@@ -55,13 +55,19 @@ export interface GeometryDescriptor
     label?: string;
     /** the attributes that make up the geometry */
     attributes: Record<string, AttributesOption>;
+    vertexBuffer?: Buffer | TypedArray | number[];
     /** optional index buffer for this geometry */
     indexBuffer?: Buffer | TypedArray | number[];
     /** the topology of the geometry, defaults to 'triangle-list' */
     topology?: Topology;
     proto?: Geometry;
 
+    instanced?: boolean;
+    strideFloats?: number;
     instanceCount?: number;
+    vertexPerInstance?: number;
+    indexPerInstance?: number;
+
 }
 
 /* eslint-disable max-len */
@@ -89,9 +95,9 @@ export class Geometry
     public proto: Geometry;
     public buffers: Array<Buffer>;
     public bufferStride: Array<number>;
-    public indexBuffer: Buffer;
+    public vertexBuffer: Buffer = null;
+    public indexBuffer: Buffer = null;
     public attributes: {[key: string]: Attribute};
-    public attributeDirty = true;
     public id: number;
     /** Whether the geometry is instanced. */
     public instanced: boolean;
@@ -101,6 +107,8 @@ export class Geometry
      */
     public vertexPerInstance = 1;
     public indexPerInstance = 1;
+    public strideFloats = 0;
+    public stride = 0;
 
     private _attributeBaseCallback: AttributeBaseCallbackStruct;
 
@@ -109,7 +117,6 @@ export class Geometry
      * @default 1
      */
     public instanceCount: number;
-    public : string;
 
     /**
      * A map of renderer IDs to webgl VAOs
@@ -127,90 +134,162 @@ export class Geometry
 
     constructor(options: GeometryDescriptor = { attributes: {} })
     {
-        const proto = this.proto = options.proto || null;
-
-        this.indexBuffer = options.indexBuffer ? ensureIsBuffer(options.indexBuffer, true) : proto?.indexBuffer || null;
         this.instanceCount = options.instanceCount || 1;
 
-        if (proto)
+        if (options.vertexBuffer)
         {
-            this.buffers = proto.buffers.slice(0);
-            this.bufferStride = proto.bufferStride.slice(0);
-            this.attributes = proto.attributes;
-            this.topology = options.topology || proto.topology;
-            this.instanced = proto.instanced;
+            this.vertexBuffer = ensureIsBuffer(options.vertexBuffer, false);
+        }
+        if (options.indexBuffer)
+        {
+            this.indexBuffer = ensureIsBuffer(options.indexBuffer, true);
+        }
 
-            for (const i in options.attributes)
-            {
-                const attr = options.attributes[i];
-
-                if (this.attributes[i])
-                {
-                    const buf_ind = this.attributes[i].buffer_index;
-
-                    if (attr instanceof Buffer)
-                    {
-                        this.buffers[buf_ind] = attr;
-
-                        // attr.on('update', this.onBufferUpdate, this);
-                        // attr.on('change', this.onBufferUpdate, this);
-                    }
-                }
-                else
-                {
-                    // WTF
-                }
-            }
-
-            if (this.indexBuffer)
-            {
-                const ind = this.buffers.indexOf(proto.indexBuffer);
-
-                if (ind >= 0)
-                {
-                    this.buffers[ind] = this.indexBuffer;
-                }
-            }
+        if (options.proto)
+        {
+            this.initFromProto(options);
         }
         else
         {
-            this.buffers = [];
-            this.bufferStride = [];
-            this.topology = options.topology || 'triangle-list';
-            this.instanced = false;
-
-            this.attributes = options.attributes as any;
-            for (const i in options.attributes)
-            {
-                const attr = this.attributes[i]
-                    = new Attribute(ensureIsAttribute(options.attributes[i]));
-
-                attr.buffer_index = this.buffers.indexOf(attr.buffer);
-
-                this.instanced = this.instanced || attr.instance;
-
-                if (attr.buffer_index === -1)
-                {
-                    attr.buffer_index = this.buffers.length;
-
-                    this.buffers.push(attr.buffer);
-
-                    // two events here - one for a resize (new buffer change)
-                    // and one for an update (existing buffer change)
-                    // attribute.buffer.on('update', this.onBufferUpdate, this);
-                    // attribute.buffer.on('change', this.onBufferUpdate, this);
-                }
-            }
-
-            if (this.indexBuffer)
-            {
-                this.buffers.push(this.indexBuffer);
-            }
+            this.initFromAttributes(options);
         }
 
         this.id = UID++;
         this.disposeRunner = new Runner('disposeGeometry');
         this.refCount = 0;
+    }
+
+    private initFromProto(options: GeometryDescriptor)
+    {
+        const proto = this.proto = options.proto;
+
+        this.buffers = proto.buffers.slice(0);
+        this.bufferStride = proto.bufferStride.slice(0);
+        this.attributes = proto.attributes;
+        this.topology = options.topology || proto.topology;
+        this.instanced = proto.instanced;
+        this.vertexPerInstance = proto.vertexPerInstance;
+        this.indexPerInstance = proto.indexPerInstance;
+        this.strideFloats = proto.strideFloats;
+        this.stride = proto.stride;
+
+        if (this.vertexBuffer)
+        {
+            this.buffers[0] = this.vertexBuffer;
+        }
+        if (this.indexBuffer)
+        {
+            const ind = this.buffers.indexOf(proto.indexBuffer);
+
+            if (ind >= 0)
+            {
+                this.buffers[ind] = this.indexBuffer;
+            }
+            else
+            {
+                // WTF
+            }
+        }
+        for (const i in options.attributes)
+        {
+            const attr = options.attributes[i];
+
+            if (this.attributes[i])
+            {
+                const buf_ind = this.attributes[i].buffer_index;
+
+                if (attr instanceof Buffer)
+                {
+                    this.buffers[buf_ind] = attr;
+
+                    // attr.on('update', this.onBufferUpdate, this);
+                    // attr.on('change', this.onBufferUpdate, this);
+                }
+            }
+            else
+            {
+                // WTF
+            }
+        }
+    }
+
+    private initFromAttributes(options: GeometryDescriptor)
+    {
+        this.buffers = [];
+        this.bufferStride = [];
+        this.topology = options.topology || 'triangle-list';
+        this.vertexPerInstance = options.vertexPerInstance || 1;
+        this.indexPerInstance = options.indexPerInstance || 1;
+        this.strideFloats = options.strideFloats || 0;
+
+        if (this.vertexBuffer)
+        {
+            this.buffers[0] = this.vertexBuffer;
+        }
+
+        this.attributes = {};
+        this.instanced = false;
+        for (const i in options.attributes)
+        {
+            this.attributes[i] = new Attribute(ensureIsAttribute(options.attributes[i], this.vertexBuffer, options.instanced));
+        }
+
+        this.checkAttributes();
+
+        if (this.indexBuffer)
+        {
+            this.buffers.push(this.indexBuffer);
+        }
+    }
+
+    private checkAttributes()
+    {
+        const buffers = this.buffers;
+        const attributes = this.attributes;
+        const bufferStride = this.bufferStride;
+
+        for (const j in attributes)
+        {
+            const attr = attributes[j];
+            let buf_index = attr.buffer_index = this.buffers.indexOf(attr.buffer);
+
+            this.instanced = this.instanced || attr.instance;
+
+            if (buf_index === -1)
+            {
+                buf_index = attr.buffer_index = this.buffers.length;
+                buffers.push(attr.buffer);
+                bufferStride[buf_index] = 0;
+                // two events here - one for a resize (new buffer change)
+                // and one for an update (existing buffer change)
+                // attribute.buffer.on('update', this.onBufferUpdate, this);
+                // attribute.buffer.on('change', this.onBufferUpdate, this);
+            }
+
+            const attr_info = getAttributeInfoFromFormat(attributes[j].format);
+
+            if (attr.offset === undefined)
+            {
+                attr.offset = bufferStride[buf_index];
+            }
+
+            bufferStride[buf_index] = Math.max(bufferStride[buf_index], attr.offset + attr_info.stride);
+        }
+
+        for (const j in attributes)
+        {
+            const attribute = attributes[j];
+
+            if (attribute.stride === undefined)
+            {
+                attribute.stride = bufferStride[attribute.buffer_index];
+            }
+        }
+        if (this.vertexBuffer && !this.strideFloats)
+        {
+            this.strideFloats = this.bufferStride[0];
+        }
+        this.stride = this.strideFloats * 4;
     }
 
     /**
@@ -333,6 +412,10 @@ export class Geometry
             throw new Error('buffer not found');
         }
         this.detachBuffers();
+        if (this.vertexBuffer === this.buffers[ind])
+        {
+            this.vertexBuffer = newBuffer;
+        }
         this.buffers[ind] = newBuffer;
     }
 

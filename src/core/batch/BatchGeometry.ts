@@ -5,29 +5,15 @@ export class BatchGeometryProto extends Geometry
 {
     constructor()
     {
-        const buf = new Buffer(null, true, false);
-        const index_buf = new Buffer(null, true, true);
-
         super({
+            vertexBuffer: new Buffer(null, true, false),
             attributes: {
-                aVertexPosition: {
-                    format: 'float32x2',
-                    buffer: buf
-                },
-                aTextureCoord: {
-                    format: 'float32x2',
-                    buffer: buf
-                },
-                aColor: {
-                    format: 'unorm8x4',
-                    buffer: buf
-                },
-                aTextureId: {
-                    format: 'float32',
-                    buffer: buf
-                }
+                aVertexPosition: 'float32x2',
+                aTextureCoord: 'float32x2',
+                aColor: 'unorm8x4',
+                aTextureId: 'float32'
             },
-            indexBuffer: index_buf
+            indexBuffer: new Buffer(null, true, true)
         });
     }
 

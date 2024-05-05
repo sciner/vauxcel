@@ -276,6 +276,18 @@ export class Geometry
             bufferStride[buf_index] = Math.max(bufferStride[buf_index], attr.offset + attr_info.stride);
         }
 
+        if (this.vertexBuffer)
+        {
+            if (this.strideFloats)
+            {
+                this.bufferStride[0] = this.strideFloats;
+            }
+            else
+            {
+                this.strideFloats = this.bufferStride[0];
+            }
+        }
+
         for (const j in attributes)
         {
             const attribute = attributes[j];
@@ -284,10 +296,6 @@ export class Geometry
             {
                 attribute.stride = bufferStride[attribute.buffer_index];
             }
-        }
-        if (this.vertexBuffer && !this.strideFloats)
-        {
-            this.strideFloats = this.bufferStride[0];
         }
         this.stride = this.strideFloats * 4;
     }

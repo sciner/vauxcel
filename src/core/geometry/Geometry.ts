@@ -225,6 +225,7 @@ export class Geometry
         if (this.vertexBuffer)
         {
             this.buffers[0] = this.vertexBuffer;
+            this.bufferStride[0] = 0;
         }
 
         this.attributes = {};

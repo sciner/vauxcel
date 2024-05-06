@@ -1,31 +1,23 @@
 import { Buffer } from '../geometry/Buffer.js';
 import { Geometry } from '../geometry/Geometry.js';
 
-export class BatchGeometryProto extends Geometry
-{
-    constructor()
-    {
-        super({
-            vertexBuffer: new Buffer(null, true, false),
-            attributes: {
-                aVertexPosition: 'float32x2',
-                aTextureCoord: 'float32x2',
-                aColor: 'unorm8x4',
-                aTextureId: 'float32'
-            },
-            indexBuffer: new Buffer(null, true, true)
-        });
-    }
-
-    static inst = new BatchGeometryProto();
-}
-
 /**
  * Geometry used to batch standard PIXI content (e.g. Mesh, Sprite, Graphics objects).
  * @memberof PIXI
  */
 export class BatchGeometry extends Geometry
 {
+    static proto = new Geometry({
+        vertexBuffer: new Buffer(null, true, false),
+        indexBuffer: new Buffer(null, true, true),
+        attributes: {
+            aVertexPosition: 'float32x2',
+            aTextureCoord: 'float32x2',
+            aColor: 'unorm8x4',
+            aTextureId: 'float32'
+        }
+    });
+
     /**
      * Buffer used for position, color, texture IDs
      * @protected
@@ -48,11 +40,10 @@ export class BatchGeometry extends Geometry
         const index_buf = new Buffer(null, _static, true);
 
         super({
-            attributes: {
-                aVertexPosition: buf,
-            },
+            vertexBuffer: buf,
             indexBuffer: index_buf,
-            proto: BatchGeometryProto.inst
+            attributes: {},
+            proto: BatchGeometry.proto
         });
 
         this._buffer = buf;

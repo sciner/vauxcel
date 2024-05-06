@@ -43,9 +43,9 @@ export class Attribute
     {
         this.buffer = attr.buffer || null;
         this.format = attr.format || 'float32';
-        this.stride = attr.stride || undefined;
-        this.offset = attr.offset || undefined;
-        this.instance = attr.instance || undefined;
+        this.stride = attr.stride;
+        this.offset = attr.offset;
+        this.instance = attr.instance;
         this.location = attr.location || -1;
     }
 }

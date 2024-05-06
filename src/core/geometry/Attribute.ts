@@ -52,29 +52,33 @@ export class Attribute
 
 export function ensureIsAttribute(attribute: AttributesOption, default_buffer?: Buffer, default_instance?: boolean): IAttribute
 {
-    if (attribute instanceof Buffer || Array.isArray(attribute) || (attribute as TypedArray).BYTES_PER_ELEMENT)
+    if (typeof attribute === 'string')
     {
-        attribute = {
-            buffer: attribute as Buffer | TypedArray | number[],
-        };
-    }
-    else if (typeof attribute === 'string')
-    {
-        attribute = {
+        return {
             buffer: default_buffer,
+            instance: default_instance,
             format: attribute as VertexFormat
         };
     }
 
-    if (attribute.buffer)
+    if (attribute instanceof Buffer || Array.isArray(attribute) || (attribute as TypedArray).BYTES_PER_ELEMENT)
     {
-        (attribute as Attribute).buffer = ensureIsBuffer(attribute.buffer as Buffer | TypedArray | number[], false);
+        return {
+            buffer: ensureIsBuffer(attribute as BufferOption, false),
+        };
+    }
+
+    const attr = attribute as IAttribute;
+
+    if (attr.buffer)
+    {
+        attr.buffer = ensureIsBuffer(attr.buffer, false);
     }
     else
     {
-        (attribute as Attribute).buffer = default_buffer;
-        (attribute as Attribute).instance = default_instance;
+        attr.buffer = default_buffer;
+        attr.instance = default_instance;
     }
 
-    return attribute as Attribute;
+    return attr;
 }

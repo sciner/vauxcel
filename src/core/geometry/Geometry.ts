@@ -1,7 +1,7 @@
-import { BUFFER_TYPE, Topology } from '@pixi/constants.js';
+import { Topology } from '@pixi/constants.js';
 import { Runner } from '@pixi/runner.js';
 import { Attribute, AttributesOption, ensureIsAttribute } from './Attribute.js';
-import { Buffer, ensureIsBuffer, TypedArray } from './Buffer.js';
+import { Buffer, BufferOption, ensureIsBuffer, TypedArray } from './Buffer.js';
 import {
     AttributeBaseCallbackStruct,
     generateAttribSyncForGeom
@@ -9,7 +9,6 @@ import {
 import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat.js';
 
 import type { Program } from '../shader/Program.js';
-import type { IArrayBuffer } from './Buffer.js';
 
 let UID = 0;
 
@@ -254,7 +253,7 @@ export class Geometry
             const attr = attributes[j];
             let buf_index = attr.buffer_index = this.buffers.indexOf(attr.buffer);
 
-            this.instanced = this.instanced || attr.instance;
+            this.instanced = attr.instance || this.instanced;
 
             if (buf_index === -1)
             {
@@ -279,13 +278,15 @@ export class Geometry
 
         if (this.vertexBuffer)
         {
+            const vpi = this.instanced ? this.vertexPerInstance : 1;
+
             if (this.strideFloats)
             {
-                this.bufferStride[0] = this.strideFloats;
+                this.bufferStride[0] = this.strideFloats / vpi * 4;
             }
             else
             {
-                this.strideFloats = this.bufferStride[0];
+                this.strideFloats = this.bufferStride[0] * vpi / 4;
             }
         }
 
@@ -325,30 +326,29 @@ export class Geometry
      *
      * Adds an index buffer to the geometry
      * The index buffer contains integers, three for each triangle in the geometry, which reference the various attribute buffers (position, colour, UV coordinates, other UV coordinates, normal, …). There is only ONE index buffer.
-     * @param {PIXI.Buffer|number[]} [buffer] - The buffer that holds the data of the index buffer. You can also provide an Array and a buffer will be created from it.
+     * @param buffer_ - The buffer that holds the data of the index buffer. You can also provide an Array and a buffer will be created from it.
      * @returns - Returns self, useful for chaining.
      */
-    addIndex(buffer?: Buffer | IArrayBuffer | number[]): Geometry
+    addIndex(buffer_: BufferOption): Geometry
     {
-        if (!(buffer instanceof Buffer))
-        {
-            // its an array!
-            if (buffer instanceof Array)
-            {
-                buffer = new Uint16Array(buffer);
-            }
+        const cur_buf = this.indexBuffer || this.proto?.indexBuffer;
+        const new_buf = ensureIsBuffer(buffer_, true);
 
-            buffer = new Buffer(buffer);
+        if (cur_buf)
+        {
+            // remove
+            const ind = this.buffers.indexOf(cur_buf);
+
+            this.buffers[ind] = new_buf;
+
+            this.detachBuffers();
+        }
+        else
+        {
+            this.buffers.push(new_buf);
         }
 
-        buffer.type = BUFFER_TYPE.ELEMENT_ARRAY_BUFFER;
-
-        this.indexBuffer = buffer;
-
-        if (!this.buffers.includes(buffer))
-        {
-            this.buffers.push(buffer);
-        }
+        this.indexBuffer = new_buf;
 
         return this;
     }
@@ -424,6 +424,10 @@ export class Geometry
         if (this.vertexBuffer === this.buffers[ind])
         {
             this.vertexBuffer = newBuffer;
+        }
+        else if (this.indexBuffer === this.buffers[ind])
+        {
+            this.indexBuffer = newBuffer;
         }
         this.buffers[ind] = newBuffer;
     }

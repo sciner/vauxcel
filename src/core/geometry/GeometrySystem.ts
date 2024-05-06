@@ -595,12 +595,13 @@ export class GeometrySystem implements ISystem
     {
         const { gl } = this;
         const geometry = this._activeGeometry;
-        const gl_draw_mode = topologyToGlMap[geometry.topology || topology];
 
         if (this._activeGPS.emulateBaseInstance !== 0)
         {
-            this.drawBI(gl_draw_mode, size, start, instanceCount, 0);
+            this.drawBI(size, start, instanceCount, 0);
         }
+
+        const gl_draw_mode = topologyToGlMap[geometry.topology || topology];
 
         // TODO.. this should not change so maybe cache the function?
 
@@ -642,7 +643,7 @@ export class GeometrySystem implements ISystem
         return this;
     }
 
-    drawBI(gl_draw_mode: number, size: number, start: number, instanceCount: number, baseInstance = 0)
+    drawBI(size: number, start: number, instanceCount: number, baseInstance = 0)
     {
         const { renderer } = this;
         const { gl } = renderer;
@@ -650,6 +651,7 @@ export class GeometrySystem implements ISystem
         const geometry = this._activeGeometry;
         const gps = this._activeGPS;
         const program = this.renderer.shader.shader.program;
+        const gl_draw_mode = topologyToGlMap[geometry.topology];
 
         if (bvbi)
         {

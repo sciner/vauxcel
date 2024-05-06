@@ -28,7 +28,7 @@ export function generateAttributesSignature(attributes: Attribute[])
         {
             s += '|';
         }
-        s += `${attr.buffer}/${attr.format}/${attr.stride}/${attr.start}`;
+        s += `${attr.buffer}/${attr.format}/${attr.stride}/${attr.offset}`;
     }
 
     return s;
@@ -62,12 +62,12 @@ if (lastBuffer !== buffers[${bufInd}]) {
         if (attr.format.substring(1, 4) === 'int')
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribIPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})`);
+            funcFragments.push(`gl.vertexAttribIPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.offset})`);
         }
         else
         {
             // eslint-disable-next-line max-len
-            funcFragments.push(`gl.vertexAttribPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr_info.normalised}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.start})\n`);
+            funcFragments.push(`gl.vertexAttribPointer(locations[${i}], ${attr_info.size}, ${type}, ${attr_info.normalised}, ${attr.stride}, instOffset * ${attr.stride} + ${attr.offset})\n`);
         }
     }
     let syncFunc: AttributeBaseCallback;

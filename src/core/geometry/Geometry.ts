@@ -278,7 +278,7 @@ export class Geometry
 
         if (this.vertexBuffer)
         {
-            const vpi = this.instanced ? this.vertexPerInstance : 1;
+            const vpi = this.instanced ? 1 : this.vertexPerInstance;
 
             if (this.strideFloats)
             {

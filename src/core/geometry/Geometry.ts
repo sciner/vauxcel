@@ -186,7 +186,7 @@ export class Geometry
             }
             else
             {
-                // WTF
+                this.buffers.push(this.indexBuffer);
             }
         }
         for (const i in options.attributes)

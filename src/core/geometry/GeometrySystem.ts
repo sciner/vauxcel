@@ -601,7 +601,7 @@ export class GeometrySystem implements ISystem
             this.drawBI(size, start, instanceCount, 0);
         }
 
-        const gl_draw_mode = topologyToGlMap[geometry.topology || topology];
+        const gl_draw_mode = topologyToGlMap[topology || geometry.topology];
 
         // TODO.. this should not change so maybe cache the function?
 

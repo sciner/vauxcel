@@ -1,12 +1,13 @@
-import { MIPMAP_MODES, SAMPLER_TYPES, SCALE_MODES, WRAP_MODES } from '@pixi/constants.js';
-import { mapFormatToGlFormat } from '@pixi/core/textures/utils/mapFormatToGlFormat.js';
-import { mapFormatToGlInternalFormat } from '@pixi/core/textures/utils/mapFormatToGlInternalFormat.js';
-import { mapFormatToGlType } from '@pixi/core/textures/utils/mapFormatToGlType.js';
+import { MIPMAP_MODES, SAMPLER_TYPES } from '@pixi/constants.js';
 import { extensions, ExtensionType } from '@pixi/extensions.js';
 import { removeItems } from '@pixi/utils/index.js';
 import { BaseTexture } from './BaseTexture.js';
 import { GLTexture } from './GLTexture.js';
+import { mapFormatToGlFormat } from './utils/mapFormatToGlFormat.js';
+import { mapFormatToGlInternalFormat } from './utils/mapFormatToGlInternalFormat.js';
+import { mapFormatToGlType } from './utils/mapFormatToGlType.js';
 import { mapInternalFormatToSamplerType } from './utils/mapInternalFormatToSamplerType.js';
+import { wrapModeToGlAddress } from './utils/pixiToGlMaps.js';
 
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
@@ -424,11 +425,11 @@ export class TextureSystem implements ISystem
 
         if (!texture.isPowerOfTwo)
         {
-            glTexture.wrapMode = WRAP_MODES.CLAMP;
+            glTexture.wrapMode = wrapModeToGlAddress['clamp-to-edge'];
         }
         else
         {
-            glTexture.wrapMode = texture.wrapMode;
+            glTexture.wrapMode = wrapModeToGlAddress[texture.wrapMode];
         }
 
         if (texture.resource?.style(this.renderer, texture, glTexture))
@@ -464,12 +465,12 @@ export class TextureSystem implements ISystem
         if (glTexture.mipmap)
         {
             /* eslint-disable max-len */
-            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === SCALE_MODES.LINEAR ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_NEAREST);
+            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_NEAREST);
             /* eslint-disable max-len */
 
             const anisotropicExt = this.renderer.context.extensions.anisotropicFiltering;
 
-            if (anisotropicExt && texture.anisotropicLevel > 0 && texture.scaleMode === SCALE_MODES.LINEAR)
+            if (anisotropicExt && texture.anisotropicLevel > 0 && texture.scaleMode === 'linear')
             {
                 const level = Math.min(texture.anisotropicLevel, gl.getParameter(anisotropicExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
 
@@ -478,10 +479,10 @@ export class TextureSystem implements ISystem
         }
         else
         {
-            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR : gl.NEAREST);
         }
 
-        gl.texParameteri(texture.target, gl.TEXTURE_MAG_FILTER, texture.scaleMode === SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST);
+        gl.texParameteri(texture.target, gl.TEXTURE_MAG_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR : gl.NEAREST);
     }
 
     destroy(): void

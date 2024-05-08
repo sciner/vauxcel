@@ -5,7 +5,6 @@ import {
     BatchTextureArray,
     Color,
     Point, Topology,
-    WRAP_MODES,
 } from '@pixi/core';
 import { Bounds } from '@pixi/display/index.js';
 import { GraphicsData } from './GraphicsData.js';
@@ -379,7 +378,7 @@ export class GraphicsGeometry extends BatchGeometry
                 const index = this.indices.length;
                 const attribIndex = this.points.length / 2;
 
-                nextTexture.wrapMode = WRAP_MODES.REPEAT;
+                nextTexture.wrapMode = 'repeat';
 
                 if (j === 0)
                 {
@@ -649,7 +648,7 @@ export class GraphicsGeometry extends BatchGeometry
 
                     nextTexture._batchEnabled = TICK;
                     nextTexture._batchLocation = textureCount;
-                    nextTexture.wrapMode = WRAP_MODES.REPEAT;
+                    nextTexture.wrapMode = 'repeat';
 
                     currentGroup.texArray.elements[currentGroup.texArray.count++] = nextTexture;
                     textureCount++;

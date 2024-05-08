@@ -4,7 +4,7 @@ import { BitmapFontData } from './BitmapFontData.js';
 import { autoDetectFormat } from './formats/index.js';
 import { drawGlyph, extractCharCode, resolveCharacters } from './utils/index.js';
 
-import type { IBaseTextureOptions, ICanvas, ICanvasRenderingContext2D, SCALE_MODES } from '@pixi/core/index.js';
+import type { IBaseTextureOptions, ICanvas, ICanvasRenderingContext2D, SCALE_MODE } from '@pixi/core/index.js';
 import type { ITextStyle } from '@pixi/text/index.js';
 
 export interface IBitmapFontCharacter
@@ -74,7 +74,7 @@ export interface IBitmapFontOptions extends BaseOptions
      * Default scale mode, linear, nearest. Nearest can be helpful for bitmap-style fonts.
      * @default PIXI.BaseTexture.defaultOptions.scaleMode
      */
-    scaleMode?: SCALE_MODES;
+    scaleMode?: SCALE_MODE;
 
     /**
      * Pre multiply the image alpha.  Note: for MSDF/SDF fonts, alphaMode is not supported.

@@ -613,62 +613,28 @@ export enum SAMPLER_TYPES
     SHADOW = 3,
 }
 
+export type WRAP_MODE =
 /**
- * The scale modes that are supported by pixi.
- *
- * The {@link PIXI.BaseTexture.defaultOptions.scaleMode} scale mode affects the default scaling mode of future operations.
- * It can be re-assigned to either LINEAR or NEAREST, depending upon suitability.
- * @memberof PIXI
- * @static
- * @enum {number}
+ * The texture uvs are clamped
+ * @default 33071
  */
-export enum SCALE_MODES
-// eslint-disable-next-line @typescript-eslint/indent
-{
-    /**
-     * Pixelating scaling
-     * @default 0
-     */
-    NEAREST,
-    /**
-     * Smooth scaling
-     * @default 1
-     */
-    LINEAR,
-}
-
-/**
- * The wrap modes that are supported by pixi.
- *
- * The wrap mode affects the default wrapping mode of future operations.
- * It can be re-assigned to either CLAMP or REPEAT, depending upon suitability.
- * If the texture is non power of two then clamp will be used regardless as WebGL can
- * only use REPEAT if the texture is po2.
- *
- * This property only affects WebGL.
- * @memberof PIXI
- * @static
- * @enum {number}
- */
-export enum WRAP_MODES
-// eslint-disable-next-line @typescript-eslint/indent
-{
-    /**
-     * The textures uvs are clamped
-     * @default 33071
-     */
-    CLAMP = 33071,
+    | 'clamp-to-edge'
     /**
      * The texture uvs tile and repeat
      * @default 10497
      */
-    REPEAT = 10497,
+    | 'repeat'
     /**
      * The texture uvs tile and repeat with mirroring
      * @default 33648
      */
-    MIRRORED_REPEAT = 33648,
-}
+    | 'mirror-repeat';
+
+export type SCALE_MODE =
+/** Pixelating scaling */
+    | 'nearest'
+    /** Smooth scaling */
+    | 'linear';
 
 /**
  * Mipmap filtering modes that are supported by pixi.

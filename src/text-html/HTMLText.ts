@@ -1,4 +1,4 @@
-import { Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
+import { BaseTexture, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
 import { Sprite } from '@pixi/sprite.js';
 import { TextStyle } from '@pixi/text/index.js';
 import { HTMLTextStyle } from './HTMLTextStyle.js';
@@ -90,7 +90,7 @@ export class HTMLText extends Sprite
 
         const image = new Image();
         const texture = Texture.from<ImageResource>(image, {
-            scaleMode: settings.SCALE_MODE,
+            scaleMode: BaseTexture.defaultOptions.scaleMode,
             resourceOptions: {
                 autoLoad: false,
             },

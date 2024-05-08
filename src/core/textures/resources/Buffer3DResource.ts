@@ -1,6 +1,7 @@
-import { FORMATS, SCALE_MODES, TARGETS } from '@pixi/constants.js';
+import { FORMATS, TARGETS } from '@pixi/constants.js';
 import { Runner } from '@pixi/runner.js';
 import { Texture3D } from '../Texture3D.js';
+import { wrapModeToGlAddress } from '../utils/pixiToGlMaps.js';
 import { Resource } from './Resource.js';
 
 import type { ISize3D } from '@pixi/math/index.js';
@@ -209,13 +210,13 @@ export class Buffer3DResource extends Resource
     {
         const { gl } = renderer;
         const target = baseTexture.target;
-        const sm = baseTexture.scaleMode === SCALE_MODES.LINEAR ? gl.LINEAR : gl.NEAREST;
+        const sm = baseTexture.scaleMode === 'linear' ? gl.LINEAR : gl.NEAREST;
 
         gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, sm);
         gl.texParameteri(target, gl.TEXTURE_MAG_FILTER, sm);
-        gl.texParameteri(target, gl.TEXTURE_WRAP_S, baseTexture.wrapMode);
-        gl.texParameteri(target, gl.TEXTURE_WRAP_T, baseTexture.wrapMode);
-        gl.texParameteri(target, gl.TEXTURE_WRAP_R, baseTexture.wrapMode);
+        gl.texParameteri(target, gl.TEXTURE_WRAP_S, wrapModeToGlAddress[baseTexture.wrapMode]);
+        gl.texParameteri(target, gl.TEXTURE_WRAP_T, wrapModeToGlAddress[baseTexture.wrapMode]);
+        gl.texParameteri(target, gl.TEXTURE_WRAP_R, wrapModeToGlAddress[baseTexture.wrapMode]);
 
         return true;
     }

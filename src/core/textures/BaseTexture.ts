@@ -1,6 +1,6 @@
 import {
-    ALPHA_MODES, MIPMAP_MODES, SCALE_MODES,
-    TARGETS, TEXTURE_FORMATS, WRAP_MODES
+    ALPHA_MODES, MIPMAP_MODES, SCALE_MODE,
+    TARGETS, TEXTURE_FORMATS, WRAP_MODE
 } from '@pixi/constants';
 import { settings } from '@pixi/settings/index.js';
 import { BaseTextureCache, EventEmitter, isPow2, TextureCache, uid } from '@pixi/utils/index.js';
@@ -15,7 +15,7 @@ import type { IAutoDetectOptions } from './resources/autoDetectResource.js';
 import type { BufferType, IBufferResourceOptions } from './resources/BufferResource.js';
 
 const defaultBufferOptions = {
-    scaleMode: SCALE_MODES.NEAREST,
+    scaleMode: 'nearest',
     alphaMode: ALPHA_MODES.NPM,
 };
 
@@ -26,11 +26,11 @@ export interface IBaseTextureOptions<RO = any>
     alphaMode?: ALPHA_MODES;
     mipmap?: MIPMAP_MODES;
     anisotropicLevel?: number;
-    scaleMode?: SCALE_MODES;
+    scaleMode?: SCALE_MODE;
     width?: number;
     height?: number;
     depth?: number;
-    wrapMode?: WRAP_MODES;
+    wrapMode?: WRAP_MODE;
     format?: TEXTURE_FORMATS;
     target?: TARGETS;
     resolution?: number;
@@ -203,8 +203,8 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
     parentTextureArray: BaseTexture;
 
     private _mipmap: MIPMAP_MODES;
-    private _scaleMode: SCALE_MODES;
-    private _wrapMode: WRAP_MODES;
+    private _scaleMode: SCALE_MODE;
+    private _wrapMode: WRAP_MODE;
 
     /**
      * Default options used when creating BaseTexture objects.
@@ -223,16 +223,16 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
         anisotropicLevel: 0,
         /**
          * Default scale mode, linear, nearest.
-         * @type {PIXI.SCALE_MODES}
-         * @default PIXI.SCALE_MODES.LINEAR
+         * @type {PIXI.SCALE_MODE}
+         * @default PIXI.SCALE_MODE.LINEAR
          */
-        scaleMode: SCALE_MODES.LINEAR,
+        scaleMode: 'linear' as SCALE_MODE,
         /**
          * Wrap mode for textures.
-         * @type {PIXI.WRAP_MODES}
-         * @default PIXI.WRAP_MODES.CLAMP
+         * @type {PIXI.WRAP_MODE}
+         * @default PIXI.WRAP_MODE.CLAMP
          */
-        wrapMode: WRAP_MODES.CLAMP,
+        wrapMode: 'clamp-to-edge' as WRAP_MODE,
         /**
          * Pre multiply the image alpha
          * @type {PIXI.ALPHA_MODES}
@@ -262,8 +262,8 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      * @param options - Collection of options, default options inherited from {@link PIXI.BaseTexture.defaultOptions}.
      * @param {PIXI.MIPMAP_MODES} [options.mipmap] - If mipmapping is enabled for texture
      * @param {number} [options.anisotropicLevel] - Anisotropic filtering level of texture
-     * @param {PIXI.WRAP_MODES} [options.wrapMode] - Wrap mode for textures
-     * @param {PIXI.SCALE_MODES} [options.scaleMode] - Default scale mode, linear, nearest
+     * @param {PIXI.WRAP_MODE} [options.wrapMode] - Wrap mode for textures
+     * @param {PIXI.SCALE_MODE} [options.scaleMode] - Default scale mode, linear, nearest
      * @param {PIXI.FORMATS} [options.format] - GL format type
      * @param {PIXI.GL_TYPES} [options.type] - GL data type
      * @param {PIXI.TARGETS} [options.target] - GL texture target
@@ -407,13 +407,13 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
 
     /**
      * The scale mode to apply when scaling this texture
-     * @default PIXI.SCALE_MODES.LINEAR
+     * @default PIXI.SCALE_MODE.LINEAR
      */
-    get scaleMode(): SCALE_MODES
+    get scaleMode(): SCALE_MODE
     {
         return this._scaleMode;
     }
-    set scaleMode(value: SCALE_MODES)
+    set scaleMode(value: SCALE_MODE)
     {
         if (this._scaleMode !== value)
         {
@@ -424,13 +424,13 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
 
     /**
      * How the texture wraps
-     * @default PIXI.WRAP_MODES.CLAMP
+     * @default PIXI.WRAP_MODE.CLAMP
      */
-    get wrapMode(): WRAP_MODES
+    get wrapMode(): WRAP_MODE
     {
         return this._wrapMode;
     }
-    set wrapMode(value: WRAP_MODES)
+    set wrapMode(value: WRAP_MODE)
     {
         if (this._wrapMode !== value)
         {
@@ -445,7 +445,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      * @param mipmap - enable mipmaps
      * @returns - this
      */
-    setStyle(scaleMode?: SCALE_MODES, mipmap?: MIPMAP_MODES): this
+    setStyle(scaleMode?: SCALE_MODE, mipmap?: MIPMAP_MODES): this
     {
         let dirty;
 
@@ -727,7 +727,7 @@ export class BaseTexture<R extends Resource = Resource, RO = IAutoDetectOptions>
      *        `UNSIGNED_INT`, Int16Array to `SHORT`, Uint16Array to `UNSIGNED_SHORT`, Int8Array to `BYTE`,
      *        Uint8Array/Uint8ClampedArray to `UNSIGNED_BYTE`.
      * @param {PIXI.ALPHA_MODES} [options.alphaMode=PIXI.ALPHA_MODES.NPM]
-     * @param {PIXI.SCALE_MODES} [options.scaleMode=PIXI.SCALE_MODES.NEAREST]
+     * @param {PIXI.SCALE_MODE} [options.scaleMode=PIXI.SCALE_MODE.NEAREST]
      * @returns - The resulting new BaseTexture
      */
     static fromBuffer(buffer: BufferType, width: number, height: number,

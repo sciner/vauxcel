@@ -1,4 +1,4 @@
-import { MIPMAP_MODES, MSAA_QUALITY, SCALE_MODES } from '@pixi/constants.js';
+import { MIPMAP_MODES, MSAA_QUALITY } from '@pixi/constants.js';
 import { Runner } from '@pixi/runner.js';
 import { BaseTexture } from '../textures/BaseTexture.js';
 
@@ -94,7 +94,7 @@ export class Framebuffer
     {
         // TODO add some validation to the texture - same width / height etc?
         this.colorTextures[index] = texture || new BaseTexture(null, {
-            scaleMode: SCALE_MODES.NEAREST,
+            scaleMode: 'nearest',
             resolution: 1,
             mipmap: MIPMAP_MODES.OFF,
             width: this.width,
@@ -114,7 +114,7 @@ export class Framebuffer
     addDepthTexture(texture?: BaseTexture): this
     {
         this.depthTexture = texture || new BaseTexture(null, {
-            scaleMode: SCALE_MODES.NEAREST,
+            scaleMode: 'nearest',
             resolution: 1,
             width: this.width,
             height: this.height,

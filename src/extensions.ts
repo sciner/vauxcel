@@ -23,6 +23,9 @@ enum ExtensionType
     ResolveParser = 'resolve-parser',
     CacheParser = 'cache-parser',
     DetectionParser = 'detection-parser',
+    /** A type of extension that will be used to auto detect a resource type */
+    TextureSource = 'texture-source',
+    WebGLTextureUploader = 'webgl-texture-upload',
 }
 
 interface ExtensionMetadataDetails

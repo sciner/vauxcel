@@ -4,7 +4,7 @@ import { ObjectRenderer } from './ObjectRenderer.js';
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { BaseTexture } from '../textures/BaseTexture.js';
+import type { TextureSource } from '../textures/sources/TextureSource';
 import type { BatchTextureArray } from './BatchTextureArray.js';
 
 /**
@@ -74,7 +74,7 @@ export class BatchSystem implements ISystem
      * @param arr - arr copy destination
      * @param maxTextures - number of copied elements
      */
-    copyBoundTextures(arr: BaseTexture[], maxTextures: number): void
+    copyBoundTextures(arr: TextureSource[], maxTextures: number): void
     {
         const { boundTextures } = this.renderer.texture;
 
@@ -97,7 +97,7 @@ export class BatchSystem implements ISystem
      * @param batchId - marker for _batchEnabled param of textures in texArray
      * @param maxTextures - number of texture locations to manipulate
      */
-    boundArray(texArray: BatchTextureArray, boundTextures: Array<BaseTexture>,
+    boundArray(texArray: BatchTextureArray, boundTextures: Array<TextureSource>,
         batchId: number, maxTextures: number): void
     {
         const { elements, ids, count } = texArray;

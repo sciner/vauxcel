@@ -4,7 +4,7 @@ import { BaseRenderTexture } from './BaseRenderTexture.js';
 import type { MSAA_QUALITY } from '@pixi/constants.js';
 import type { Rectangle } from '@pixi/math/index.js';
 import type { Framebuffer } from '../framebuffer/Framebuffer.js';
-import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { TextureSourceOptions } from '../textures/sources/TextureSource.js';
 
 /**
  * A RenderTexture is a special texture that allows any PixiJS display object to be rendered to it.
@@ -43,7 +43,10 @@ import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
  */
 export class RenderTexture extends Texture
 {
-    declare baseTexture: BaseRenderTexture;
+    get baseTexture()
+    {
+        return this.source as BaseRenderTexture;
+    }
 
     /**
      * Stores `sourceFrame` when this texture is inside current filter stack.
@@ -65,14 +68,22 @@ export class RenderTexture extends Texture
      */
     constructor(baseRenderTexture: BaseRenderTexture, frame?: Rectangle)
     {
-        super(baseRenderTexture, frame);
-
-        this.valid = true;
+        super({ source: baseRenderTexture, frame });
 
         this.filterFrame = null;
         this.filterPoolKey = null;
 
         this.updateUvs();
+    }
+
+    get resolution()
+    {
+        return this.source.resolution;
+    }
+
+    setResolution(resolution: number)
+    {
+        this.resize(this.width, this.height, resolution);
     }
 
     /**
@@ -81,7 +92,7 @@ export class RenderTexture extends Texture
      */
     get framebuffer(): Framebuffer
     {
-        return this.baseTexture.framebuffer;
+        return (this.source as BaseRenderTexture).framebuffer;
     }
 
     /**
@@ -99,61 +110,20 @@ export class RenderTexture extends Texture
     }
 
     /**
-     * Resizes the RenderTexture.
-     * @param desiredWidth - The desired width to resize to.
-     * @param desiredHeight - The desired height to resize to.
-     * @param resizeBaseTexture - Should the baseTexture.width and height values be resized as well?
+     * Resizes the render texture.
+     * @param width - The new width of the render texture.
+     * @param height - The new height of the render texture.
+     * @param resolution - The new resolution of the render texture.
+     * @returns This texture.
      */
-    resize(desiredWidth: number, desiredHeight: number, resizeBaseTexture = true): void
+    public resize(width: number, height: number, resolution?: number): this
     {
-        const resolution = this.baseTexture.resolution;
-        const width = Math.round(desiredWidth * resolution) / resolution;
-        const height = Math.round(desiredHeight * resolution) / resolution;
+        this.source.resize(width, height, resolution);
 
-        // TODO - could be not required..
-        this.valid = (width > 0 && height > 0);
-
-        this._frame.width = this.orig.width = width;
-        this._frame.height = this.orig.height = height;
-
-        if (resizeBaseTexture)
-        {
-            this.baseTexture.resize(width, height);
-        }
-
-        this.updateUvs();
+        return this;
     }
 
-    /**
-     * Changes the resolution of baseTexture, but does not change framebuffer size.
-     * @param resolution - The new resolution to apply to RenderTexture
-     */
-    setResolution(resolution: number): void
-    {
-        const { baseTexture } = this;
-
-        if (baseTexture.resolution === resolution)
-        {
-            return;
-        }
-
-        baseTexture.setResolution(resolution);
-        this.resize(baseTexture.width, baseTexture.height, false);
-    }
-
-    /**
-     * A short hand way of creating a render texture.
-     * @param options - Options
-     * @param {number} [options.width=100] - The width of the render texture
-     * @param {number} [options.height=100] - The height of the render texture
-     * @param {PIXI.SCALE_MODES} [options.scaleMode=PIXI.BaseTexture.defaultOptions.scaleMode] - See {@link PIXI.SCALE_MODES}
-     *    for possible values
-     * @param {number} [options.resolution=PIXI.settings.RESOLUTION] - The resolution / device pixel ratio of the texture
-     *    being generated
-     * @param {PIXI.MSAA_QUALITY} [options.multisample=PIXI.MSAA_QUALITY.NONE] - The number of samples of the frame buffer
-     * @returns The new render texture
-     */
-    static create(options?: IBaseTextureOptions): RenderTexture
+    public static create(options: TextureSourceOptions): RenderTexture
     {
         return new RenderTexture(new BaseRenderTexture(options));
     }

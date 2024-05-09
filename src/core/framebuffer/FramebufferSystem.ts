@@ -155,7 +155,7 @@ export class FramebufferSystem implements ISystem
             {
                 const tex = framebuffer.colorTextures[i];
 
-                this.renderer.texture.unbind(tex.parentTextureArray || tex);
+                this.renderer.texture.unbind(tex);
             }
 
             if (framebuffer.depthTexture)
@@ -341,7 +341,7 @@ export class FramebufferSystem implements ISystem
         for (let i = 0; i < count; i++)
         {
             const texture = colorTextures[i];
-            const parentTexture = texture.parentTextureArray || texture;
+            const parentTexture = texture;
 
             this.renderer.texture.bind(parentTexture, 0);
 
@@ -402,23 +402,24 @@ export class FramebufferSystem implements ISystem
         for (let i = 0; i < count; i++)
         {
             const texture = colorTextures[i];
-            const parentTexture = texture.parentTextureArray || texture;
 
-            this.renderer.texture.bind(parentTexture, 0);
+            this.renderer.texture.bind(texture, 0);
+
+            const glTexture = texture._glTextures[this.CONTEXT_UID];
 
             if (i === 0 && fbo.msaaBuffer)
             {
                 gl.bindRenderbuffer(gl.RENDERBUFFER, fbo.msaaBuffer);
                 gl.renderbufferStorageMultisample(gl.RENDERBUFFER, fbo.multisample,
-                    parentTexture._glTextures[this.CONTEXT_UID].internalFormat, framebuffer.width, framebuffer.height);
+                    glTexture.internalFormat, framebuffer.width, framebuffer.height);
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, fbo.msaaBuffer);
             }
             else
             {
                 gl.framebufferTexture2D(gl.FRAMEBUFFER,
                     gl.COLOR_ATTACHMENT0 + i,
-                    texture.target,
-                    parentTexture._glTextures[this.CONTEXT_UID].texture,
+                    glTexture.target,
+                    texture._glTextures[this.CONTEXT_UID].texture,
                     mipLevel);
 
                 activeTextures.push(gl.COLOR_ATTACHMENT0 + i);

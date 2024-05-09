@@ -6,7 +6,7 @@ import type { Matrix } from '../Matrix.js';
 const tempPoints = [new Point(), new Point(), new Point(), new Point()];
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Rectangle extends GlobalMixins.Rectangle {}
+export interface Rectangle extends PixiMixins.Rectangle {}
 
 /**
  * Size object, contains width and height
@@ -326,7 +326,7 @@ export class Rectangle
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
+        return `[pixi:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
     }
     // #endif
 }

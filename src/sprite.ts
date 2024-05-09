@@ -1,7 +1,8 @@
+import { TextureAsync } from '@pixi/assets/TextureAsync.js';
 import { BLEND_MODES, Color, ObservablePoint, Point, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
 import { Bounds, Container } from '@pixi/display/index.js';
 
-import type { ColorSource, IBaseTextureOptions, IPointData, Renderer, TextureSource } from '@pixi/core/index.js';
+import type { ColorSource, IPointData, Renderer, TextureSource } from '@pixi/core/index.js';
 import type { IDestroyOptions } from '@pixi/display/index.js';
 
 const tempPoint = new Point();
@@ -9,7 +10,7 @@ const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
 export type SpriteSource = TextureSource | Texture;
 
-export interface Sprite extends GlobalMixins.Sprite, Container {}
+export interface Sprite extends PixiMixins.Sprite, Container {}
 
 /**
  * The Sprite object is the base for all textured objects that are rendered to the screen
@@ -124,15 +125,23 @@ export class Sprite extends Container
     _tintRGB: number;
 
     /** @param texture - The texture for this sprite. */
-    constructor(texture?: Texture)
+    constructor(texture?: Texture | TextureAsync)
     {
         super();
+
+        let texAsync: TextureAsync = null;
+
+        if (texture instanceof TextureAsync)
+        {
+            texAsync = texture;
+            texture = Texture.EMPTY;
+        }
 
         this._anchor = new ObservablePoint(
             this._onAnchorUpdate,
             this,
-            (texture ? texture.defaultAnchor.x : 0),
-            (texture ? texture.defaultAnchor.y : 0)
+            (texture?.defaultAnchor?.x || 0),
+            (texture?.defaultAnchor?.y || 0),
         );
 
         this._texture = null;
@@ -170,6 +179,11 @@ export class Sprite extends Container
          */
         this.isSprite = true;
         this._roundPixels = settings.ROUND_PIXELS;
+
+        if (texAsync)
+        {
+            texAsync.setTo(this);
+        }
     }
 
     /** When the texture is updated, this event will fire to update the scale and frame. */
@@ -211,7 +225,7 @@ export class Sprite extends Container
         // update texture UV here, because base texture can be changed without calling `_onTextureUpdate`
         if (this._textureID !== texture._updateID)
         {
-            this.uvs = this._texture._uvs.uvsFloat32;
+            this.uvs = this._texture.uvs.uvsFloat32;
         }
 
         this._transformID = this.transform._worldID;
@@ -465,25 +479,6 @@ export class Sprite extends Container
         this._texture = null;
     }
 
-    // some helper functions..
-
-    /**
-     * Helper function that creates a new sprite based on the source you provide.
-     * The source can be - frame id, image url, video url, canvas element, video element, base texture
-     * @param {string|PIXI.Texture|HTMLImageElement|HTMLVideoElement|ImageBitmap|PIXI.ICanvas} source
-     *     - Source to create texture from
-     * @param {object} [options] - See {@link PIXI.BaseTexture}'s constructor for options.
-     * @returns The newly created sprite
-     */
-    static from(source: SpriteSource, options?: IBaseTextureOptions): Sprite
-    {
-        const texture = (source instanceof Texture)
-            ? source
-            : Texture.from(source, options);
-
-        return new Sprite(texture);
-    }
-
     /**
      * If true PixiJS will Math.floor() x/y values when rendering, stopping pixel interpolation.
      *
@@ -596,33 +591,26 @@ export class Sprite extends Container
 
     set texture(value: Texture)
     {
-        if (this._texture === value)
+        value ||= Texture.EMPTY;
+
+        if (this._texture === value) return;
+
+        if (value instanceof TextureAsync)
         {
+            value.setTo(this);
+
             return;
         }
 
-        if (this._texture)
-        {
-            this._texture.off('update', this._onTextureUpdate, this);
-        }
+        this._texture = value;
 
-        this._texture = value || Texture.EMPTY;
-        this._cachedTint = 0xFFFFFF;
-
-        this._textureID = -1;
-        this._textureTrimmedID = -1;
-
-        if (value)
-        {
-            // wait for the texture to load
-            if (value.baseTexture.valid)
-            {
-                this._onTextureUpdate();
-            }
-            else
-            {
-                value.once('update', this._onTextureUpdate, this);
-            }
-        }
+        this.onViewUpdate();
     }
+
+    public onViewUpdate()
+    {
+        this._onTextureUpdate();
+    }
+
+    textureAsync: TextureAsync = null;
 }

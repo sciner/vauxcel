@@ -1,9 +1,9 @@
-import { BaseTexture, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
+import { Rectangle, settings, Texture, TextureSource, utils } from '@pixi/core/index.js';
 import { Sprite } from '@pixi/sprite.js';
 import { TextStyle } from '@pixi/text/index.js';
 import { HTMLTextStyle } from './HTMLTextStyle.js';
 
-import type { ImageResource, IRenderer, ISize, Renderer } from '@pixi/core/index.js';
+import type { IRenderer, ISize, Renderer } from '@pixi/core/index.js';
 import type { IDestroyOptions } from '@pixi/display/index.js';
 import type { ITextStyle } from '@pixi/text/index.js';
 
@@ -89,12 +89,13 @@ export class HTMLText extends Sprite
         super(Texture.EMPTY);
 
         const image = new Image();
-        const texture = Texture.from<ImageResource>(image, {
-            scaleMode: BaseTexture.defaultOptions.scaleMode,
-            resourceOptions: {
-                autoLoad: false,
-            },
-        });
+        // const texture = Texture.from<ImageResource>(image, {
+        //     scaleMode: TextureSource.defaultOptions.scaleMode,
+        //     resourceOptions: {
+        //         autoLoad: false,
+        //     },
+        // });
+        const texture = new Texture(new TextureSource());
 
         texture.orig = new Rectangle();
         texture.trim = new Rectangle();
@@ -260,20 +261,20 @@ export class HTMLText extends Sprite
     {
         const { style, texture, _image: image, resolution } = this;
         const { padding } = style;
-        const { baseTexture } = texture;
+        const { source } = texture;
 
-        texture.trim.width = texture._frame.width = image.width / resolution;
-        texture.trim.height = texture._frame.height = image.height / resolution;
+        texture.trim.width = texture.frame.width = image.width / resolution;
+        texture.trim.height = texture.frame.height = image.height / resolution;
         texture.trim.x = -padding;
         texture.trim.y = -padding;
 
-        texture.orig.width = texture._frame.width - (padding * 2);
-        texture.orig.height = texture._frame.height - (padding * 2);
+        texture.orig.width = texture.frame.width - (padding * 2);
+        texture.orig.height = texture.frame.height - (padding * 2);
 
         // call sprite onTextureUpdate to update scale if _width or _height were set
         this._onTextureUpdate();
 
-        baseTexture.setRealSize(image.width, image.height, resolution);
+        source.resize(image.width, image.height, resolution);
 
         this.dirty = false;
     }

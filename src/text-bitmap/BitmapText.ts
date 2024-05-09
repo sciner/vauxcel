@@ -437,7 +437,7 @@ export class BitmapText extends Container
         for (let i = 0; i < lenChars; i++)
         {
             const texture = chars[i].texture;
-            const baseTextureUid = texture.baseTexture.uid;
+            const baseTextureUid = texture.source.uid;
 
             if (!pagesMeshData[baseTextureUid])
             {
@@ -488,7 +488,7 @@ export class BitmapText extends Container
                 // TODO need to get page texture here somehow..
                 const { _textureCache } = this;
 
-                _textureCache[baseTextureUid] = _textureCache[baseTextureUid] || new Texture(texture.baseTexture);
+                _textureCache[baseTextureUid] = _textureCache[baseTextureUid] || new Texture(texture.source);
                 pageMeshData.mesh.texture = _textureCache[baseTextureUid];
 
                 pageMeshData.mesh.tint = this._tintColor.value;
@@ -568,10 +568,10 @@ export class BitmapText extends Container
             const yPos = char.position.y * scale;
             const texture = char.texture;
 
-            const pageMesh = pagesMeshData[texture.baseTexture.uid];
+            const pageMesh = pagesMeshData[texture.source.uid];
 
             const textureFrame = texture.frame;
-            const textureUvs = texture._uvs;
+            const textureUvs = texture.uvs;
 
             const index = pageMesh.index++;
 
@@ -986,7 +986,7 @@ export class BitmapText extends Container
 
         // Release references to any cached textures in page pool
         pageMeshDataPool
-            .filter((page) => _textureCache[page.mesh.texture.baseTexture.uid])
+            .filter((page) => _textureCache[page.mesh.texture.source.uid])
             .forEach((page) =>
             {
                 page.mesh.texture = Texture.EMPTY;

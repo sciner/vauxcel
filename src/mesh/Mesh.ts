@@ -10,7 +10,7 @@ const tempPoint = new Point();
 const tempPolygon = new Polygon();
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Mesh extends GlobalMixins.Mesh {}
+export interface Mesh extends PixiMixins.Mesh {}
 
 /**
  * Base mesh class.

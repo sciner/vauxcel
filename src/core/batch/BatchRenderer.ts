@@ -7,7 +7,8 @@ import { topologyToGlMap } from '../geometry/GeometrySystem.js';
 import { ViewableBuffer } from '../geometry/ViewableBuffer.js';
 import { checkMaxIfStatementsInShader } from '../shader/utils/checkMaxIfStatementsInShader.js';
 import { State } from '../state/State.js';
-import { BaseTexture } from '../textures/BaseTexture.js';
+import { TextureSource } from '../textures/sources/TextureSource.js';
+import { Texture } from '../textures/Texture.js';
 import { BatchDrawCall } from './BatchDrawCall.js';
 import { BatchGeometry } from './BatchGeometry.js';
 import { BatchShaderGenerator } from './BatchShaderGenerator.js';
@@ -20,7 +21,6 @@ import type { BLEND_MODES } from '@pixi/constants.js';
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { Renderer } from '../Renderer.js';
 import type { Shader } from '../shader/Shader.js';
-import type { Texture } from '../textures/Texture.js';
 
 const defaultFragment = `#version 100
 
@@ -206,7 +206,7 @@ export class BatchRenderer extends ObjectRenderer
      * Data for texture batch builder, helps to save a bit of CPU on a pass.
      * @member {PIXI.BaseTexture[]}
      */
-    protected _bufferedTextures: Array<BaseTexture>;
+    protected _bufferedTextures: Array<TextureSource>;
 
     /** Number of elements that are buffered and are waiting to be flushed. */
     protected _bufferSize: number;
@@ -261,7 +261,7 @@ export class BatchRenderer extends ObjectRenderer
     protected _iIndex: number;
     protected _attributeBuffer: ViewableBuffer;
     protected _indexBuffer: Uint16Array;
-    protected _tempBoundTextures: BaseTexture[];
+    protected _tempBoundTextures: TextureSource[];
 
     /**
      * Pool of `this.geometryClass` geometry objects
@@ -445,7 +445,7 @@ export class BatchRenderer extends ObjectRenderer
      */
     render(element: IBatchableElement): void
     {
-        if (!element._texture.valid)
+        if (element._texture === Texture.EMPTY)
         {
             return;
         }
@@ -457,7 +457,7 @@ export class BatchRenderer extends ObjectRenderer
 
         this._vertexCount += element.vertexData.length / 2;
         this._indexCount += element.indices.length;
-        this._bufferedTextures[this._bufferSize] = element._texture.baseTexture;
+        this._bufferedTextures[this._bufferSize] = element._texture._source;
         this._bufferedElements[this._bufferSize++] = element;
     }
 
@@ -472,7 +472,7 @@ export class BatchRenderer extends ObjectRenderer
         const boundTextures = this._tempBoundTextures;
         const touch = this.renderer.textureGC.count;
 
-        let TICK = ++BaseTexture._globalBatch;
+        let TICK = ++TextureSource._globalBatch;
         let countTexArrays = 0;
         let texArray = textureArrays[0];
         let start = 0;
@@ -517,7 +517,7 @@ export class BatchRenderer extends ObjectRenderer
         {
             boundTextures[i] = null;
         }
-        BaseTexture._globalBatch = TICK;
+        TextureSource._globalBatch = TICK;
     }
 
     /**
@@ -548,7 +548,7 @@ export class BatchRenderer extends ObjectRenderer
         for (let i = start; i < finish; ++i)
         {
             const sprite = elements[i];
-            const tex = sprite._texture.baseTexture;
+            const tex = sprite._texture._source;
             const spriteBlendMode = premultiplyBlendMode[
                 tex.alphaMode ? 1 : 0][sprite.blendMode];
 
@@ -810,12 +810,12 @@ export class BatchRenderer extends ObjectRenderer
         const uvs = element.uvs;
         const indicies = element.indices;
         const vertexData = element.vertexData;
-        const textureId = element._texture.baseTexture._batchLocation;
+        const textureId = element._texture._source._batchLocation;
 
         const alpha = Math.min(element.worldAlpha, 1.0);
         const argb = Color.shared
             .setValue(element._tintRGB)
-            .toPremultiplied(alpha, element._texture.baseTexture.alphaMode > 0);
+            .toPremultiplied(alpha, element._texture._source.alphaMode > 0);
 
         // lets not worry about tint! for now..
         for (let i = 0; i < vertexData.length; i += 2)

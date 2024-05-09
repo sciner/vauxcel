@@ -24,7 +24,7 @@ interface ISettings
  * settings.PREFER_ENV = ENV.WEBGL_LEGACY;
  * @namespace PIXI.settings
  */
-export const settings: ISettings & Partial<GlobalMixins.Settings> = {
+export const settings: ISettings & Partial<PixiMixins.Settings> = {
     /**
      * This adapter is used to call methods that are platform dependent.
      * For example `document.createElement` only runs on the web but fails in node environments.

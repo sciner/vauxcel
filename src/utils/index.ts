@@ -66,6 +66,9 @@ export { EventEmitter } from './event_emitter.js';
  */
 export { earcut } from './earcut.js';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const NOOP = () => {};
+
 /**
  * Browser and Node.js compatible path utilities.
  * All paths that are passed in will become normalized to have posix separators.
@@ -83,6 +86,7 @@ export * from './color/hex.js';
 export * from './color/premultiply.js';
 export * from './const.js';
 export * from './data/createIndicesForQuads.js';
+export * from './data/definedProps.js';
 export * from './data/getBufferType.js';
 export * from './data/interleaveTypedArrays.js';
 export * from './data/pow2.js';

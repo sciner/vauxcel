@@ -16,7 +16,7 @@ function sortChildren(a: DisplayObject, b: DisplayObject): number
     return a.zIndex - b.zIndex;
 }
 
-export interface Container extends GlobalMixins.Container, DisplayObject {}
+export interface Container extends PixiMixins.Container, DisplayObject {}
 
 /**
  * Container is a general-purpose display object that holds children. It also adds built-in support for advanced

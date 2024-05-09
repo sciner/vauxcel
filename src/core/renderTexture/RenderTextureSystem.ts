@@ -123,7 +123,7 @@ export class RenderTextureSystem implements ISystem
 
         if (renderTexture)
         {
-            baseTexture = renderTexture.baseTexture as BaseRenderTexture;
+            baseTexture = renderTexture.source as BaseRenderTexture;
 
             resolution = baseTexture.resolution;
 
@@ -211,14 +211,14 @@ export class RenderTextureSystem implements ISystem
             : this.renderer.background.backgroundColor;
         const color = Color.shared.setValue(clearColor ? clearColor : fallbackColor);
 
-        if ((this.current && this.current.baseTexture.alphaMode > 0)
+        if ((this.current && this.current.source.alphaMode > 0)
             || (!this.current && this._rendererPremultipliedAlpha))
         {
             color.premultiply(color.alpha);
         }
 
         const destinationFrame = this.destinationFrame;
-        const baseFrame: ISize = this.current ? this.current.baseTexture : this.renderer._view.screen;
+        const baseFrame: ISize = this.current ? this.current.source : this.renderer._view.screen;
         const clearMask = destinationFrame.width !== baseFrame.width || destinationFrame.height !== baseFrame.height;
 
         if (clearMask)

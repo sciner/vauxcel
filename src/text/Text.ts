@@ -1,5 +1,5 @@
 /* eslint max-depth: [2, 8] */
-import { Color, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
+import { CanvasSource, Color, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
 import { Sprite } from '@pixi/sprite.js';
 import { TEXT_GRADIENT } from './const.js';
 import { TextMetrics } from './TextMetrics.js';
@@ -154,8 +154,9 @@ export class Text extends Sprite
         canvas.width = 3;
         canvas.height = 3;
 
-        const texture = Texture.from(canvas);
+        const texture = new Texture({ source: new CanvasSource({ resource: canvas }) });
 
+        texture.source.autoGarbageCollect = true;
         texture.orig = new Rectangle();
         texture.trim = new Rectangle();
 
@@ -432,20 +433,20 @@ export class Text extends Sprite
         const texture = this._texture;
         const style = this._style;
         const padding = style.trim ? 0 : style.padding;
-        const baseTexture = texture.baseTexture;
+        const baseTexture = texture.source;
 
-        texture.trim.width = texture._frame.width = canvas.width / this._resolution;
-        texture.trim.height = texture._frame.height = canvas.height / this._resolution;
+        texture.trim.width = texture.frame.width = canvas.width / this._resolution;
+        texture.trim.height = texture.frame.height = canvas.height / this._resolution;
         texture.trim.x = -padding;
         texture.trim.y = -padding;
 
-        texture.orig.width = texture._frame.width - (padding * 2);
-        texture.orig.height = texture._frame.height - (padding * 2);
+        texture.orig.width = texture.frame.width - (padding * 2);
+        texture.orig.height = texture.frame.height - (padding * 2);
 
         // call sprite onTextureUpdate to update scale if _width or _height were set
         this._onTextureUpdate();
 
-        baseTexture.setRealSize(canvas.width, canvas.height, this._resolution);
+        baseTexture.resize(canvas.width, canvas.height, this._resolution);
 
         texture.updateUvs();
 

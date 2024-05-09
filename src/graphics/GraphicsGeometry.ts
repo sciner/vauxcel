@@ -1,11 +1,13 @@
 import {
-    BaseTexture,
     BatchDrawCall,
     BatchGeometry,
     BatchTextureArray,
     Color,
-    Point, Topology,
+    Point,
+    TextureSource,
+    Topology,
 } from '@pixi/core';
+import { IPointData, IShape, Matrix, Texture } from '@pixi/core/index.js';
 import { Bounds } from '@pixi/display/index.js';
 import { GraphicsData } from './GraphicsData.js';
 import {
@@ -15,7 +17,6 @@ import {
     FILL_COMMANDS
 } from './utils';
 
-import type { IPointData, IShape, Matrix, Texture } from '@pixi/core/index.js';
 import type { FillStyle } from './styles/FillStyle.js';
 import type { LineStyle } from './styles/LineStyle.js';
 
@@ -374,7 +375,7 @@ export class GraphicsGeometry extends BatchGeometry
 
                 if (!style.visible) continue;
 
-                const nextTexture = style.texture.baseTexture;
+                const nextTexture = style.texture.source;
                 const index = this.indices.length;
                 const attribIndex = this.points.length / 2;
 
@@ -466,7 +467,7 @@ export class GraphicsGeometry extends BatchGeometry
             return false;
         }
 
-        if (styleA.texture.baseTexture !== styleB.texture.baseTexture)
+        if (styleA.texture.source !== styleB.texture.source)
         {
             return false;
         }
@@ -498,8 +499,8 @@ export class GraphicsGeometry extends BatchGeometry
             const fill = data.fillStyle;
             const line = data.lineStyle;
 
-            if (fill && !fill.texture.baseTexture.valid) return false;
-            if (line && !line.texture.baseTexture.valid) return false;
+            if (fill && fill.texture === Texture.EMPTY) return false;
+            if (line && line.texture === Texture.EMPTY) return false;
         }
 
         return true;
@@ -554,7 +555,7 @@ export class GraphicsGeometry extends BatchGeometry
     /** Converts intermediate batches data to drawCalls. */
     protected buildDrawCalls(): void
     {
-        let TICK = ++BaseTexture._globalBatch;
+        let TICK = ++TextureSource._globalBatch;
 
         for (let i = 0; i < this.drawCalls.length; i++)
         {
@@ -600,7 +601,7 @@ export class GraphicsGeometry extends BatchGeometry
             // Forced cast for checking `native` without errors
             const style = data.style as LineStyle;
 
-            const nextTexture = style.texture.baseTexture;
+            const nextTexture = style.texture.source;
 
             if (native !== !!style.native)
             {
@@ -664,7 +665,7 @@ export class GraphicsGeometry extends BatchGeometry
             this.addTextureIds(textureIds, textureId, data.attribSize, data.attribStart);
         }
 
-        BaseTexture._globalBatch = TICK;
+        TextureSource._globalBatch = TICK;
 
         // upload..
         // merge for now!
@@ -873,7 +874,7 @@ export class GraphicsGeometry extends BatchGeometry
             uvs.push(x / frame.width, y / frame.height);
         }
 
-        const baseTexture = texture.baseTexture;
+        const baseTexture = texture.source;
 
         if (frame.width < baseTexture.width
             || frame.height < baseTexture.height)
@@ -892,7 +893,7 @@ export class GraphicsGeometry extends BatchGeometry
      */
     protected adjustUvs(uvs: Array<number>, texture: Texture, start: number, size: number): void
     {
-        const baseTexture = texture.baseTexture;
+        const baseTexture = texture.source;
         const eps = 1e-6;
         const finish = start + (size * 2);
         const frame = texture.frame;

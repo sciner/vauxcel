@@ -41,7 +41,7 @@ import type { TransformFeedbackSystem } from './transformFeedback/TransformFeedb
 import type { ViewSystem } from './view/ViewSystem.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Renderer extends GlobalMixins.Renderer {}
+export interface Renderer extends PixiMixins.Renderer {}
 
 /**
  * The Renderer draws the scene and all its content onto a WebGL enabled canvas.

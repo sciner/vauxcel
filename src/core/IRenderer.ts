@@ -12,14 +12,13 @@ import type {
     StartupSystemOptions,
     ViewSystemOptions,
 } from './systems';
-import type { ImageSource } from './textures/BaseTexture.js';
 
 /**
  * Interface for DisplayObject to interface with Renderer.
  * The minimum APIs needed to implement a renderable object.
  * @memberof PIXI
  */
-export interface IRenderableObject extends GlobalMixins.IRenderableObject
+export interface IRenderableObject extends PixiMixins.IRenderableObject
 {
     /** Object must have a parent container */
     parent: IRenderableContainer;
@@ -54,22 +53,22 @@ export interface IRenderingContext extends WebGL2RenderingContext
     texImage2D(target: GLenum, level: GLint, internalformat: GLint, width: GLsizei, height: GLsizei, border: GLint,
         format: GLenum, type: GLenum, pixels: ArrayBufferView | null): void;
     texImage2D(target: GLenum, level: GLint, internalformat: GLint, format: GLenum, type: GLenum,
-        source: TexImageSource | ImageSource): void;
+        source: TexImageSource): void;
     texImage2D(target: GLenum, level: GLint, internalformat: GLint, width: GLsizei, height: GLsizei, border: GLint,
         format: GLenum, type: GLenum, pboOffset: GLintptr): void;
     texImage2D(target: GLenum, level: GLint, internalformat: GLint, width: GLsizei, height: GLsizei, border: GLint,
-        format: GLenum, type: GLenum, source: TexImageSource | ImageSource): void;
+        format: GLenum, type: GLenum, source: TexImageSource): void;
     texImage2D(target: GLenum, level: GLint, internalformat: GLint, width: GLsizei, height: GLsizei, border: GLint,
         format: GLenum, type: GLenum, srcData: ArrayBufferView, srcOffset: GLuint): void;
 
     texSubImage2D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, width: GLsizei, height: GLsizei,
         format: GLenum, type: GLenum, pixels: ArrayBufferView | null): void;
     texSubImage2D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, format: GLenum, type: GLenum,
-        source: TexImageSource | ImageSource): void;
+        source: TexImageSource): void;
     texSubImage2D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, width: GLsizei, height: GLsizei,
         format: GLenum, type: GLenum, pboOffset: GLintptr): void;
     texSubImage2D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, width: GLsizei, height: GLsizei,
-        format: GLenum, type: GLenum, source: TexImageSource | ImageSource): void;
+        format: GLenum, type: GLenum, source: TexImageSource): void;
     texSubImage2D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, width: GLsizei, height: GLsizei,
         format: GLenum, type: GLenum, srcData: ArrayBufferView, srcOffset: GLuint): void;
 
@@ -77,7 +76,7 @@ export interface IRenderingContext extends WebGL2RenderingContext
         width: GLsizei, height: GLsizei, depth: GLsizei, format: GLenum, type: GLenum, pboOffset: GLintptr): void;
     texSubImage3D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, zoffset: GLint,
         width: GLsizei, height: GLsizei, depth: GLsizei, format: GLenum, type: GLenum,
-        source: TexImageSource | ImageSource): void;
+        source: TexImageSource): void;
     texSubImage3D(target: GLenum, level: GLint, xoffset: GLint, yoffset: GLint, zoffset: GLint,
         width: GLsizei, height: GLsizei, depth: GLsizei, format: GLenum, type: GLenum,
         srcData: ArrayBufferView | null, srcOffset?: GLuint): void;
@@ -88,7 +87,7 @@ export interface IRenderingContext extends WebGL2RenderingContext
  * @memberof PIXI
  * @see PIXI.settings.RENDER_OPTIONS
  */
-export interface IRendererOptions extends GlobalMixins.IRendererOptions,
+export interface IRendererOptions extends PixiMixins.IRendererOptions,
     BackgroundSystemOptions,
     ContextSystemOptions,
     ViewSystemOptions,
@@ -115,7 +114,7 @@ export interface IRendererRenderOptions
  * Standard Interface for a Pixi renderer.
  * @memberof PIXI
  */
-export interface IRenderer<VIEW extends ICanvas = ICanvas> extends SystemManager, GlobalMixins.IRenderer
+export interface IRenderer<VIEW extends ICanvas = ICanvas> extends SystemManager, PixiMixins.IRenderer
 {
     resize(width: number, height: number): void;
     render(displayObject: IRenderableObject, options?: IRendererRenderOptions): void;

@@ -2,7 +2,7 @@ import { Matrix } from './Matrix.js';
 import { ObservablePoint } from './ObservablePoint.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Transform extends GlobalMixins.Transform {}
+export interface Transform extends PixiMixins.Transform {}
 
 /**
  * Transform that takes care about its versions.
@@ -115,7 +115,7 @@ export class Transform
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:Transform `
+        return `[pixi:Transform `
             + `position=(${this.position.x}, ${this.position.y}) `
             + `rotation=${this.rotation} `
             + `scale=(${this.scale.x}, ${this.scale.y}) `

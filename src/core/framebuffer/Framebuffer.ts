@@ -1,6 +1,6 @@
-import { MIPMAP_MODES, MSAA_QUALITY } from '@pixi/constants.js';
+import { MSAA_QUALITY } from '@pixi/constants.js';
 import { Runner } from '@pixi/runner.js';
-import { BaseTexture } from '../textures/BaseTexture.js';
+import { TextureSource } from '../textures/sources/TextureSource';
 
 import type { GLFramebuffer } from './GLFramebuffer.js';
 
@@ -41,8 +41,8 @@ export class Framebuffer
     dirtyId: number;
     dirtyFormat: number;
     dirtySize: number;
-    depthTexture: BaseTexture;
-    colorTextures: Array<BaseTexture>;
+    depthTexture: TextureSource;
+    colorTextures: Array<TextureSource>;
     glFramebuffers: {[key: string]: GLFramebuffer};
     disposeRunner: Runner;
 
@@ -80,7 +80,7 @@ export class Framebuffer
      * Reference to the colorTexture.
      * @readonly
      */
-    get colorTexture(): BaseTexture
+    get colorTexture(): TextureSource
     {
         return this.colorTextures[0];
     }
@@ -90,13 +90,12 @@ export class Framebuffer
      * @param index - Index of the array to add the texture to
      * @param texture - Texture to add to the array
      */
-    addColorTexture(index = 0, texture?: BaseTexture): this
+    addColorTexture(index = 0, texture?: TextureSource): this
     {
         // TODO add some validation to the texture - same width / height etc?
-        this.colorTextures[index] = texture || new BaseTexture(null, {
+        this.colorTextures[index] = texture || new TextureSource({
             scaleMode: 'nearest',
             resolution: 1,
-            mipmap: MIPMAP_MODES.OFF,
             width: this.width,
             height: this.height,
         });
@@ -111,14 +110,13 @@ export class Framebuffer
      * Add a depth texture to the frame buffer.
      * @param texture - Texture to add.
      */
-    addDepthTexture(texture?: BaseTexture): this
+    addDepthTexture(texture?: TextureSource): this
     {
-        this.depthTexture = texture || new BaseTexture(null, {
+        this.depthTexture = texture || new TextureSource({
             scaleMode: 'nearest',
             resolution: 1,
             width: this.width,
             height: this.height,
-            mipmap: MIPMAP_MODES.OFF,
             format: 'depth32float',
         });
 
@@ -155,7 +153,7 @@ export class Framebuffer
      * @param width - Width of the frame buffer to resize to
      * @param height - Height of the frame buffer to resize to
      */
-    resize(width: number, height: number): void
+    resize(width: number, height: number): boolean
     {
         width = Math.round(width);
         height = Math.round(height);
@@ -165,7 +163,7 @@ export class Framebuffer
             throw new Error('Framebuffer width and height must not be zero');
         }
 
-        if (width === this.width && height === this.height) return;
+        if (width === this.width && height === this.height) return false;
 
         this.width = width;
         this.height = height;
@@ -179,15 +177,17 @@ export class Framebuffer
             const resolution = texture.resolution;
 
             // take into account the fact the texture may have a different resolution..
-            texture.setSize(width / resolution, height / resolution);
+            texture.resize(width / resolution, height / resolution);
         }
 
         if (this.depthTexture)
         {
             const resolution = this.depthTexture.resolution;
 
-            this.depthTexture.setSize(width / resolution, height / resolution);
+            this.depthTexture.resize(width / resolution, height / resolution);
         }
+
+        return true;
     }
 
     /** Disposes WebGL resources that are connected to this geometry. */

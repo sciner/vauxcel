@@ -110,7 +110,7 @@ export class RoundedRectangle
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:RoundedRectangle x=${this.x} y=${this.y}`
+        return `[pixi:RoundedRectangle x=${this.x} y=${this.y}`
             + `width=${this.width} height=${this.height} radius=${this.radius}]`;
     }
     // #endif

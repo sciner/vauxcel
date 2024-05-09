@@ -1,7 +1,7 @@
 import type { IPoint } from './IPoint.js';
 import type { IPointData } from './IPointData.js';
 
-export interface Point extends GlobalMixins.Point, IPoint {}
+export interface Point extends PixiMixins.Point, IPoint {}
 
 /**
  * The Point object represents a location in a two-dimensional coordinate system, where `x` represents
@@ -89,7 +89,7 @@ export class Point implements IPoint
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:Point x=${this.x} y=${this.y}]`;
+        return `[pixi:Point x=${this.x} y=${this.y}]`;
     }
     // #endif
 }

@@ -1,4 +1,4 @@
-import type { BaseTexture } from '../textures/BaseTexture.js';
+import type { TextureSource } from '../textures/sources/TextureSource';
 
 /**
  * Used by the batcher to build texture batches.
@@ -8,7 +8,7 @@ import type { BaseTexture } from '../textures/BaseTexture.js';
 export class BatchTextureArray
 {
     /** Inside textures array. */
-    public elements: BaseTexture[];
+    public elements: TextureSource[];
 
     /** Respective locations for textures. */
     public ids: number[];

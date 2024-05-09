@@ -1,6 +1,6 @@
-import { BaseTexture, Rectangle, Texture, utils } from '@pixi/core/index.js';
+import { Rectangle, Texture, TextureSource, utils } from '@pixi/core/index.js';
 
-import type { ImageResource, IPointData, ITextureBorders } from '@pixi/core/index.js';
+import type { IPointData, TextureBorders } from '@pixi/core/index.js';
 
 /**
  * Represents the JSON data for a spritesheet atlas.
@@ -25,7 +25,7 @@ export interface ISpritesheetFrameData
         y: number;
     };
     anchor?: IPointData;
-    borders?: ITextureBorders;
+    borders?: TextureBorders;
 }
 
 /**
@@ -123,7 +123,7 @@ export class Spritesheet
     public linkedSheets: Spritesheet[] = [];
 
     /** Reference to ths source texture. */
-    public baseTexture: BaseTexture;
+    public baseTexture: TextureSource;
 
     /**
      * A map containing all textures of the sprite sheet.
@@ -185,17 +185,15 @@ export class Spritesheet
      *        the resolution of the spritesheet. If not provided, the imageUrl will
      *        be used on the BaseTexture.
      */
-    constructor(texture: BaseTexture | Texture, data: ISpritesheetData, resolutionFilename: string = null)
+    constructor(texture: TextureSource | Texture, data: ISpritesheetData, resolutionFilename: string = null)
     {
         this._texture = texture instanceof Texture ? texture : null;
-        this.baseTexture = texture instanceof BaseTexture ? texture : this._texture.baseTexture;
+        this.baseTexture = texture.source;
         this.textures = {};
         this.animations = {};
         this.data = data;
 
-        const resource = this.baseTexture.resource as ImageResource;
-
-        this.resolution = this._updateResolution(resolutionFilename || (resource ? resource.url : null));
+        this.resolution = this._updateResolution(resolutionFilename);
         this._frames = this.data.frames;
         this._frameKeys = Object.keys(this._frames);
         this._batchIndex = 0;
@@ -226,7 +224,7 @@ export class Spritesheet
         // For non-1 resolutions, update baseTexture
         if (resolution !== 1)
         {
-            this.baseTexture.setResolution(resolution);
+            this.baseTexture.resize(this.baseTexture.width, this.baseTexture.height, resolution);
         }
 
         return resolution;
@@ -317,17 +315,16 @@ export class Spritesheet
                 }
 
                 this.textures[i] = new Texture(
-                    this.baseTexture,
-                    frame,
-                    orig,
-                    trim,
-                    data.rotated ? 2 : 0,
-                    data.anchor,
-                    data.borders
+                    {
+                        source: this.baseTexture,
+                        frame,
+                        orig,
+                        trim,
+                        rotate: data.rotated ? 2 : 0,
+                        defaultAnchor: data.anchor,
+                        defaultBorders: data.borders,
+                    }
                 );
-
-                // lets also add the frame to pixi's global cache for 'from' and 'fromLoader' functions
-                Texture.addToCache(this.textures[i], i);
             }
 
             frameIndex++;

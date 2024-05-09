@@ -1,10 +1,18 @@
-import { ALPHA_MODES, BaseTexture, MIPMAP_MODES, Rectangle, settings, Texture, utils } from '@pixi/core/index.js';
+import {
+    ALPHA_MODES,
+    CanvasSource,
+    Rectangle,
+    settings,
+    Texture,
+    TextureSource,
+    utils,
+} from '@pixi/core/index.js';
 import { TextMetrics, TextStyle } from '@pixi/text/index.js';
 import { BitmapFontData } from './BitmapFontData.js';
 import { autoDetectFormat } from './formats/index.js';
 import { drawGlyph, extractCharCode, resolveCharacters } from './utils/index.js';
 
-import type { IBaseTextureOptions, ICanvas, ICanvasRenderingContext2D, SCALE_MODE } from '@pixi/core/index.js';
+import type { ICanvas, ICanvasRenderingContext2D, SCALE_MODE, TextureSourceOptions } from '@pixi/core/index.js';
 import type { ITextStyle } from '@pixi/text/index.js';
 
 export interface IBitmapFontCharacter
@@ -17,7 +25,7 @@ export interface IBitmapFontCharacter
     kerning: utils.Dict<number>;
 }
 
-type BaseOptions = Pick<IBaseTextureOptions, 'scaleMode' | 'mipmap' | 'anisotropicLevel' | 'alphaMode'>;
+type BaseOptions = Pick<TextureSourceOptions, 'scaleMode' | 'alphaMode'>;
 
 /** @memberof PIXI */
 export interface IBitmapFontOptions extends BaseOptions
@@ -54,15 +62,6 @@ export interface IBitmapFontOptions extends BaseOptions
      * @default 512
      */
     textureHeight?: number;
-
-    /**
-     * If mipmapping is enabled for texture. For instance, by default PixiJS only enables mipmapping
-     * on Power-of-Two textures. If your textureWidth or textureHeight are not power-of-two, you
-     * may consider enabling mipmapping to get better quality with lower font sizes. Note:
-     * for MSDF/SDF fonts, mipmapping is not supported.
-     * @default PIXI.BaseTexture.defaultOptions.mipmap
-     */
-    mipmap?: MIPMAP_MODES;
 
     /**
      * Anisotropic filtering level of texture.
@@ -195,8 +194,7 @@ export class BitmapFont
             // only MSDF and SDF fonts need no-premultiplied-alpha
             if (distanceField?.fieldType && distanceField.fieldType !== 'none')
             {
-                pageTextures[id].baseTexture.alphaMode = ALPHA_MODES.NO_PREMULTIPLIED_ALPHA;
-                pageTextures[id].baseTexture.mipmap = MIPMAP_MODES.OFF;
+                pageTextures[id].source.alphaMode = ALPHA_MODES.NO_PREMULTIPLIED_ALPHA;
             }
         }
 
@@ -226,10 +224,10 @@ export class BitmapFont
                 yOffset: yoffset,
                 xAdvance: xadvance,
                 kerning: {},
-                texture: new Texture(
-                    pageTextures[page].baseTexture,
-                    rect
-                ),
+                texture: new Texture({
+                    source: pageTextures[page].source,
+                    frame: rect
+                }),
                 page,
             };
         }
@@ -414,9 +412,9 @@ export class BitmapFont
 
         let canvas: ICanvas;
         let context: ICanvasRenderingContext2D;
-        let baseTexture: BaseTexture;
+        let baseTexture: TextureSource;
         let maxCharHeight = 0;
-        const baseTextures: BaseTexture[] = [];
+        const baseTextures: TextureSource[] = [];
         const textures: Texture[] = [];
 
         for (let i = 0; i < charsList.length; i++)
@@ -428,7 +426,7 @@ export class BitmapFont
                 canvas.height = textureHeight;
 
                 context = canvas.getContext('2d');
-                baseTexture = new BaseTexture(canvas, { resolution, ...baseOptions });
+                baseTexture = new CanvasSource({ resource: canvas, resolution, ...baseOptions });
 
                 baseTextures.push(baseTexture);
                 textures.push(new Texture(baseTexture));

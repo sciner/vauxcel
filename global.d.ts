@@ -1,6 +1,6 @@
 // core
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface BaseTexture
@@ -60,7 +60,7 @@ declare namespace GlobalMixins
 
 // settings
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ICanvas
@@ -77,7 +77,7 @@ declare namespace GlobalMixins
 
 // utils
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     interface Settings
     {
@@ -88,7 +88,7 @@ declare namespace GlobalMixins
 
 // math
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -119,7 +119,7 @@ declare namespace GlobalMixins
 
 // ticker
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     interface Application
     {
@@ -143,7 +143,7 @@ declare namespace GlobalMixins
 
 // display
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface DisplayObject
@@ -172,7 +172,7 @@ declare namespace GlobalMixins
 
 // Sprite
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface Sprite
@@ -183,7 +183,7 @@ declare namespace GlobalMixins
 
 // mesh
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface Mesh
@@ -200,7 +200,7 @@ declare namespace GlobalMixins
 
 // BitmapText
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     interface IBitmapFontResource
     {
@@ -227,11 +227,19 @@ declare namespace GlobalMixins
 
 // graphics
 
-declare namespace GlobalMixins
+declare namespace PixiMixins
 {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface Graphics
     {
 
+    }
+}
+
+declare namespace PixiMixins
+{
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface AssetsPreferences
+    {
     }
 }

@@ -6,13 +6,13 @@ import type { MSAA_QUALITY } from '@pixi/constants.js';
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderableContainer, IRenderableObject, IRenderer } from '../IRenderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { TextureSourceOptions } from '../textures/sources/TextureSource';
 
 const tempTransform = new Transform();
 const tempRect = new Rectangle();
 
 // TODO could this just be part of extract?
-export interface IGenerateTextureOptions extends IBaseTextureOptions
+export interface IGenerateTextureOptions extends TextureSourceOptions
 {
     /**
      * The region of the displayObject, that shall be rendered,

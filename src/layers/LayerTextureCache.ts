@@ -95,16 +95,16 @@ export class LayerTextureCache
 
             if (rt.width !== sz.width
                 || rt.height !== sz.height
-                || rt.baseTexture.resolution !== sz.resolution)
+                || rt.source.resolution !== sz.resolution)
             {
-                rt.baseTexture.resolution = renderer.resolution;
+                rt.source.resolution = renderer.resolution;
                 rt.resize(screen.width, screen.height);
 
                 if (db)
                 {
-                    db[0].baseTexture.resolution = renderer.resolution;
+                    db[0].source.resolution = renderer.resolution;
                     db[0].resize(screen.width, screen.height);
-                    db[1].baseTexture.resolution = renderer.resolution;
+                    db[1].source.resolution = renderer.resolution;
                     db[1].resize(screen.width, screen.height);
                 }
             }
@@ -133,7 +133,7 @@ export class LayerTextureCache
             // double-buffer logic
             let buffer = db[this.currentBufferIndex];
 
-            if (!(buffer.baseTexture as any)._glTextures[renderer.CONTEXT_UID])
+            if (!(buffer.source as any)._glTextures[renderer.CONTEXT_UID])
             {
                 renderer.renderTexture.bind(buffer, undefined, undefined);
                 renderer.texture.bind(buffer);
@@ -142,9 +142,9 @@ export class LayerTextureCache
                     renderer.renderTexture.clear(layer.bgColor);
                 }
             }
-            renderer.texture.unbind(rt.baseTexture);
-            (rt.baseTexture as any)._glTextures = (buffer.baseTexture as any)._glTextures;
-            (rt.baseTexture as any).framebuffer = (buffer.baseTexture as any).framebuffer;
+            renderer.texture.unbind(rt.source);
+            (rt.source as any)._glTextures = (buffer.source as any)._glTextures;
+            (rt.source as any).framebuffer = (buffer.source as any).framebuffer;
 
             buffer = db[1 - this.currentBufferIndex];
             renderer.renderTexture.bind(buffer, undefined, undefined);
@@ -186,13 +186,13 @@ export class LayerTextureCache
 
         if (layer.useDoubleBuffer)
         {
-            renderer.texture.unbind(rt.baseTexture);
+            renderer.texture.unbind(rt.source);
             this.currentBufferIndex = 1 - this.currentBufferIndex;
 
             const buffer = db[this.currentBufferIndex];
 
-            (rt.baseTexture as any)._glTextures = (buffer.baseTexture as any)._glTextures;
-            (rt.baseTexture as any).framebuffer = (buffer.baseTexture as any).framebuffer;
+            (rt.source as any)._glTextures = (buffer.source as any)._glTextures;
+            (rt.source as any).framebuffer = (buffer.source as any).framebuffer;
         }
 
         if (layer.useTransform)

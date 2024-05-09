@@ -1,20 +1,29 @@
-import { MIPMAP_MODES, SAMPLER_TYPES } from '@pixi/constants.js';
+import { GL_TARGETS, SAMPLER_TYPES } from '@pixi/constants.js';
 import { extensions, ExtensionType } from '@pixi/extensions.js';
-import { removeItems } from '@pixi/utils/index.js';
-import { BaseTexture } from './BaseTexture.js';
 import { GLTexture } from './GLTexture.js';
+import { TextureSource } from './sources/index.js';
+import { BindableTexture, Texture } from './Texture.js';
+import {
+    GLTextureUploader, glUploadBufferImageResource, glUploadImageResource
+} from './uploaders/index.js';
+import { applyStyleParams } from './utils/applyStyleParams.js';
 import { mapFormatToGlFormat } from './utils/mapFormatToGlFormat.js';
 import { mapFormatToGlInternalFormat } from './utils/mapFormatToGlInternalFormat.js';
 import { mapFormatToGlType } from './utils/mapFormatToGlType.js';
 import { mapInternalFormatToSamplerType } from './utils/mapInternalFormatToSamplerType.js';
-import { wrapModeToGlAddress } from './utils/pixiToGlMaps.js';
 
 import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderingContext } from '../IRenderer.js';
 import type { Renderer } from '../Renderer.js';
 import type { ISystem } from '../system/ISystem.js';
-import type { Texture } from './Texture.js';
-import type { Texture3D } from './Texture3D.js';
+
+export const glUploadUnknown: GLTextureUploader = {
+    id: 'unknown',
+    upload(source: TextureSource, glTexture: GLTexture, gl: WebGL2RenderingContext): void
+    {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth, source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    }
+};
 
 /**
  * System plugin to the renderer to manage textures.
@@ -32,13 +41,13 @@ export class TextureSystem implements ISystem
      * Bound textures.
      * @readonly
      */
-    public boundTextures: BaseTexture[];
+    public boundTextures: TextureSource[];
 
     /**
      * List of managed textures.
      * @readonly
      */
-    public managedTextures: Array<BaseTexture>;
+    public managedTextures: Array<TextureSource>;
 
     /** Whether glTexture with int/uint sampler type was uploaded. */
     protected hasIntegerTextures: boolean;
@@ -54,7 +63,7 @@ export class TextureSystem implements ISystem
      * BaseTexture value that shows that we don't know what is bound.
      * @readonly
      */
-    protected unknownTexture: BaseTexture;
+    protected unknownTexture: TextureSource;
 
     /**
      * Did someone temper with textures state? We'll overwrite them when we need to unbind something.
@@ -66,9 +75,15 @@ export class TextureSystem implements ISystem
      * Current location.
      * @readonly
      */
-    currentLocation: number;
-    emptyTextures: {[key: number]: GLTexture};
+    _activeTextureLocation: number;
+
     private renderer: Renderer;
+
+    private readonly _uploads: Record<string, GLTextureUploader> = {
+        unknown: glUploadUnknown,
+        image: glUploadImageResource,
+        buffer: glUploadBufferImageResource,
+    };
 
     /**
      * @param renderer - The renderer this system works for.
@@ -79,11 +94,11 @@ export class TextureSystem implements ISystem
 
         // TODO set to max textures...
         this.boundTextures = [];
-        this.currentLocation = -1;
+        this._activeTextureLocation = -1;
         this.managedTextures = [];
 
         this._unknownBoundTextures = false;
-        this.unknownTexture = new BaseTexture();
+        this.unknownTexture = new TextureSource();
 
         this.hasIntegerTextures = false;
     }
@@ -112,90 +127,9 @@ export class TextureSystem implements ISystem
         }
 
         // TODO move this.. to a nice make empty textures class..
-        this.emptyTextures = {};
-
-        const emptyTexture2D = new GLTexture(gl.createTexture());
-
-        gl.bindTexture(gl.TEXTURE_2D, emptyTexture2D.texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
-
-        this.emptyTextures[gl.TEXTURE_2D] = emptyTexture2D;
-        this.emptyTextures[gl.TEXTURE_CUBE_MAP] = new GLTexture(gl.createTexture());
-
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.emptyTextures[gl.TEXTURE_CUBE_MAP].texture);
-
-        for (let i = 0; i < 6; i++)
-        {
-            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        }
-
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
         for (let i = 0; i < this.boundTextures.length; i++)
         {
             this.bind(null, i);
-        }
-    }
-
-    /**
-     * Bind a texture to a specific location
-     *
-     * If you want to unbind something, please use `unbind(texture)` instead of `bind(null, textureLocation)`
-     * @param texture - Texture to bind
-     * @param [location=0] - Location to bind at
-     */
-    bind(texture: Texture | BaseTexture | Texture3D, location = 0): void
-    {
-        const { gl } = this;
-
-        texture = texture?.castToBaseTexture();
-
-        // cannot bind partial texture
-        // TODO: report a warning
-        if (texture?.valid && !texture.parentTextureArray)
-        {
-            texture.touched = this.renderer.textureGC.count;
-
-            const glTexture = texture._glTextures[this.CONTEXT_UID] || this.initTexture(texture);
-
-            if (this.boundTextures[location] !== texture)
-            {
-                if (this.currentLocation !== location)
-                {
-                    this.currentLocation = location;
-                    gl.activeTexture(gl.TEXTURE0 + location);
-                }
-
-                gl.bindTexture(texture.target, glTexture.texture);
-            }
-
-            if (glTexture.dirtyId !== texture.dirtyId)
-            {
-                if (this.currentLocation !== location)
-                {
-                    this.currentLocation = location;
-                    gl.activeTexture(gl.TEXTURE0 + location);
-                }
-                this.updateTexture(texture);
-            }
-            else if (glTexture.dirtyStyleId !== texture.dirtyStyleId)
-            {
-                this.updateTextureStyle(texture);
-            }
-
-            this.boundTextures[location] = texture;
-        }
-        else
-        {
-            if (this.currentLocation !== location)
-            {
-                this.currentLocation = location;
-                gl.activeTexture(gl.TEXTURE0 + location);
-            }
-
-            gl.bindTexture(gl.TEXTURE_2D, this.emptyTextures[gl.TEXTURE_2D].texture);
-            this.boundTextures[location] = null;
         }
     }
 
@@ -204,49 +138,11 @@ export class TextureSystem implements ISystem
     {
         this._unknownBoundTextures = true;
         this.hasIntegerTextures = false;
-        this.currentLocation = -1;
+        this._activeTextureLocation = -1;
 
         for (let i = 0; i < this.boundTextures.length; i++)
         {
             this.boundTextures[i] = this.unknownTexture;
-        }
-    }
-
-    /**
-     * Unbind a texture.
-     * @param texture - Texture to bind
-     */
-    unbind(texture?: BaseTexture): void
-    {
-        const { gl, boundTextures } = this;
-
-        if (this._unknownBoundTextures)
-        {
-            this._unknownBoundTextures = false;
-            // someone changed webGL state,
-            // we have to be sure that our texture does not appear in multi-texture renderer samplers
-            for (let i = 0; i < boundTextures.length; i++)
-            {
-                if (boundTextures[i] === this.unknownTexture)
-                {
-                    this.bind(null, i);
-                }
-            }
-        }
-
-        for (let i = 0; i < boundTextures.length; i++)
-        {
-            if (boundTextures[i] === texture)
-            {
-                if (this.currentLocation !== i)
-                {
-                    gl.activeTexture(gl.TEXTURE0 + i);
-                    this.currentLocation = i;
-                }
-
-                gl.bindTexture(texture.target, this.emptyTextures[texture.target].texture);
-                boundTextures[i] = null;
-            }
         }
     }
 
@@ -274,215 +170,287 @@ export class TextureSystem implements ISystem
 
                 if (!glTexture || glTexture.samplerType !== SAMPLER_TYPES.FLOAT)
                 {
-                    this.renderer.texture.unbind(tex);
+                    this.unbind(tex);
                 }
             }
         }
     }
 
-    /**
-     * Initialize a texture
-     * @private
-     * @param texture - Texture to initialize
-     */
-    initTexture(texture: BaseTexture): GLTexture
+    initTextureType(source: TextureSource, glTexture: GLTexture): void
     {
-        const glTexture = new GLTexture(this.gl.createTexture());
-
-        // guarantee an update..
-        glTexture.dirtyId = -1;
-
-        texture._glTextures[this.CONTEXT_UID] = glTexture;
-
-        this.managedTextures.push(texture);
-        texture.on('dispose', this.destroyTexture, this);
-
-        return glTexture;
-    }
-
-    initTextureType(texture: BaseTexture, glTexture: GLTexture): void
-    {
-        glTexture.format = this.formats[texture.format];
-        glTexture.type = this.types[texture.format];
-        glTexture.internalFormat = this.internalFormats[texture.format];
+        glTexture.format = this.formats[source.format];
+        glTexture.type = this.types[source.format];
+        glTexture.internalFormat = this.internalFormats[source.format];
         glTexture.samplerType = this.samplerTypes[glTexture.internalFormat] ?? SAMPLER_TYPES.FLOAT;
+
+        switch (source.viewDimension)
+        {
+            case '2d-array': glTexture.target = GL_TARGETS.TEXTURE_2D_ARRAY; break;
+            case '3d': glTexture.target = GL_TARGETS.TEXTURE_3D; break;
+        }
     }
 
-    /**
-     * Update a texture
-     * @private
-     * @param {PIXI.BaseTexture} texture - Texture to initialize
-     */
-    updateTexture(texture: BaseTexture): void
+    public getGlSource(source: TextureSource): GLTexture
     {
-        const glTexture = texture._glTextures[this.CONTEXT_UID];
+        return source._glTextures[this.CONTEXT_UID] || this._initSource(source, this.getSourceUploader(source));
+    }
 
-        if (!glTexture)
+    public initSource(source: TextureSource)
+    {
+        this.bind(source);
+    }
+
+    public bind(texture: BindableTexture, location = 0)
+    {
+        if (texture)
         {
-            return;
+            this.bindSource(texture.source, location);
+        }
+        else
+        {
+            this.bindSource(null, location);
+        }
+    }
+
+    public bindSource(source: TextureSource, location = 0): void
+    {
+        const gl = this.gl;
+
+        if (source)
+        {
+            source.touched = this.renderer.textureGC.count;
+            source._glLastBindLocation = location;
         }
 
-        const renderer = this.renderer;
-
-        this.initTextureType(texture, glTexture);
-
-        if (texture.resource?.upload(renderer, texture, glTexture))
+        if (this.boundTextures[location] !== source)
         {
-            // texture is uploaded, dont do anything!
+            this.boundTextures[location] = source;
+            this._activateLocation(location);
+
+            source = source || Texture.EMPTY.source;
+
+            // bind texture and source!
+            const glTexture = this.getGlSource(source);
+
             if (glTexture.samplerType !== SAMPLER_TYPES.FLOAT)
             {
                 this.hasIntegerTextures = true;
             }
-        }
-        else
-        {
-            // default, renderTexture-like logic
-            const width = texture.realWidth;
-            const height = texture.realHeight;
-            const gl = renderer.gl;
 
-            if (glTexture.width !== width
-                || glTexture.height !== height
-                || glTexture.dirtyId < 0)
-            {
-                glTexture.width = width;
-                glTexture.height = height;
-
-                gl.texImage2D(texture.target, 0,
-                    glTexture.internalFormat,
-                    width,
-                    height,
-                    0,
-                    glTexture.format,
-                    glTexture.type,
-                    null);
-            }
+            gl.bindTexture(glTexture.target, glTexture.texture);
         }
-
-        // lets only update what changes..
-        if (texture.dirtyStyleId !== glTexture.dirtyStyleId)
-        {
-            this.updateTextureStyle(texture);
-        }
-        glTexture.dirtyId = texture.dirtyId;
     }
 
-    /**
-     * Deletes the texture from WebGL
-     * @private
-     * @param texture - the texture to destroy
-     * @param [skipRemove=false] - Whether to skip removing the texture from the TextureManager.
-     */
-    destroyTexture(texture: BaseTexture | Texture, skipRemove?: boolean): void
+    public unbind(texture: BindableTexture): void
     {
-        const { gl } = this;
+        const source = texture.source;
+        const boundTextures = this.boundTextures;
+        const gl = this.gl;
 
-        texture = texture.castToBaseTexture();
-
-        if (texture._glTextures[this.CONTEXT_UID])
+        for (let i = 0; i < boundTextures.length; i++)
         {
-            this.unbind(texture);
-
-            gl.deleteTexture(texture._glTextures[this.CONTEXT_UID].texture);
-            texture.off('dispose', this.destroyTexture, this);
-
-            delete texture._glTextures[this.CONTEXT_UID];
-
-            if (!skipRemove)
+            if (boundTextures[i] === source)
             {
-                const i = this.managedTextures.indexOf(texture);
+                this._activateLocation(i);
 
-                if (i !== -1)
-                {
-                    removeItems(this.managedTextures, i, 1);
-                }
+                const glTexture = this.getGlSource(source);
+
+                gl.bindTexture(glTexture.target, null);
+                boundTextures[i] = null;
             }
         }
     }
 
-    /**
-     * Update texture style such as mipmap flag
-     * @private
-     * @param {PIXI.BaseTexture} texture - Texture to update
-     */
-    updateTextureStyle(texture: BaseTexture): void
+    private _activateLocation(location: number): void
     {
-        const glTexture = texture._glTextures[this.CONTEXT_UID];
-
-        if (!glTexture)
+        if (this._activeTextureLocation !== location)
         {
-            return;
+            this._activeTextureLocation = location;
+            this.gl.activeTexture(this.gl.TEXTURE0 + location);
         }
-
-        if ((texture.mipmap === MIPMAP_MODES.POW2) && !texture.isPowerOfTwo)
-        {
-            glTexture.mipmap = false;
-        }
-        else
-        {
-            glTexture.mipmap = texture.mipmap >= 1;
-        }
-
-        if (!texture.isPowerOfTwo)
-        {
-            glTexture.wrapMode = wrapModeToGlAddress['clamp-to-edge'];
-        }
-        else
-        {
-            glTexture.wrapMode = wrapModeToGlAddress[texture.wrapMode];
-        }
-
-        if (texture.resource?.style(this.renderer, texture, glTexture))
-        {
-            // style is set, dont do anything!
-        }
-        else
-        {
-            this.setStyle(texture, glTexture);
-        }
-
-        glTexture.dirtyStyleId = texture.dirtyStyleId;
     }
 
-    /**
-     * Set style for texture
-     * @private
-     * @param texture - Texture to update
-     * @param glTexture
-     */
-    setStyle(texture: BaseTexture, glTexture: GLTexture): void
+    private _initSourceInner(source: TextureSource): GLTexture
     {
         const gl = this.gl;
 
-        if (glTexture.mipmap && texture.mipmap !== MIPMAP_MODES.ON_MANUAL)
+        const glTexture = new GLTexture(gl.createTexture());
+
+        this.initTextureType(source, glTexture);
+
+        if (source.autoGenerateMipmaps && source.isPowerOfTwo)
         {
-            gl.generateMipmap(texture.target);
+            const biggestDimension = Math.max(source.width, source.height);
+
+            source.mipLevelCount = Math.floor(Math.log2(biggestDimension)) + 1;
         }
 
-        gl.texParameteri(texture.target, gl.TEXTURE_WRAP_S, glTexture.wrapMode);
-        gl.texParameteri(texture.target, gl.TEXTURE_WRAP_T, glTexture.wrapMode);
+        source._glTextures[this.CONTEXT_UID] = glTexture;
 
-        if (glTexture.mipmap)
+        return glTexture;
+    }
+
+    private _initSource(source: TextureSource, uploader: GLTextureUploader): GLTexture
+    {
+        const gl = this.gl;
+        const glTexture = this._initSourceInner(source);
+
+        if (!this.managedTextures.includes(source))
         {
-            /* eslint-disable max-len */
-            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_NEAREST);
-            /* eslint-disable max-len */
+            source.on('update', this.onSourceUpdate, this);
+            source.on('resize', this.onSourceResize, this);
+            source.on('styleChange', this.onStyleChange, this);
+            source.on('destroy', this.onSourceDestroy, this);
+            source.on('unload', this.onSourceUnload, this);
+            source.on('updateMipmaps', this.onUpdateMipmaps, this);
 
-            const anisotropicExt = this.renderer.context.extensions.anisotropicFiltering;
-
-            if (anisotropicExt && texture.anisotropicLevel > 0 && texture.scaleMode === 'linear')
-            {
-                const level = Math.min(texture.anisotropicLevel, gl.getParameter(anisotropicExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
-
-                gl.texParameterf(texture.target, anisotropicExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
-            }
+            this.managedTextures.push(source);
         }
-        else
+
+        gl.bindTexture(glTexture.target, glTexture.texture);
+        if (uploader.storage)
         {
-            gl.texParameteri(texture.target, gl.TEXTURE_MIN_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR : gl.NEAREST);
+            uploader.storage(source, glTexture, gl);
+        }
+        this._updateSource(source, uploader);
+        this.onStyleChange(source);
+
+        return glTexture;
+    }
+
+    private _updateSource(source: TextureSource, uploader: GLTextureUploader): GLTexture
+    {
+        const gl = this.gl;
+
+        const glTexture = this.getGlSource(source);
+
+        if (source._glLastBindLocation >= 0)
+        {
+            this._activateLocation(source._glLastBindLocation);
         }
 
-        gl.texParameteri(texture.target, gl.TEXTURE_MAG_FILTER, texture.scaleMode === 'linear' ? gl.LINEAR : gl.NEAREST);
+        gl.bindTexture(glTexture.target, glTexture.texture);
+
+        this.boundTextures[this._activeTextureLocation] = source;
+
+        uploader.upload(source, glTexture, gl, this.renderer.context.webGLVersion);
+
+        if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
+        {
+            this.onUpdateMipmaps(source, false);
+        }
+
+        return glTexture;
+    }
+
+    protected onStyleChange(source: TextureSource): void
+    {
+        const gl = this.gl;
+
+        const glTexture = this.getGlSource(source);
+
+        if (source._glLastBindLocation >= 0)
+        {
+            this._activateLocation(source._glLastBindLocation);
+        }
+
+        gl.bindTexture(glTexture.target, glTexture.texture);
+
+        this.boundTextures[this._activeTextureLocation] = source;
+
+        applyStyleParams(
+            source.style,
+            gl,
+            source.mipLevelCount > 1,
+            null,
+            'texParameteri',
+            glTexture.target,
+            // will force a clamp to edge if the texture is not a power of two
+            !source.isPowerOfTwo
+        );
+    }
+
+    protected onSourceUnload(source: TextureSource): void
+    {
+        const glTexture = source._glTextures[this.CONTEXT_UID];
+
+        if (!glTexture) return;
+
+        this.unbind(source);
+        delete source._glTextures[this.CONTEXT_UID];
+
+        this.gl.deleteTexture(glTexture.texture);
+    }
+
+    protected onSourceUpdate(source: TextureSource): void
+    {
+        this._updateSource(source, this.getSourceUploader(source));
+    }
+
+    getSourceUploader(source: TextureSource): GLTextureUploader
+    {
+        return source.glUploader || this._uploads[source.uploadMethodId];
+    }
+
+    protected onSourceResize(source: TextureSource): void
+    {
+        const old_tex = source._glTextures[this.CONTEXT_UID];
+        const uploader = this.getSourceUploader(source);
+
+        if (!old_tex || !uploader || !uploader.storage)
+        {
+            this.onSourceUpdate(source);
+
+            return;
+        }
+
+        const gl = this.gl;
+
+        delete source._glTextures[this.CONTEXT_UID];
+
+        if (!source.copyOnResize)
+        {
+            gl.deleteTexture(old_tex.texture);
+            this.initSource(source);
+
+            return;
+        }
+
+        const glTexture = this._initSourceInner(source);
+
+        this.onStyleChange(source); // also binds texture
+
+        uploader.storage(source, glTexture, gl);
+        uploader.copyTex(source, glTexture, gl, old_tex);
+        gl.deleteTexture(old_tex.texture);
+
+        if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
+        {
+            this.onUpdateMipmaps(source, false);
+        }
+    }
+
+    protected onUpdateMipmaps(source: TextureSource, bind = true): void
+    {
+        if (bind) this.bindSource(source, 0);
+
+        const glTexture = this.getGlSource(source);
+
+        this.gl.generateMipmap(glTexture.target);
+    }
+
+    protected onSourceDestroy(source: TextureSource): void
+    {
+        source.off('destroy', this.onSourceDestroy, this);
+        source.off('update', this.onSourceUpdate, this);
+        source.off('resize', this.onSourceResize, this);
+        source.off('unload', this.onSourceUnload, this);
+        source.off('styleChange', this.onStyleChange, this);
+        source.off('updateMipmaps', this.onUpdateMipmaps, this);
+
+        this.managedTextures.splice(this.managedTextures.indexOf(source), 1);
+
+        this.onSourceUnload(source);
     }
 
     destroy(): void

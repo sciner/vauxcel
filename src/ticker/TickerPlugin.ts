@@ -45,7 +45,7 @@ export class TickerPlugin
      * @private
      * @param {object} [options] - See application options
      */
-    static init(options?: GlobalMixins.IApplicationOptions): void
+    static init(options?: PixiMixins.IApplicationOptions): void
     {
         // Set default
         options = Object.assign({

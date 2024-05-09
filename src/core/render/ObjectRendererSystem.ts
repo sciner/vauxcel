@@ -113,7 +113,7 @@ export class ObjectRendererSystem implements ISystem
                 renderer.framebuffer.blit();
             }
 
-            renderTexture.baseTexture.update();
+            // renderTexture.source.update();
         }
 
         renderer.runners.postrender.emit();

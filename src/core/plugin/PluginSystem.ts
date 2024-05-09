@@ -5,7 +5,7 @@ import type { ExtensionMetadata } from '@pixi/extensions.js';
 import type { IRenderer } from '../IRenderer.js';
 import type { ISystem } from '../system/ISystem.js';
 
-export interface IRendererPlugins extends GlobalMixins.IRendererPlugins
+export interface IRendererPlugins extends PixiMixins.IRendererPlugins
 {
     [key: string]: any;
 }

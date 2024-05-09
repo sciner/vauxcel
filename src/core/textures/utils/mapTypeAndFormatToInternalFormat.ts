@@ -1,4 +1,4 @@
-import { FORMATS, GL_TYPES } from '@pixi/constants.js';
+import { GL_FORMATS, GL_TYPES } from '@pixi/constants.js';
 
 /**
  * Returns a lookup table that maps each type-format pair to a compatible internal format.
@@ -17,91 +17,91 @@ export function mapTypeAndFormatToInternalFormat(gl: WebGLRenderingContextBase):
     {
         table = {
             [GL_TYPES.UNSIGNED_BYTE]: {
-                [FORMATS.RGBA]: gl.RGBA8,
-                [FORMATS.RGB]: gl.RGB8,
-                [FORMATS.RG]: gl.RG8,
-                [FORMATS.RED]: gl.R8,
-                [FORMATS.RGBA_INTEGER]: gl.RGBA8UI,
-                [FORMATS.RGB_INTEGER]: gl.RGB8UI,
-                [FORMATS.RG_INTEGER]: gl.RG8UI,
-                [FORMATS.RED_INTEGER]: gl.R8UI,
-                [FORMATS.ALPHA]: gl.ALPHA,
-                [FORMATS.LUMINANCE]: gl.LUMINANCE,
-                [FORMATS.LUMINANCE_ALPHA]: gl.LUMINANCE_ALPHA,
+                [GL_FORMATS.RGBA]: gl.RGBA8,
+                [GL_FORMATS.RGB]: gl.RGB8,
+                [GL_FORMATS.RG]: gl.RG8,
+                [GL_FORMATS.RED]: gl.R8,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA8UI,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB8UI,
+                [GL_FORMATS.RG_INTEGER]: gl.RG8UI,
+                [GL_FORMATS.RED_INTEGER]: gl.R8UI,
+                [GL_FORMATS.ALPHA]: gl.ALPHA,
+                [GL_FORMATS.LUMINANCE]: gl.LUMINANCE,
+                [GL_FORMATS.LUMINANCE_ALPHA]: gl.LUMINANCE_ALPHA,
             },
             [GL_TYPES.BYTE]: {
-                [FORMATS.RGBA]: gl.RGBA8_SNORM,
-                [FORMATS.RGB]: gl.RGB8_SNORM,
-                [FORMATS.RG]: gl.RG8_SNORM,
-                [FORMATS.RED]: gl.R8_SNORM,
-                [FORMATS.RGBA_INTEGER]: gl.RGBA8I,
-                [FORMATS.RGB_INTEGER]: gl.RGB8I,
-                [FORMATS.RG_INTEGER]: gl.RG8I,
-                [FORMATS.RED_INTEGER]: gl.R8I,
+                [GL_FORMATS.RGBA]: gl.RGBA8_SNORM,
+                [GL_FORMATS.RGB]: gl.RGB8_SNORM,
+                [GL_FORMATS.RG]: gl.RG8_SNORM,
+                [GL_FORMATS.RED]: gl.R8_SNORM,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA8I,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB8I,
+                [GL_FORMATS.RG_INTEGER]: gl.RG8I,
+                [GL_FORMATS.RED_INTEGER]: gl.R8I,
             },
             [GL_TYPES.UNSIGNED_SHORT]: {
-                [FORMATS.RGBA_INTEGER]: gl.RGBA16UI,
-                [FORMATS.RGB_INTEGER]: gl.RGB16UI,
-                [FORMATS.RG_INTEGER]: gl.RG16UI,
-                [FORMATS.RED_INTEGER]: gl.R16UI,
-                [FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT16,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA16UI,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB16UI,
+                [GL_FORMATS.RG_INTEGER]: gl.RG16UI,
+                [GL_FORMATS.RED_INTEGER]: gl.R16UI,
+                [GL_FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT16,
             },
             [GL_TYPES.SHORT]: {
-                [FORMATS.RGBA_INTEGER]: gl.RGBA16I,
-                [FORMATS.RGB_INTEGER]: gl.RGB16I,
-                [FORMATS.RG_INTEGER]: gl.RG16I,
-                [FORMATS.RED_INTEGER]: gl.R16I,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA16I,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB16I,
+                [GL_FORMATS.RG_INTEGER]: gl.RG16I,
+                [GL_FORMATS.RED_INTEGER]: gl.R16I,
             },
             [GL_TYPES.UNSIGNED_INT]: {
-                [FORMATS.RGBA_INTEGER]: gl.RGBA32UI,
-                [FORMATS.RGB_INTEGER]: gl.RGB32UI,
-                [FORMATS.RG_INTEGER]: gl.RG32UI,
-                [FORMATS.RED_INTEGER]: gl.R32UI,
-                [FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT24,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA32UI,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB32UI,
+                [GL_FORMATS.RG_INTEGER]: gl.RG32UI,
+                [GL_FORMATS.RED_INTEGER]: gl.R32UI,
+                [GL_FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT24,
             },
             [GL_TYPES.INT]: {
-                [FORMATS.RGBA_INTEGER]: gl.RGBA32I,
-                [FORMATS.RGB_INTEGER]: gl.RGB32I,
-                [FORMATS.RG_INTEGER]: gl.RG32I,
-                [FORMATS.RED_INTEGER]: gl.R32I,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGBA32I,
+                [GL_FORMATS.RGB_INTEGER]: gl.RGB32I,
+                [GL_FORMATS.RG_INTEGER]: gl.RG32I,
+                [GL_FORMATS.RED_INTEGER]: gl.R32I,
             },
             [GL_TYPES.FLOAT]: {
-                [FORMATS.RGBA]: gl.RGBA32F,
-                [FORMATS.RGB]: gl.RGB32F,
-                [FORMATS.RG]: gl.RG32F,
-                [FORMATS.RED]: gl.R32F,
-                [FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT32F,
+                [GL_FORMATS.RGBA]: gl.RGBA32F,
+                [GL_FORMATS.RGB]: gl.RGB32F,
+                [GL_FORMATS.RG]: gl.RG32F,
+                [GL_FORMATS.RED]: gl.R32F,
+                [GL_FORMATS.DEPTH_COMPONENT]: gl.DEPTH_COMPONENT32F,
             },
             [GL_TYPES.HALF_FLOAT]: {
-                [FORMATS.RGBA]: gl.RGBA16F,
-                [FORMATS.RGB]: gl.RGB16F,
-                [FORMATS.RG]: gl.RG16F,
-                [FORMATS.RED]: gl.R16F,
+                [GL_FORMATS.RGBA]: gl.RGBA16F,
+                [GL_FORMATS.RGB]: gl.RGB16F,
+                [GL_FORMATS.RG]: gl.RG16F,
+                [GL_FORMATS.RED]: gl.R16F,
             },
             [GL_TYPES.UNSIGNED_SHORT_5_6_5]: {
-                [FORMATS.RGB]: gl.RGB565,
+                [GL_FORMATS.RGB]: gl.RGB565,
             },
             [GL_TYPES.UNSIGNED_SHORT_4_4_4_4]: {
-                [FORMATS.RGBA]: gl.RGBA4,
+                [GL_FORMATS.RGBA]: gl.RGBA4,
             },
             [GL_TYPES.UNSIGNED_SHORT_5_5_5_1]: {
-                [FORMATS.RGBA]: gl.RGB5_A1,
+                [GL_FORMATS.RGBA]: gl.RGB5_A1,
             },
             [GL_TYPES.UNSIGNED_INT_2_10_10_10_REV]: {
-                [FORMATS.RGBA]: gl.RGB10_A2,
-                [FORMATS.RGBA_INTEGER]: gl.RGB10_A2UI,
+                [GL_FORMATS.RGBA]: gl.RGB10_A2,
+                [GL_FORMATS.RGBA_INTEGER]: gl.RGB10_A2UI,
             },
             [GL_TYPES.UNSIGNED_INT_10F_11F_11F_REV]: {
-                [FORMATS.RGB]: gl.R11F_G11F_B10F,
+                [GL_FORMATS.RGB]: gl.R11F_G11F_B10F,
             },
             [GL_TYPES.UNSIGNED_INT_5_9_9_9_REV]: {
-                [FORMATS.RGB]: gl.RGB9_E5,
+                [GL_FORMATS.RGB]: gl.RGB9_E5,
             },
             [GL_TYPES.UNSIGNED_INT_24_8]: {
-                [FORMATS.DEPTH_STENCIL]: gl.DEPTH24_STENCIL8,
+                [GL_FORMATS.DEPTH_STENCIL]: gl.DEPTH24_STENCIL8,
             },
             [GL_TYPES.FLOAT_32_UNSIGNED_INT_24_8_REV]: {
-                [FORMATS.DEPTH_STENCIL]: gl.DEPTH32F_STENCIL8,
+                [GL_FORMATS.DEPTH_STENCIL]: gl.DEPTH32F_STENCIL8,
             },
         };
     }
@@ -109,20 +109,20 @@ export function mapTypeAndFormatToInternalFormat(gl: WebGLRenderingContextBase):
     {
         table = {
             [GL_TYPES.UNSIGNED_BYTE]: {
-                [FORMATS.RGBA]: gl.RGBA,
-                [FORMATS.RGB]: gl.RGB,
-                [FORMATS.ALPHA]: gl.ALPHA,
-                [FORMATS.LUMINANCE]: gl.LUMINANCE,
-                [FORMATS.LUMINANCE_ALPHA]: gl.LUMINANCE_ALPHA,
+                [GL_FORMATS.RGBA]: gl.RGBA,
+                [GL_FORMATS.RGB]: gl.RGB,
+                [GL_FORMATS.ALPHA]: gl.ALPHA,
+                [GL_FORMATS.LUMINANCE]: gl.LUMINANCE,
+                [GL_FORMATS.LUMINANCE_ALPHA]: gl.LUMINANCE_ALPHA,
             },
             [GL_TYPES.UNSIGNED_SHORT_5_6_5]: {
-                [FORMATS.RGB]: gl.RGB,
+                [GL_FORMATS.RGB]: gl.RGB,
             },
             [GL_TYPES.UNSIGNED_SHORT_4_4_4_4]: {
-                [FORMATS.RGBA]: gl.RGBA,
+                [GL_FORMATS.RGBA]: gl.RGBA,
             },
             [GL_TYPES.UNSIGNED_SHORT_5_5_5_1]: {
-                [FORMATS.RGBA]: gl.RGBA,
+                [GL_FORMATS.RGBA]: gl.RGBA,
             },
         };
     }

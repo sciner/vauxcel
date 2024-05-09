@@ -1,4 +1,5 @@
 /// <reference path="../global.d.ts" />
+export * from './assets/index.js';
 export * from './color/index.js';
 export * from './constants.js';
 export * from './core/index.js';
@@ -16,5 +17,6 @@ export * from './spritesheet/index.js';
 export * from './text/index.js';
 export * from './text-bitmap/index.js';
 export * from './text-html/index.js';
+export * from './texture-3d/index.js';
 export * from './ticker/index.js';
 export * from './utils/index.js';

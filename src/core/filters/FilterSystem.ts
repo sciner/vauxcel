@@ -475,7 +475,7 @@ export class FilterSystem implements ISystem
 
         if (filter.legacy)
         {
-            this.quadUv.map(input._frame, input.filterFrame);
+            this.quadUv.map(input.frame, input.filterFrame);
 
             renderer.geometry.bind(this.quadUv);
             renderer.geometry.draw('triangle-list');

@@ -1,4 +1,4 @@
-import { FORMATS, GL_TYPES } from '@pixi/constants.js';
+import { GL_FORMATS, GL_TARGETS, GL_TYPES } from '@pixi/constants.js';
 
 /**
  * Internal texture for WebGL context.
@@ -6,6 +6,7 @@ import { FORMATS, GL_TYPES } from '@pixi/constants.js';
  */
 export class GLTexture
 {
+    public target: GL_TARGETS;
     /** The WebGL texture. */
     public texture: WebGLTexture;
 
@@ -38,25 +39,18 @@ export class GLTexture
 
     public dataLength: number;
 
-    /** Texture contents dirty flag. */
-    dirtyId: number;
-
-    /** Texture style dirty flag. */
-    dirtyStyleId: number;
-
     constructor(texture: WebGLTexture)
     {
         this.texture = texture;
         this.width = -1;
         this.height = -1;
-        this.depth = 1;
-        this.dirtyId = -1;
-        this.dirtyStyleId = -1;
+        this.depth = -1;
         this.mipmap = false;
         this.wrapMode = 33071;
         this.type = GL_TYPES.UNSIGNED_BYTE;
-        this.internalFormat = FORMATS.RGBA;
+        this.internalFormat = GL_FORMATS.RGBA;
         this.dataLength = 0;
+        this.target = GL_TARGETS.TEXTURE_2D;
 
         this.samplerType = 0;
     }

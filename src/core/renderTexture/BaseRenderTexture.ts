@@ -1,13 +1,13 @@
 import { Color } from '@pixi/color/Color.js';
-import { MIPMAP_MODES, MSAA_QUALITY } from '@pixi/constants.js';
+import { MSAA_QUALITY } from '@pixi/constants.js';
 import { Framebuffer } from '../framebuffer/Framebuffer.js';
-import { BaseTexture } from '../textures/BaseTexture.js';
+import { TextureSource } from '../textures/sources/TextureSource';
 
 import type { ColorSource } from '@pixi/color/Color.js';
 import type { MaskData } from '../mask/MaskData.js';
-import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { TextureSourceOptions } from '../textures/sources/TextureSource.js';
 
-export interface BaseRenderTexture extends GlobalMixins.BaseRenderTexture, BaseTexture {}
+export interface BaseRenderTexture extends PixiMixins.BaseRenderTexture, TextureSource {}
 
 /**
  * A BaseRenderTexture is a special texture that allows any PixiJS display object to be rendered to it.
@@ -42,7 +42,7 @@ export interface BaseRenderTexture extends GlobalMixins.BaseRenderTexture, BaseT
  * renderer.render(sprite, { renderTexture }); // Renders to center of RenderTexture
  * @memberof PIXI
  */
-export class BaseRenderTexture extends BaseTexture
+export class BaseRenderTexture extends TextureSource
 {
     public _clear: Color;
 
@@ -68,35 +68,19 @@ export class BaseRenderTexture extends BaseTexture
      *   of the texture being generated.
      * @param {PIXI.MSAA_QUALITY} [options.multisample=PIXI.MSAA_QUALITY.NONE] - The number of samples of the frame buffer.
      */
-    constructor(options: IBaseTextureOptions = {})
+    constructor(options: TextureSourceOptions)
     {
-        if (typeof options === 'number')
-        {
-            /* eslint-disable prefer-rest-params */
-            // Backward compatibility of signature
-            const width = arguments[0];
-            const height = arguments[1];
-            const scaleMode = arguments[2];
-            const resolution = arguments[3];
-
-            options = { width, height, scaleMode, resolution };
-            /* eslint-enable prefer-rest-params */
-        }
-
         options.width = options.width ?? 100;
         options.height = options.height ?? 100;
-        options.multisample ??= MSAA_QUALITY.NONE;
 
-        super(null, options);
+        super(options);
 
         // Set defaults
-        this.mipmap = MIPMAP_MODES.OFF;
-        this.valid = true;
+        this.autoGenerateMipmaps = false;
 
         this._clear = new Color([0, 0, 0, 0]);
-        this.framebuffer = new Framebuffer(this.realWidth, this.realHeight)
+        this.framebuffer = new Framebuffer(this.pixelWidth, this.pixelHeight)
             .addColorTexture(0, this);
-        this.framebuffer.multisample = options.multisample;
 
         // TODO - could this be added the systems?
         this.maskStack = [];
@@ -142,10 +126,16 @@ export class BaseRenderTexture extends BaseTexture
      * @param desiredWidth - The desired width to resize to.
      * @param desiredHeight - The desired height to resize to.
      */
-    resize(desiredWidth: number, desiredHeight: number): void
+    resize(desiredWidth: number, desiredHeight: number): boolean
     {
-        this.framebuffer.resize(desiredWidth * this.resolution, desiredHeight * this.resolution);
-        this.setRealSize(this.framebuffer.width, this.framebuffer.height);
+        if (super.resize(desiredWidth, desiredHeight))
+        {
+            this.framebuffer.resize(this.pixelWidth, this.pixelHeight);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -154,11 +144,11 @@ export class BaseRenderTexture extends BaseTexture
      * memory again.
      * @fires PIXI.BaseTexture#dispose
      */
-    dispose(): void
+    unload(): void
     {
         this.framebuffer.dispose();
 
-        super.dispose();
+        super.unload();
     }
 
     /** Destroys this texture. */

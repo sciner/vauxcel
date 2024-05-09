@@ -1,4 +1,4 @@
-import type { BaseTexture, Program, Texture } from '@pixi/core/index.js';
+import type { Program, Texture, TextureSource } from '@pixi/core/index.js';
 
 /**
  * @todo Describe property usage
@@ -23,9 +23,9 @@ export const TextureCache: {[key: string]: Texture} = Object.create(null);
  * @static
  * @name BaseTextureCache
  * @memberof PIXI.utils
- * @type {Record<string, BaseTexture>}
+ * @type {Record<string, TextureSource>}
  */
-export const BaseTextureCache: {[key: string]: BaseTexture} = Object.create(null);
+export const BaseTextureCache: {[key: string]: TextureSource} = Object.create(null);
 
 /**
  * Destroys all texture in the cache

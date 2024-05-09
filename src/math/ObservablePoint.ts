@@ -1,7 +1,7 @@
 import type { IPoint } from './IPoint.js';
 import type { IPointData } from './IPointData.js';
 
-export interface ObservablePoint extends GlobalMixins.Point, IPoint {}
+export interface ObservablePoint extends PixiMixins.Point, IPoint {}
 
 /**
  * The ObservablePoint object represents a location in a two-dimensional coordinate system, where `x` represents
@@ -112,7 +112,7 @@ export class ObservablePoint<T = any> implements IPoint
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:ObservablePoint x=${0} y=${0} scope=${this.scope}]`;
+        return `[pixi:ObservablePoint x=${0} y=${0} scope=${this.scope}]`;
     }
     // #endif
 

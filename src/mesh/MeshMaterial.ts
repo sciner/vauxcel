@@ -1,3 +1,4 @@
+import { TextureAsync } from '@pixi/assets/index.js';
 import { Color, Matrix, Program, Shader, TextureMatrix } from '@pixi/core/index.js';
 
 import type { ColorSource, Texture, utils } from '@pixi/core/index.js';
@@ -44,7 +45,7 @@ export interface IMeshMaterialOptions
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MeshMaterial extends GlobalMixins.MeshMaterial {}
+export interface MeshMaterial extends PixiMixins.MeshMaterial {}
 
 /**
  * Slightly opinionated default shader for PixiJS 2D objects.
@@ -133,9 +134,16 @@ export class MeshMaterial extends Shader
     }
     set texture(value: Texture)
     {
+        if (value instanceof TextureAsync)
+        {
+            value.setTo(this);
+
+            return;
+        }
+
         if (this.uniforms.uSampler !== value)
         {
-            if (!this.uniforms.uSampler.baseTexture.alphaMode !== !value.baseTexture.alphaMode)
+            if (!this.uniforms.uSampler.source.alphaMode !== !value.source.alphaMode)
             {
                 this._colorDirty = true;
             }
@@ -193,7 +201,7 @@ export class MeshMaterial extends Shader
         if (this._colorDirty)
         {
             this._colorDirty = false;
-            const baseTexture = this.texture.baseTexture;
+            const baseTexture = this.texture.source;
             const applyToChannels = (baseTexture.alphaMode as unknown as boolean);
 
             Color.shared
@@ -206,4 +214,6 @@ export class MeshMaterial extends Shader
             this.uniforms.uTextureMatrix = this.uvMatrix.mapCoord;
         }
     }
+
+    textureAsync: TextureAsync = null;
 }

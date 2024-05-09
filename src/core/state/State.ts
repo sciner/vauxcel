@@ -183,7 +183,7 @@ export class State
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:State `
+        return `[pixi:State `
             + `blendMode=${this.blendMode} `
             + `clockwiseFrontFace=${this.clockwiseFrontFace} `
             + `culling=${this.culling} `

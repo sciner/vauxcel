@@ -14,10 +14,10 @@ const tempMat = new Matrix();
  *
  * Takes track of Texture changes through `_lastTextureID` private field.
  * Use `update()` method call to track it from outside.
- * @see PIXI.Texture
- * @see PIXI.Mesh
- * @see PIXI.TilingSprite
- * @memberof PIXI
+ * @see Texture
+ * @see Mesh
+ * @see TilingSprite
+ * @memberof rendering
  */
 export class TextureMatrix
 {
@@ -47,30 +47,30 @@ export class TextureMatrix
      * Clamp region for normalized coords, left-top pixel center in xy , bottom-right in zw.
      * Calculated based on clampOffset.
      */
-    readonly uClampFrame: Float32Array;
+    public readonly uClampFrame: Float32Array;
 
     /** Normalized clamp offset. Calculated based on clampOffset. */
-    readonly uClampOffset: Float32Array;
+    public readonly uClampOffset: Float32Array;
 
     /**
      * Tracks Texture frame changes.
      * @protected
      */
-    _textureID: number;
+    protected _textureID: number;
 
     /**
      * Tracks Texture frame changes.
      * @protected
      */
     _updateID: number;
-    _texture: Texture;
+    protected _texture: Texture;
 
     /**
      * If texture size is the same as baseTexture.
      * @default false
      * @readonly
      */
-    isSimple: boolean;
+    public isSimple: boolean;
 
     /**
      * @param texture - observed texture
@@ -78,8 +78,6 @@ export class TextureMatrix
      */
     constructor(texture: Texture, clampMargin?: number)
     {
-        this._texture = texture;
-
         this.mapCoord = new Matrix();
         this.uClampFrame = new Float32Array(4);
         this.uClampOffset = new Float32Array(2);
@@ -87,8 +85,19 @@ export class TextureMatrix
         this._updateID = 0;
 
         this.clampOffset = 0;
-        this.clampMargin = (typeof clampMargin === 'undefined') ? 0.5 : clampMargin;
+
+        if ((typeof clampMargin === 'undefined'))
+        {
+            this.clampMargin = (texture.width < 10) ? 0 : 0.5;
+        }
+        else
+        {
+            this.clampMargin = clampMargin;
+        }
+
         this.isSimple = false;
+
+        this.texture = texture;
     }
 
     /** Texture property. */
@@ -99,8 +108,13 @@ export class TextureMatrix
 
     set texture(value: Texture)
     {
+        if (this.texture === value) return;
+
+        this._texture?.removeListener('update', this.update, this);
         this._texture = value;
-        this._textureID = -1;
+        this._texture.addListener('update', this.update, this);
+
+        this.update();
     }
 
     /**
@@ -109,7 +123,7 @@ export class TextureMatrix
      * @param [out=uvs] - output
      * @returns - output
      */
-    multiplyUvs(uvs: Float32Array, out?: Float32Array): Float32Array
+    public multiplyUvs(uvs: Float32Array, out?: Float32Array): Float32Array
     {
         if (out === undefined)
         {
@@ -131,29 +145,16 @@ export class TextureMatrix
     }
 
     /**
-     * Updates matrices if texture was changed.
-     * @param [forceUpdate=false] - if true, matrices will be updated any case
-     * @returns - Whether or not it was updated
+     * Updates matrices if texture was changed
+     * @returns - whether or not it was updated
      */
-    update(forceUpdate?: boolean): boolean
+    public update(): boolean
     {
         const tex = this._texture;
 
-        if (!tex || !tex.valid)
-        {
-            return false;
-        }
-
-        if (!forceUpdate
-            && this._textureID === tex._updateID)
-        {
-            return false;
-        }
-
-        this._textureID = tex._updateID;
         this._updateID++;
 
-        const uvs = tex._uvs;
+        const uvs = tex.uvs;
 
         this.mapCoord.set(uvs.x1 - uvs.x0, uvs.y1 - uvs.y0, uvs.x3 - uvs.x0, uvs.y3 - uvs.y0, uvs.x0, uvs.y0);
 
@@ -162,25 +163,31 @@ export class TextureMatrix
 
         if (trim)
         {
-            tempMat.set(orig.width / trim.width, 0, 0, orig.height / trim.height,
-                -trim.x / trim.width, -trim.y / trim.height);
+            tempMat.set(
+                orig.width / trim.width,
+                0, 0, orig.height / trim.height,
+                -trim.x / trim.width,
+                -trim.y / trim.height
+            );
+
             this.mapCoord.append(tempMat);
         }
 
-        const texBase = tex.baseTexture;
+        const texBase = tex.source;
         const frame = this.uClampFrame;
-        const margin = this.clampMargin / texBase.resolution;
+        const margin = this.clampMargin / texBase._resolution;
         const offset = this.clampOffset;
 
-        frame[0] = (tex._frame.x + margin + offset) / texBase.width;
-        frame[1] = (tex._frame.y + margin + offset) / texBase.height;
-        frame[2] = (tex._frame.x + tex._frame.width - margin + offset) / texBase.width;
-        frame[3] = (tex._frame.y + tex._frame.height - margin + offset) / texBase.height;
-        this.uClampOffset[0] = offset / texBase.realWidth;
-        this.uClampOffset[1] = offset / texBase.realHeight;
+        frame[0] = (tex.frame.x + margin + offset) / texBase.width;
+        frame[1] = (tex.frame.y + margin + offset) / texBase.height;
+        frame[2] = (tex.frame.x + tex.frame.width - margin + offset) / texBase.width;
+        frame[3] = (tex.frame.y + tex.frame.height - margin + offset) / texBase.height;
 
-        this.isSimple = tex._frame.width === texBase.width
-            && tex._frame.height === texBase.height
+        this.uClampOffset[0] = offset / texBase.pixelWidth;
+        this.uClampOffset[1] = offset / texBase.pixelHeight;
+
+        this.isSimple = tex.frame.width === texBase.width
+            && tex.frame.height === texBase.height
             && tex.rotate === 0;
 
         return true;

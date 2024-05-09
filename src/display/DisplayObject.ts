@@ -11,7 +11,7 @@ export interface IDestroyOptions
     baseTexture?: boolean;
 }
 
-export interface DisplayObjectEvents extends GlobalMixins.DisplayObjectEvents
+export interface DisplayObjectEvents extends PixiMixins.DisplayObjectEvents
 {
     added: [container: Container];
     childAdded: [child: DisplayObject, container: Container, index: number];
@@ -21,7 +21,7 @@ export interface DisplayObjectEvents extends GlobalMixins.DisplayObjectEvents
 }
 
 export interface DisplayObject
-    extends Omit<GlobalMixins.DisplayObject, keyof utils.EventEmitter<DisplayObjectEvents>>,
+    extends Omit<PixiMixins.DisplayObject, keyof utils.EventEmitter<DisplayObjectEvents>>,
     utils.EventEmitter<DisplayObjectEvents> {}
 
 /**

@@ -86,7 +86,7 @@ export class Ellipse
     // #if _DEBUG
     toString(): string
     {
-        return `[vauxcel:Ellipse x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
+        return `[pixi:Ellipse x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
     }
     // #endif
 }

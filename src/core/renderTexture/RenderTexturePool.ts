@@ -4,7 +4,7 @@ import { BaseRenderTexture } from './BaseRenderTexture.js';
 import { RenderTexture } from './RenderTexture.js';
 
 import type { ISize } from '@pixi/math/index.js';
-import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
+import type { TextureSourceOptions } from '../textures/sources/TextureSource.js';
 
 /**
  * Texture pool, used by FilterSystem and plugins.
@@ -17,7 +17,7 @@ import type { IBaseTextureOptions } from '../textures/BaseTexture.js';
  */
 export class RenderTexturePool
 {
-    public textureOptions: IBaseTextureOptions;
+    public textureOptions: TextureSourceOptions;
 
     /**
      * Allow renderTextures of the same size as screen, not just pow2
@@ -34,7 +34,7 @@ export class RenderTexturePool
      * @param textureOptions - options that will be passed to BaseRenderTexture constructor
      * @param {PIXI.SCALE_MODES} [textureOptions.scaleMode] - See {@link PIXI.SCALE_MODES} for possible values.
      */
-    constructor(textureOptions?: IBaseTextureOptions)
+    constructor(textureOptions?: TextureSourceOptions)
     {
         this.texturePool = {};
         this.textureOptions = textureOptions || {};

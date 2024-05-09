@@ -137,9 +137,9 @@ export class TextureGCSystem implements ISystem
             const texture = managedTextures[i];
 
             // Only supports non generated textures at the moment!
-            if (texture.resource && this.count - texture.touched > this.maxIdle)
+            if (texture.autoGarbageCollect && this.count - texture.touched > this.maxIdle)
             {
-                tm.destroyTexture(texture, true);
+                texture.unload();
                 managedTextures[i] = null;
                 wasRemoved = true;
             }
@@ -167,13 +167,12 @@ export class TextureGCSystem implements ISystem
      */
     unload(displayObject: IUnloadableTexture): void
     {
-        const tm = this.renderer.texture;
         const texture = displayObject._texture as RenderTexture;
 
         // only destroy non generated textures
         if (texture && !texture.framebuffer)
         {
-            tm.destroyTexture(texture);
+            texture.source.unload();
         }
 
         for (let i = displayObject.children.length - 1; i >= 0; i--)

@@ -1,5 +1,5 @@
 import { Matrix } from '@pixi/math/index.js';
-import { TextureMatrix } from '../../textures/TextureMatrix.js';
+import { Texture } from '../../textures/Texture.js';
 import { Filter } from '../Filter.js';
 
 import type { CLEAR_MODES } from '@pixi/constants.js';
@@ -7,7 +7,6 @@ import type { Point } from '@pixi/math/index.js';
 import type { Dict } from '@pixi/utils/index.js';
 import type { IMaskTarget } from '../../mask/MaskData.js';
 import type { RenderTexture } from '../../renderTexture/RenderTexture.js';
-import type { Texture } from '../../textures/Texture.js';
 import type { FilterSystem } from '../FilterSystem.js';
 
 const fragment = `#version 100
@@ -147,25 +146,21 @@ export class SpriteMaskFilter extends Filter
         const maskSprite = this._maskSprite as ISpriteMaskTarget;
         const tex = maskSprite._texture;
 
-        if (!tex.valid)
+        if (!tex || tex === Texture.EMPTY)
         {
             return;
         }
-        if (!tex.uvMatrix)
-        {
-            // margin = 0.0, let it bleed a bit, shader code becomes easier
-            // assuming that atlas textures were made with 1-pixel padding
-            tex.uvMatrix = new TextureMatrix(tex, 0.0);
-        }
-        tex.uvMatrix.update();
+        const tm = tex.textureMatrix;
 
-        this.uniforms.npmAlpha = tex.baseTexture.alphaMode ? 0.0 : 1.0;
+        tm.update();
+
+        this.uniforms.npmAlpha = tex.source.alphaMode > 0;
         this.uniforms.mask = tex;
         // get _normalized sprite texture coords_ and convert them to _normalized atlas texture coords_ with `prepend`
         this.uniforms.otherMatrix = filterManager.calculateSpriteMatrix(this.maskMatrix, maskSprite)
-            .prepend(tex.uvMatrix.mapCoord);
+            .prepend(tm.mapCoord);
         this.uniforms.alpha = maskSprite.worldAlpha;
-        this.uniforms.maskClamp = tex.uvMatrix.uClampFrame;
+        this.uniforms.maskClamp = tm.uClampFrame;
 
         filterManager.applyFilter(this, input, output, clearMode);
     }

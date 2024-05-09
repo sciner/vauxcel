@@ -387,7 +387,7 @@ export type TEXTURE_FORMATS =
     // "depth32float-stencil8" feature
     'depth32float-stencil8';
 
-export enum FORMATS
+export enum GL_FORMATS
 // eslint-disable-next-line @typescript-eslint/indent
 {
     /**
@@ -450,7 +450,7 @@ export enum FORMATS
  * @static
  * @enum {number}
  */
-export enum TARGETS
+export enum GL_TARGETS
 // eslint-disable-next-line @typescript-eslint/indent
 {
     /**
@@ -636,45 +636,28 @@ export type SCALE_MODE =
     /** Smooth scaling */
     | 'linear';
 
-/**
- * Mipmap filtering modes that are supported by pixi.
- *
- * The {@link PIXI.BaseTexture.defaultOptions.mipmap} affects default texture filtering.
- * Mipmaps are generated for a baseTexture if its `mipmap` field is `ON`,
- * or its `POW2` and texture dimensions are powers of 2.
- * Since WebGL 1 don't support mipmap for non-power-of-two textures,
- * `ON` option will work like `POW2` for WebGL 1.
- *
- * This property only affects WebGL.
- * @memberof PIXI
- * @static
- * @enum {number}
- */
-export enum MIPMAP_MODES
-// eslint-disable-next-line @typescript-eslint/indent
-{
-    /**
-     * No mipmaps.
-     * @default 0
-     */
-    OFF,
-    /**
-     * Generate mipmaps if texture dimensions are powers of 2.
-     * @default 1
-     */
-    POW2,
-    /**
-     * Always generate mipmaps.
-     * @default 2
-     */
-    ON,
-    /**
-     * Use mipmaps, but do not auto-generate them.
-     * this is used with a resource that supports buffering each level-of-detail.
-     * @default 3
-     */
-    ON_MANUAL,
-}
+export type COMPARE_FUNCTION =
+    | 'never'
+    | 'less'
+    | 'equal'
+    | 'less-equal'
+    | 'greater'
+    | 'not-equal'
+    | 'greater-equal'
+    | 'always';
+
+export type TEXTURE_VIEW_DIMENSIONS =
+    '1d' |
+    '2d' |
+    '2d-array' |
+    'cube' |
+    'cube-array' |
+    '3d';
+
+export type TEXTURE_DIMENSIONS =
+    | '1d'
+    | '2d'
+    | '3d';
 
 /**
  * How to treat textures with premultiplied alpha

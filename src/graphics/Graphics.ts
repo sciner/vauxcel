@@ -63,7 +63,7 @@ export interface ILineStyleOptions extends IFillStyleOptions
 // a default shaders map used by graphics..
 const DEFAULT_SHADERS: {[key: string]: Shader} = {};
 
-export interface Graphics extends GlobalMixins.Graphics, Container {}
+export interface Graphics extends PixiMixins.Graphics, Container {}
 
 /**
  * The Graphics class is primarily used to render primitive shapes such as lines, circles and

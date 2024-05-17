@@ -19,9 +19,18 @@ import type { ISystem } from '../system/ISystem.js';
 
 export const glUploadUnknown: GLTextureUploader = {
     id: 'unknown',
-    upload(source: TextureSource, glTexture: GLTexture, gl: WebGL2RenderingContext): void
+    storage(source: TextureSource, glTexture: GLTexture, gl: WebGL2RenderingContext): void
     {
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth, source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        const w = glTexture.width = source.pixelWidth;
+        const h = glTexture.height = source.pixelHeight;
+
+        gl.texStorage2D(gl.TEXTURE_2D, source.mipLevelCount, glTexture.internalFormat, w, h);
+    },
+    upload(_source: TextureSource, _glTexture: GLTexture, _gl: WebGL2RenderingContext): void
+    {
+        // nothing
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth,
+        // source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     }
 };
 
@@ -397,7 +406,7 @@ export class TextureSystem implements ISystem
         const old_tex = source._glTextures[this.CONTEXT_UID];
         const uploader = this.getSourceUploader(source);
 
-        if (!old_tex || !uploader || !uploader.storage)
+        if (!old_tex || !uploader.storage)
         {
             this.onSourceUpdate(source);
 

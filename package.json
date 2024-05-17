@@ -1,6 +1,6 @@
 {
   "name": "@sciner/pixi",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "WebGL/WebGPU renderer for 2D and Voxel-based 3d features based on PixiJS architecture",
   "author": "Ivan Popelyshev",
   "contributors": [

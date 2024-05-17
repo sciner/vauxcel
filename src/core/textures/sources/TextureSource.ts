@@ -72,7 +72,7 @@ export interface TextureSourceOptions<T extends Record<string, any> = any> exten
     /** If true, the Garbage Collector will unload this texture if it is not used after a period of time */
     autoGarbageCollect?: boolean;
 
-    glUseStorage?: boolean;
+    glMutableSize?: boolean;
     copyOnResize?: boolean;
 }
 
@@ -109,7 +109,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         depth: 1,
         antialias: false,
         autoGarbageCollect: false,
-        glUseStorage: false,
+        glMutableSize: false,
         copyOnResize: false,
     };
 
@@ -281,7 +281,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         this.antialias = options.antialias;
         this.alphaMode = options.alphaMode;
 
-        this.glUseStorage = options.glUseStorage;
+        this.glMutableSize = options.glMutableSize;
         this.copyOnResize = options.copyOnResize;
 
         this.style = new TextureStyle(definedProps(options));
@@ -567,7 +567,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     }
 
     public _glTextures: Record<number, GLTexture> = {};
-    glUseStorage: boolean;
+    glMutableSize: boolean;
     copyOnResize: boolean;
     public glUploader?: GLTextureUploader = undefined;
 

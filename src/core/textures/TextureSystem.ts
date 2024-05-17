@@ -317,7 +317,7 @@ export class TextureSystem implements ISystem
         }
 
         gl.bindTexture(glTexture.target, glTexture.texture);
-        if (uploader.storage)
+        if (!source.glMutableSize && uploader.storage)
         {
             uploader.storage(source, glTexture, gl);
         }
@@ -406,12 +406,14 @@ export class TextureSystem implements ISystem
         const old_tex = source._glTextures[this.CONTEXT_UID];
         const uploader = this.getSourceUploader(source);
 
-        if (!old_tex || !uploader.storage)
+        if (source.glMutableSize || !old_tex || !uploader.storage)
         {
             this.onSourceUpdate(source);
 
             return;
         }
+
+        this.unbind(source);
 
         const gl = this.gl;
 

@@ -11,11 +11,6 @@ export const glUploadImageResource: GLTextureUploader = {
 
     storage(source: ImageSource | CanvasSource, glTexture: GLTexture, gl: WebGL2RenderingContext)
     {
-        if (!source.glUseStorage)
-        {
-            return;
-        }
-
         const w = glTexture.width = source.pixelWidth;
         const h = glTexture.height = source.pixelHeight;
 
@@ -81,7 +76,7 @@ export const glUploadImageResource: GLTextureUploader = {
                 );
             }
         }
-        else if (glWidth === textureWidth || glHeight === textureHeight)
+        else if (glWidth === textureWidth && glHeight === textureHeight)
         {
             gl.texSubImage2D(
                 gl.TEXTURE_2D,

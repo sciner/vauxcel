@@ -154,7 +154,7 @@ export class Text extends Sprite
         canvas.width = 3;
         canvas.height = 3;
 
-        const texture = new Texture({ source: new CanvasSource({ resource: canvas }) });
+        const texture = new Texture({ source: new CanvasSource({ resource: canvas, glMutableSize: true }) });
 
         texture.source.autoGarbageCollect = true;
         texture.orig = new Rectangle();
@@ -435,6 +435,9 @@ export class Text extends Sprite
         const padding = style.trim ? 0 : style.padding;
         const baseTexture = texture.source;
 
+        baseTexture.resolution = this._resolution;
+        baseTexture.update();
+
         texture.trim.width = texture.frame.width = canvas.width / this._resolution;
         texture.trim.height = texture.frame.height = canvas.height / this._resolution;
         texture.trim.x = -padding;
@@ -442,13 +445,10 @@ export class Text extends Sprite
 
         texture.orig.width = texture.frame.width - (padding * 2);
         texture.orig.height = texture.frame.height - (padding * 2);
+        texture.updateUvs();
 
         // call sprite onTextureUpdate to update scale if _width or _height were set
         this._onTextureUpdate();
-
-        baseTexture.resize(canvas.width, canvas.height, this._resolution);
-
-        texture.updateUvs();
 
         this.dirty = false;
     }

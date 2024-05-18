@@ -21,13 +21,35 @@ export const glUploadUnknown: GLTextureUploader = {
     id: 'unknown',
     storage(source: TextureSource, glTexture: GLTexture, gl: WebGL2RenderingContext): void
     {
+        if (source.glMutableSize)
+        {
+            return;
+        }
+
         const w = glTexture.width = source.pixelWidth;
         const h = glTexture.height = source.pixelHeight;
 
         gl.texStorage2D(gl.TEXTURE_2D, source.mipLevelCount, glTexture.internalFormat, w, h);
+        gl.texImage2D(gl.TEXTURE_2D, source.mipLevelCount, glTexture.internalFormat, w, h,
+            0, glTexture.format, glTexture.type, null);
     },
-    upload(_source: TextureSource, _glTexture: GLTexture, _gl: WebGL2RenderingContext): void
+    upload(source: TextureSource, glTexture: GLTexture, gl: WebGL2RenderingContext): void
     {
+        if (!source.glMutableSize)
+        {
+            return;
+        }
+        if (glTexture.width === source.pixelWidth
+            && glTexture.height === source.pixelHeight)
+        {
+            return;
+        }
+
+        const w = glTexture.width = source.pixelWidth;
+        const h = glTexture.height = source.pixelHeight;
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, glTexture.internalFormat, w, h,
+            0, glTexture.format, glTexture.type, null);
         // nothing
         // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth,
         // source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);

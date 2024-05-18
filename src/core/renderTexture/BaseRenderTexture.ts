@@ -72,6 +72,7 @@ export class BaseRenderTexture extends TextureSource
     {
         options.width = options.width ?? 100;
         options.height = options.height ?? 100;
+        options.glMutableSize = options.glMutableSize ?? true;
 
         super(options);
 

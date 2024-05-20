@@ -4,7 +4,7 @@ import { Matrix } from '../../../maths/matrix/Matrix';
 import { Point } from '../../../maths/point/Point';
 import { Texture } from '../../../rendering/renderers/shared/texture/Texture';
 import { uid } from '../../../utils/data/uid';
-import { EventEmitter } from '../../../utils/event_emitter';
+import { EventEmitter } from '../../../utils/event_emitter.js';
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
 import { Bounds } from '../../container/bounds/Bounds';
 import { GraphicsPath } from './path/GraphicsPath';
@@ -330,7 +330,8 @@ export class GraphicsContext extends EventEmitter<{
 
         if (!path) return this;
 
-        if (style)
+        // eslint-disable-next-line no-eq-null, eqeqeq
+        if (style != null)
         {
             if (alpha !== undefined && typeof style === 'number')
             {
@@ -390,7 +391,8 @@ export class GraphicsContext extends EventEmitter<{
 
         if (!path) return this;
 
-        if (style)
+        // eslint-disable-next-line no-eq-null, eqeqeq
+        if (style != null)
         {
             this._strokeStyle = convertFillInputToFillStyle(style, GraphicsContext.defaultStrokeStyle);
         }

@@ -221,12 +221,17 @@ export class GlTextureSystem implements System, CanvasGenerator
         }
 
         this.onSourceUpdate(source);
-        this.onStyleChange(source);
+        this.updateStyle(source, false);
 
         return glTexture;
     }
 
     protected onStyleChange(source: TextureSource): void
+    {
+        this.updateStyle(source, false);
+    }
+
+    protected updateStyle(source: TextureSource, firstCreation: boolean): void
     {
         const gl = this._gl;
 
@@ -244,7 +249,8 @@ export class GlTextureSystem implements System, CanvasGenerator
             'texParameteri',
             gl.TEXTURE_2D,
             // will force a clamp to edge if the texture is not a power of two
-            !this._renderer.context.supports.nonPowOf2wrapping && !source.isPowerOfTwo
+            !this._renderer.context.supports.nonPowOf2wrapping && !source.isPowerOfTwo,
+            firstCreation,
         );
     }
 
@@ -324,7 +330,8 @@ export class GlTextureSystem implements System, CanvasGenerator
             this._renderer.context.extensions.anisotropicFiltering,
             'samplerParameteri',
             glSampler,
-            false
+            false,
+            true,
         );
 
         return this._glSamplers[style._resourceId];

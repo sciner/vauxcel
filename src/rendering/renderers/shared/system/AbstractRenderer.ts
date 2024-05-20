@@ -1,8 +1,8 @@
 import { Color } from '../../../../color/Color';
 import { Container } from '../../../../scene/container/Container';
 import { unsafeEvalSupported } from '../../../../utils/browser/unsafeEvalSupported';
-import { deprecation, v8_0_0 } from '../../../../utils/logging/deprecation';
 import { EventEmitter } from '../../../../utils/event_emitter';
+import { deprecation, v8_0_0 } from '../../../../utils/logging/deprecation';
 import { CLEAR } from '../../gl/const';
 import { SystemRunner } from './SystemRunner';
 

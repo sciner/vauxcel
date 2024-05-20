@@ -1,3 +1,4 @@
+import { DOMAdapter } from '../../../../environment/adapter';
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { warn } from '../../../../utils/logging/warn';
 import { type GpuPowerPreference } from '../../types';
@@ -218,7 +219,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
     {
         this.gl = gl;
 
-        this.webGLVersion = gl instanceof WebGL2RenderingContext ? 2 : 1;
+        this.webGLVersion = gl instanceof DOMAdapter.get().getWebGLRenderingContext() ? 1 : 2;
 
         this.getExtensions();
 
@@ -274,6 +275,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
         const common = {
             anisotropicFiltering: gl.getExtension('EXT_texture_filter_anisotropic'),
             floatTextureLinear: gl.getExtension('OES_texture_float_linear'),
+
             loseContext: gl.getExtension('WEBGL_lose_context'),
         };
 
@@ -296,13 +298,6 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 vertexAttribDivisorANGLE: gl.getExtension('ANGLE_instanced_arrays'),
                 srgb: gl.getExtension('EXT_sRGB'),
             };
-
-            const provokeExt = gl.getExtension('WEBGL_provoking_vertex');
-
-            if (provokeExt)
-            {
-                provokeExt.provokingVertexWEBGL(provokeExt.FIRST_VERTEX_CONVENTION_WEBGL);
-            }
         }
         else
         {
@@ -310,6 +305,13 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 ...common,
                 colorBufferFloat: gl.getExtension('EXT_color_buffer_float'),
             };
+
+            const provokeExt = gl.getExtension('WEBGL_provoking_vertex');
+
+            if (provokeExt)
+            {
+                provokeExt.provokingVertexWEBGL(provokeExt.FIRST_VERTEX_CONVENTION_WEBGL);
+            }
         }
     }
 

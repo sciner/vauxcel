@@ -59,16 +59,8 @@ export const nonCompressedFormats: TEXTURE_FORMATS[] = [
     'depth32float-stencil8',
 ];
 
-let supportedTextureFormats: TEXTURE_FORMATS[];
-
 export async function getSupportedTextureFormats(): Promise<TEXTURE_FORMATS[]>
 {
-    if (supportedTextureFormats !== undefined) return supportedTextureFormats;
-
-    supportedTextureFormats = [
-        ...nonCompressedFormats,
-    ];
-
-    return supportedTextureFormats;
+    return nonCompressedFormats;
 }
 

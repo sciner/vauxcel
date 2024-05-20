@@ -1,5 +1,4 @@
-import { EventEmitter } from '../../utils/event_emitter';
-import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
+import { EventEmitter } from '../../utils/event_emitter.js';
 
 import type { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import type { FontMetrics } from '../text/canvas/CanvasTextMetrics';
@@ -115,73 +114,6 @@ export abstract class AbstractBitmapFont<FontType>
     /** The size of the font face in pixels. */
     public readonly baseMeasurementFontSize: number = 100;
     protected baseRenderedFontSize = 100;
-
-    /**
-     * The name of the font face.
-     * @deprecated since 8.0.0 Use `fontFamily` instead.
-     */
-    public get font(): BitmapFontData['fontFamily']
-    {
-        // #if _DEBUG
-        deprecation(v8_0_0, 'BitmapFont.font is deprecated, please use BitmapFont.fontFamily instead.');
-        // #endif
-
-        return this.fontFamily;
-    }
-
-    /**
-     * The map of base page textures (i.e., sheets of glyphs).
-     * @deprecated since 8.0.0 Use `pages` instead.
-     */
-    public get pageTextures(): AbstractBitmapFont<FontType>['pages']
-    {
-        // #if _DEBUG
-        deprecation(v8_0_0, 'BitmapFont.pageTextures is deprecated, please use BitmapFont.pages instead.');
-        // #endif
-
-        return this.pages;
-    }
-
-    /**
-     * The size of the font face in pixels.
-     * @deprecated since 8.0.0 Use `fontMetrics.fontSize` instead.
-     */
-    public get size(): BitmapFontData['fontSize']
-    {
-        // #if _DEBUG
-        deprecation(v8_0_0, 'BitmapFont.size is deprecated, please use BitmapFont.fontMetrics.fontSize instead.');
-        // #endif
-
-        return this.fontMetrics.fontSize;
-    }
-
-    /**
-     * The kind of distance field for this font or "none".
-     * @deprecated since 8.0.0 Use `distanceField.type` instead.
-     */
-    public get distanceFieldRange(): NonNullable<BitmapFontData['distanceField']>['range']
-    {
-        // #if _DEBUG
-        // eslint-disable-next-line max-len
-        deprecation(v8_0_0, 'BitmapFont.distanceFieldRange is deprecated, please use BitmapFont.distanceField.range instead.');
-        // #endif
-
-        return this.distanceField.range;
-    }
-
-    /**
-     * The range of the distance field in pixels.
-     * @deprecated since 8.0.0 Use `distanceField.range` instead.
-     */
-    public get distanceFieldType(): NonNullable<BitmapFontData['distanceField']>['type']
-    {
-        // #if _DEBUG
-        // eslint-disable-next-line max-len
-        deprecation(v8_0_0, 'BitmapFont.distanceFieldType is deprecated, please use BitmapFont.distanceField.type instead.');
-        // #endif
-
-        return this.distanceField.type;
-    }
 
     public destroy(destroyTextures = false): void
     {

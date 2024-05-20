@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
+import parse from 'parse-svg-path';
 import { warn } from '../../../../utils/logging/warn';
-import { parse_svg_path } from '../../../../utils/svg/parse_svg_path';
 
 import type { GraphicsPath } from '../path/GraphicsPath';
 
@@ -13,7 +13,7 @@ interface SubPath
 // TODO optimise and cache the paths?
 export function SVGToGraphicsPath(svgPath: string, path: GraphicsPath): GraphicsPath
 {
-    const commands = parse_svg_path(svgPath);
+    const commands = parse(svgPath);
 
     const subpaths: SubPath[] = [];
     let currentSubPath: SubPath | null = null;

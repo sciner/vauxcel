@@ -7,6 +7,7 @@ export * from './misc/squaredDistanceToLineSegment';
 export * from './point/ObservablePoint';
 export * from './point/Point';
 export * from './point/PointData';
+export * from './point/pointInTriangle';
 export * from './point/PointLike';
 export * from './shapes/Circle';
 export * from './shapes/Ellipse';

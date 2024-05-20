@@ -1,6 +1,6 @@
 {
-  "name": "vauxcel",
-  "version": "1.0.0",
+  "name": "@sciner/pixi",
+  "version": "0.3.0",
   "author": "Ivan Popelyshev + PixiJS Team",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -107,8 +107,8 @@
   "bundles": [
     {
       "src": "src/bundle.browser.ts",
-      "target": "dist/vauxcel.js",
-      "module": "dist/vauxcel.mjs",
+      "target": "dist/sciner-pixi.js",
+      "module": "dist/sciner-pixi.mjs",
       "plugin": false
     }
   ],

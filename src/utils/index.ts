@@ -1,4 +1,6 @@
 export * from './browser/detectVideoAlphaMode';
+export * from './browser/isMobile';
+export * from './browser/isMobileLib';
 export * from './browser/isSafari';
 export * from './browser/isWebGLSupported';
 export * from './browser/isWebGPUSupported';
@@ -11,8 +13,6 @@ export * from './data/updateQuadBounds';
 export * from './data/ViewableBuffer';
 export * from './earcut';
 export * from './event_emitter';
-export * from './is_mobile/isMobile';
-export * from './is_mobile/isMobileLib';
 export * from './logging/deprecation';
 export * from './logging/logDebugTexture';
 export * from './logging/logScene';

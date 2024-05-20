@@ -1,5 +1,3 @@
-import { EventEmitter } from '../utils/event_emitter';
-
 /**
  * Regexp for data URI.
  * Based on: {@link https://github.com/ragingwind/data-uri-regex}
@@ -13,6 +11,3 @@ import { EventEmitter } from '../utils/event_emitter';
  * @memberof utils
  */
 export const DATA_URI = /^\s*data:(?:([\w-]+)\/([\w+.-]+))?(?:;charset=([\w-]+))?(?:;(base64))?,(.*)/i;
-
-// export the event emitter so we can use it in external modules
-export { EventEmitter };

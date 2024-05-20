@@ -1,5 +1,5 @@
 import { Color, type ColorSource } from '../../color/Color';
-import { EventEmitter } from '../../utils/event_emitter';
+import { EventEmitter } from '../../utils/event_emitter.js';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
 import { FillGradient } from '../graphics/shared/fill/FillGradient';
 import { GraphicsContext } from '../graphics/shared/GraphicsContext';
@@ -540,7 +540,7 @@ function convertV7Tov8Style(style: TextStyleOptions)
         };
     }
 
-    if (oldStyle.strokeThickness)
+    if (oldStyle.strokeThickness !== undefined)
     {
         // #if _DEBUG
         deprecation(v8_0_0, 'strokeThickness is now a part of stroke');

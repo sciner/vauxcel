@@ -1,6 +1,6 @@
 import { FederatedEvent } from '../events/FederatedEvent';
 import { ExtensionType } from '../extensions/Extensions';
-import { isMobile } from '../utils/is_mobile/isMobile';
+import { isMobile } from '../utils/browser/isMobile';
 import { removeItems } from '../utils/data/removeItems';
 import { type AccessibleHTMLElement } from './accessibilityTarget';
 
@@ -8,7 +8,7 @@ import type { Rectangle } from '../maths/shapes/Rectangle';
 import type { System } from '../rendering/renderers/shared/system/System';
 import type { Renderer } from '../rendering/renderers/types';
 import type { Container } from '../scene/container/Container';
-import type { isMobileResult } from '../utils/is_mobile/isMobileLib';
+import type { isMobileResult } from '../utils/browser/isMobileLib';
 
 /**
  * The accessibility module recreates the ability to tab and have content read by screen readers.

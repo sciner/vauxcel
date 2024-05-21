@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
+import EventEmitter from 'eventemitter3';
 import { Color, type ColorSource } from '../../../color/Color';
 import { Matrix } from '../../../maths/matrix/Matrix';
 import { Point } from '../../../maths/point/Point';
 import { Texture } from '../../../rendering/renderers/shared/texture/Texture';
 import { uid } from '../../../utils/data/uid';
-import { EventEmitter } from '../../../utils/event_emitter.js';
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
 import { Bounds } from '../../container/bounds/Bounds';
 import { GraphicsPath } from './path/GraphicsPath';
@@ -1048,6 +1048,7 @@ export class GraphicsContext extends EventEmitter<{
      */
     public clear(): this
     {
+        this._activePath.clear();
         this.instructions.length = 0;
         this.resetTransform();
 

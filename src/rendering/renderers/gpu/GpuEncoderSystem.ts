@@ -149,7 +149,7 @@ export class GpuEncoderSystem implements System
         {
             const attribute = geometry.attributes[i];
 
-            this._setVertexBuffer(attribute.location, attribute.buffer);
+            this._setVertexBuffer(attribute.location, geometry.buffers[attribute.buffer_index]);
         }
 
         if (geometry.indexBuffer)

@@ -24,7 +24,8 @@ type UIDNames =
     | 'uniform' //
     | 'spriteView' //
     | 'textView' //
-    | 'tilingSpriteView'; // ;
+    | 'tilingSpriteView'
+    | 'glProgram'; // ;
 
 /**
  * Gets the next unique identifier

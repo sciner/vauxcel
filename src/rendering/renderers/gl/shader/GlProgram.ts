@@ -1,3 +1,4 @@
+import { uid } from '../../../../utils/data/uid';
 import { createIdFromString } from '../../shared/utils/createIdFromString';
 import { getMaxFragmentPrecision } from './program/getMaxFragmentPrecision';
 import { addProgramDefines } from './program/preprocessors/addProgramDefines';
@@ -7,7 +8,7 @@ import { setProgramName } from './program/preprocessors/setProgramName';
 import { stripVersion } from './program/preprocessors/stripVersion';
 
 import type { TypedArray } from '../../shared/buffer/Buffer';
-import type { ExtractedAttributeData } from './program/extractAttributesFromGlProgram';
+import type { ExtractedAttributeData } from '../../shared/geometry/Attribute';
 
 export interface GlAttributeData
 {
@@ -105,6 +106,9 @@ export class GlProgram
         preferredVertexPrecision: 'highp',
         preferredFragmentPrecision: 'mediump',
     };
+
+    /** The unique id of the GL program. */
+    public readonly uid: number = uid('glProgram');
 
     /** the fragment glsl shader source. */
     public readonly fragment?: string;

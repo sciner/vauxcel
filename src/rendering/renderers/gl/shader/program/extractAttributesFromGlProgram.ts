@@ -1,9 +1,7 @@
-import { getAttributeInfoFromFormat } from '../../../shared/geometry/utils/getAttributeInfoFromFormat';
 import { mapGlToVertexFormat } from './mapType';
 
-import type { Attribute } from '../../../shared/geometry/Geometry';
+import type { ExtractedAttributeData } from '../../../shared/geometry/Attribute';
 
-export type ExtractedAttributeData = Omit<Attribute, 'buffer'>;
 
 /**
  * returns the attribute data from the program
@@ -38,10 +36,9 @@ export function extractAttributesFromGlProgram(
         attributes[attribData.name] = {
             location: 0, // set further down..
             format,
-            stride: getAttributeInfoFromFormat(format).stride,
+            stride: 0,
             offset: 0,
             instance: false,
-            start: 0,
         };
     }
 

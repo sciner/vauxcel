@@ -1,7 +1,8 @@
-import { EventEmitter } from '../../../../utils/event_emitter';
 import { uid } from '../../../../utils/data/uid';
+import { EventEmitter } from '../../../../utils/event_emitter';
 import { BufferUsage } from './const';
 
+import type { GlBuffer } from '../../gl/buffer/GlBuffer';
 import type { BindResource } from '../../gpu/shader/BindResource';
 
 /** All the various typed arrays that exist in js */
@@ -296,5 +297,8 @@ export class Buffer extends EventEmitter<{
 
         this.removeAllListeners();
     }
+
+    glData: GlBuffer = null;
+    refCount = 0;
 }
 

@@ -87,6 +87,13 @@ export class GlBufferSystem implements System
         gl.bindBuffer(glBuffer.type, glBuffer.buffer);
     }
 
+    public unbind(type: BUFFER_TYPE): void
+    {
+        const { gl } = this._renderer;
+
+        gl.bindBuffer(type, null);
+    }
+
     /**
      * Binds an uniform buffer to at the given index.
      *

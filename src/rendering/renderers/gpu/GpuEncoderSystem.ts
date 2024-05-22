@@ -1,4 +1,5 @@
 import { ExtensionType } from '../../../extensions/Extensions';
+import { MultiDrawBuffer } from '../shared/geometry/MultiDrawBuffer';
 
 import type { Rectangle } from '../../../maths/shapes/Rectangle';
 import type { Buffer } from '../shared/buffer/Buffer';
@@ -14,6 +15,7 @@ import type { GpuRenderTargetAdaptor } from './renderTarget/GpuRenderTargetAdapt
 import type { BindGroup } from './shader/BindGroup';
 import type { GpuProgram } from './shader/GpuProgram';
 import type { WebGPURenderer } from './WebGPURenderer';
+import {BUFFER_TYPE} from "../gl/buffer/const";
 
 /**
  * The system that handles encoding commands for the GPU.
@@ -145,16 +147,18 @@ export class GpuEncoderSystem implements System
 
     public setGeometry(geometry: Geometry)
     {
-        for (const i in geometry.attributes)
+        for (let i = 0; i < geometry.buffers.length; i++)
         {
-            const attribute = geometry.attributes[i];
+            const buf = geometry.buffers[i];
 
-            this._setVertexBuffer(attribute.location, geometry.buffers[attribute.buffer_index]);
-        }
-
-        if (geometry.indexBuffer)
-        {
-            this._setIndexBuffer(geometry.indexBuffer);
+            if (buf === geometry.indexBuffer)
+            {
+                this._setIndexBuffer(geometry.indexBuffer);
+            }
+            else
+            {
+                this._setVertexBuffer(i, geometry.buffers[i]);
+            }
         }
     }
 
@@ -196,6 +200,7 @@ export class GpuEncoderSystem implements System
         start?: number;
         instanceCount?: number;
         skipSync?: boolean;
+        multiDrawBuffer?: MultiDrawBuffer;
     })
     {
         const { geometry, shader, state, topology, size, start, instanceCount, skipSync } = options;
@@ -215,6 +220,75 @@ export class GpuEncoderSystem implements System
         else
         {
             this.renderPassEncoder.draw(size || geometry.getSize(), instanceCount || geometry.instanceCount, start || 0);
+        }
+    }
+
+    public multiDraw(options: {
+        geometry: Geometry;
+        multiDrawBuffer: MultiDrawBuffer;
+        shader: Shader;
+        state?: State;
+        skipSync?: boolean;
+    })
+    {
+        const { geometry, shader, state, skipSync } = options;
+
+        this.setPipelineFromGeometryProgramAndState(geometry, shader.gpuProgram, state, geometry.topology);
+        this.setGeometry(geometry);
+        this._setShaderBindGroups(shader, skipSync);
+
+        const { offsets, counts, instanceCounts, baseInstances, count } = options.multiDrawBuffer;
+
+        // TODO: draw indirect
+        if (geometry.instanced)
+        {
+            if (geometry.indexBuffer)
+            {
+                for (let i = 0; i < count; i++)
+                {
+                    this.renderPassEncoder.drawIndexed(
+                        counts[i],
+                        instanceCounts[i],
+                        offsets[i],
+                        0,
+                        baseInstances[i]
+                    );
+                }
+            }
+            else
+            {
+                for (let i = 0; i < count; i++)
+                {
+                    this.renderPassEncoder.draw(
+                        counts[i],
+                        instanceCounts[i],
+                        offsets[i],
+                        baseInstances[i]
+                    );
+                }
+            }
+        }
+        else if (geometry.indexBuffer)
+        {
+            for (let i = 0; i < count; i++)
+            {
+                this.renderPassEncoder.drawIndexed(
+                    counts[i],
+                    0,
+                    offsets[i],
+                );
+            }
+        }
+        else
+        {
+            for (let i = 0; i < count; i++)
+            {
+                this.renderPassEncoder.draw(
+                    counts[i],
+                    0,
+                    offsets[i],
+                );
+            }
         }
     }
 

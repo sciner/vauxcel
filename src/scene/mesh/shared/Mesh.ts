@@ -8,6 +8,7 @@ import { MeshGeometry } from './MeshGeometry';
 
 import type { PointData } from '../../../maths/point/PointData';
 import type { Topology } from '../../../rendering/renderers/shared/geometry/const';
+import type { MultiDrawBuffer } from "../../../rendering/renderers/shared/geometry/MultiDrawBuffer";
 import type { Instruction } from '../../../rendering/renderers/shared/instructions/Instruction';
 import type { Shader } from '../../../rendering/renderers/shared/shader/Shader';
 import type { View } from '../../../rendering/renderers/shared/view/View';
@@ -92,6 +93,8 @@ export class Mesh<
     public _shader?: SHADER;
 
     public _roundPixels: 0 | 1 = 0;
+
+    public _multiDrawBuffer: MultiDrawBuffer = null;
 
     /**
      * @param {scene.MeshOptions} options - options for the mesh instance
@@ -233,7 +236,7 @@ export class Mesh<
 
     get batched()
     {
-        if (this._shader) return false;
+        if (this._shader || this._multiDrawBuffer) return false;
 
         if (this._geometry instanceof MeshGeometry)
         {
@@ -370,10 +373,39 @@ export class Mesh<
             this._texture.destroy(destroyTextureSource);
         }
 
+        this.multiDrawBuffer = null;
+
         this._geometry?.off('update', this.onViewUpdate, this);
 
         this._texture = null;
         this._geometry = null;
         this._shader = null;
+    }
+
+    set multiDrawBuffer(value: MultiDrawBuffer)
+    {
+        if (this._multiDrawBuffer === value)
+        {
+            return;
+        }
+
+        if (this._multiDrawBuffer)
+        {
+            this._multiDrawBuffer.off('update', this.onViewUpdate, this);
+        }
+
+        this._multiDrawBuffer = value;
+
+        if (this._multiDrawBuffer)
+        {
+            this._multiDrawBuffer.on('update', this.onViewUpdate, this);
+        }
+
+        this.onViewUpdate();
+    }
+
+    get multiDrawBuffer(): MultiDrawBuffer
+    {
+        return this._multiDrawBuffer;
     }
 }

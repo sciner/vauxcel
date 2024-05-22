@@ -216,4 +216,22 @@ export class GlProgram
 
         return programCache[key];
     }
+
+    getLocationListByAttributes(names: Array<string>)
+    {
+        // returns locations
+        const res: Array<number> = [];
+
+        for (let i = 0; i < names.length; i++)
+        {
+            const attribData = this._attributeData[names[i]];
+
+            if (attribData)
+            {
+                res.push(attribData.location);
+            }
+        }
+
+        return res;
+    }
 }

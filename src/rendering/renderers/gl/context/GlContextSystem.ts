@@ -297,6 +297,8 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 textureHalfFloatLinear: gl.getExtension('OES_texture_half_float_linear'),
                 vertexAttribDivisorANGLE: gl.getExtension('ANGLE_instanced_arrays'),
                 srgb: gl.getExtension('EXT_sRGB'),
+                multiDraw: gl.getExtension('WEBGL_multi_draw'),
+                multiDrawBvbi: gl.getExtension('WEBGL_multi_draw_instanced_base_vertex_base_instance'),
             };
         }
         else

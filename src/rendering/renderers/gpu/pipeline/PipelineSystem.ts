@@ -298,8 +298,9 @@ export class PipelineSystem implements System
 
         const vertexBuffersLayout: GPUVertexBufferLayout[] = [];
 
-        geometry.buffers.forEach((buffer) =>
+        for (let i = 0; i < geometry.buffers.length; i++)
         {
+            const buffer = geometry.buffers[i];
             const bufferEntry: GPUVertexBufferLayout = {
                 arrayStride: 0,
                 stepMode: 'vertex',
@@ -308,9 +309,14 @@ export class PipelineSystem implements System
 
             const bufferEntryAttributes = bufferEntry.attributes as GPUVertexAttribute[];
 
-            for (const i in geometry.attributes)
+            for (const j in geometry.attributes)
             {
-                const attribute = geometry.attributes[i];
+                const attribute = geometry.attributes[j];
+
+                if (attribute.buffer_index !== i)
+                {
+                    continue;
+                }
 
                 if (attribute.buffer === buffer)
                 {
@@ -329,7 +335,7 @@ export class PipelineSystem implements System
             {
                 vertexBuffersLayout.push(bufferEntry);
             }
-        });
+        }
 
         this._bufferLayoutsCache[geometry._layoutKey] = vertexBuffersLayout;
 

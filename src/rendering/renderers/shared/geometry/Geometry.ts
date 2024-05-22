@@ -8,6 +8,7 @@ import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat';
 import { getGeometryBounds } from './utils/getGeometryBounds';
 
 import type { GeometryPerGL } from '../../gl/geometry/GlGeometrySystem';
+import type { AttributeBaseCallbackStruct } from '../../gl/geometry/utils/generateAttributeSync';
 import type { TypedArray } from '../buffer/Buffer';
 import type { Topology } from './const';
 
@@ -190,8 +191,8 @@ export class Geometry extends EventEmitter<{
         this.buffers = [];
         this.bufferStride = [];
         this.topology = options.topology || 'triangle-list';
-        this.vertexPerInstance = options.vertexPerInstance || 1;
-        this.indexPerInstance = options.indexPerInstance || 1;
+        this.vertexPerInstance = options.vertexPerInstance || 3;
+        this.indexPerInstance = options.indexPerInstance || 0;
         this.strideFloats = options.strideFloats || 0;
 
         if (this.vertexBuffer)
@@ -369,10 +370,9 @@ export class Geometry extends EventEmitter<{
     public strideFloats = 0;
     public stride = 0;
 
-    // private _attributeBaseCallback: AttributeBaseCallbackStruct;
-
     glData: GeometryPerGL = null;
     bufRefCount: number = 0;
+    _glAttributeBaseCallback: AttributeBaseCallbackStruct;
 
     addBufferRef()
     {
@@ -431,5 +431,69 @@ export class Geometry extends EventEmitter<{
         }
         this.buffers[ind] = newBuffer;
         this.emit('update', this);
+    }
+
+    getInstancedAttributes()
+    {
+        const instAttribs: Attribute[] = [];
+
+        for (const i in this.attributes)
+        {
+            const attr = this.attributes[i];
+
+            if (attr.instance)
+            {
+                instAttribs.push(attr);
+            }
+        }
+
+        return instAttribs;
+    }
+
+    getInstancedAttributeNames()
+    {
+        const instAttribs: string[] = [];
+
+        for (const i in this.attributes)
+        {
+            const attr = this.attributes[i];
+
+            if (attr.instance)
+            {
+                instAttribs.push(i);
+            }
+        }
+
+        return instAttribs;
+    }
+
+    /**
+     * if buffer is used in instanced attribs, returns 1
+     * otherwise, returns number of vertices per instance
+     * @param buf_ind
+     */
+    getVertexPerInstance(buf_ind: number)
+    {
+        if (this.vertexPerInstance === 1)
+        {
+            return 1;
+        }
+        for (const key in this.attributes)
+        {
+            if (this.attributes[key].buffer_index === buf_ind)
+            {
+                if (!this.attributes[key].instance)
+                {
+                    return this.vertexPerInstance;
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    getInstanceBufferStride(bufInd: number)
+    {
+        return this.bufferStride[bufInd] * this.getVertexPerInstance(bufInd);
     }
 }

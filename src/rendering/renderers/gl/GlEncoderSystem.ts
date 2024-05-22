@@ -2,6 +2,7 @@ import { ExtensionType } from '../../../extensions/Extensions';
 
 import type { Topology } from '../shared/geometry/const';
 import type { Geometry } from '../shared/geometry/Geometry';
+import type { MultiDrawBuffer } from "../shared/geometry/MultiDrawBuffer";
 import type { Shader } from '../shared/shader/Shader';
 import type { State } from '../shared/state/State';
 import type { System } from '../shared/system/System';
@@ -40,14 +41,14 @@ export class GlEncoderSystem implements System
     }
 
     public draw(options: {
-        geometry: Geometry,
-        shader: Shader,
-        state?: State,
-        topology?: Topology,
-        size?: number,
-        start?: number,
-        instanceCount?: number
-        skipSync?: boolean,
+        geometry: Geometry;
+        shader: Shader;
+        state?: State;
+        topology?: Topology;
+        size?: number;
+        start?: number;
+        instanceCount?: number;
+        skipSync?: boolean;
     })
     {
         const renderer = this._renderer;
@@ -63,6 +64,29 @@ export class GlEncoderSystem implements System
         }
 
         renderer.geometry.draw(type, size, start, instanceCount ?? geometry.instanceCount);
+    }
+
+    public multiDraw(options: {
+        geometry: Geometry;
+        multiDrawBuffer?: MultiDrawBuffer;
+        shader: Shader;
+        state?: State;
+        skipSync?: boolean;
+    })
+    {
+        const renderer = this._renderer;
+        const { geometry, shader, state, skipSync, multiDrawBuffer } = options;
+
+        renderer.shader.bind(shader, skipSync);
+
+        renderer.geometry.bind(geometry, renderer.shader._activeProgram);
+
+        if (state)
+        {
+            renderer.state.set(state);
+        }
+
+        renderer.geometry.multiDraw(multiDrawBuffer);
     }
 
     public destroy()

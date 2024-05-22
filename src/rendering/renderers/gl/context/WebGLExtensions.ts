@@ -13,6 +13,8 @@ export interface WebGLExtensions
     textureHalfFloatLinear?: OES_texture_half_float_linear;
     colorBufferFloat?: EXT_color_buffer_float;
     vertexAttribDivisorANGLE?: ANGLE_instanced_arrays;
+    multiDraw?: WEBGL_multi_draw;
+    multiDrawBvbi?: any;
 
     // webgl1 EXT_sRGB
     srgb?: EXT_sRGB;

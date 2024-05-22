@@ -2,10 +2,13 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { getAttributeInfoFromFormat } from '../../shared/geometry/utils/getAttributeInfoFromFormat';
 import { BUFFER_TYPE } from '../buffer/const';
 import { ensureAttributes } from '../shader/program/ensureAttributes';
+import { AttributeBaseCallbackStruct,generateAttribSyncForGeom } from "./utils/generateAttributeSync";
 import { getGlTypeFromFormat } from './utils/getGlTypeFromFormat';
 
+import type { Buffer } from '../../shared/buffer/Buffer';
 import type { Topology } from '../../shared/geometry/const';
 import type { Geometry } from '../../shared/geometry/Geometry';
+import type { MultiDrawBuffer } from "../../shared/geometry/MultiDrawBuffer";
 import type { System } from '../../shared/system/System';
 import type { GlBuffer } from '../buffer/GlBuffer';
 import type { GlRenderingContext } from '../context/GlRenderingContext';
@@ -77,7 +80,7 @@ export class GlGeometrySystem implements System
 
     protected gl: GlRenderingContext;
     protected _activeGeometry: Geometry;
-    protected _activeGPS: WebGLVertexArrayObject;
+    protected _activeGPS: GeometryPerShader;
     protected _activeBB: Buffer;
 
     protected managed_geometries = new Map<number, GeometryPerGL>();
@@ -543,6 +546,109 @@ export class GlGeometrySystem implements System
         }
 
         return this;
+    }
+
+    getGlAttributeBaseCallback(geometry: Geometry): AttributeBaseCallbackStruct
+    {
+        if (!geometry._glAttributeBaseCallback)
+        {
+            geometry._glAttributeBaseCallback = generateAttribSyncForGeom(geometry);
+        }
+
+        return geometry._glAttributeBaseCallback;
+    }
+
+    public multiDraw(mdb: MultiDrawBuffer): void
+    {
+        const renderer = this._renderer;
+        const { gl } = renderer;
+        const geometry = this._activeGeometry;
+        const gps = this._activeGPS;
+        const program = renderer.shader._activeProgram;
+        const gl_draw_mode = topologyToGlMap[geometry.topology];
+        const { offsets, counts, instanceCounts, baseInstances, count } = mdb;
+
+
+        if (!geometry.instanced)
+        {
+            const { multiDraw } = renderer.context.extensions;
+
+            if (geometry.indexBuffer)
+            {
+                const byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
+                const glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
+
+                multiDraw.multiDrawElementsWEBGL(
+                    gl_draw_mode,
+                    counts, 0,
+                    glType,
+                    offsets, 0,
+                    count,
+                );
+            }
+            else
+            {
+                multiDraw.multiDrawArraysWEBGL(
+                    gl.TRIANGLE_STRIP,
+                    offsets, 0,
+                    counts, 0,
+                    count,
+                );
+            }
+        }
+
+        const { multiDrawBvbi } = renderer.context.extensions;
+
+
+        if (multiDrawBvbi)
+        {
+            multiDrawBvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
+                gl_draw_mode,
+                offsets, 0,
+                counts, 0,
+                instanceCounts, 0,
+                baseInstances, 0,
+                count,
+            );
+
+            return;
+        }
+        const attribSync = this.getGlAttributeBaseCallback(geometry);
+
+        if (!gps.instLocations)
+        {
+            gps.instLocations = program.getLocationListByAttributes(geometry.getInstancedAttributeNames());
+        }
+
+        if (attribSync.bufSyncCount === 0)
+        {
+            renderer.buffer.bind(geometry.buffers[attribSync.bufFirstIndex]);
+            for (let i = 0; i < count; i++)
+            {
+                if (gps.emulateBaseInstance !== baseInstances[i])
+                {
+                    gps.emulateBaseInstance = baseInstances[i];
+                    attribSync.syncFunc(gl, gps.instLocations, baseInstances[i]);
+                }
+                gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+            }
+        }
+        else
+        {
+            const buffers = geometry.buffers;
+            const bufferSystem = renderer.buffer;
+
+            for (let i = 0; i < count; i++)
+            {
+                if (gps.emulateBaseInstance !== baseInstances[i])
+                {
+                    gps.emulateBaseInstance = baseInstances[i];
+                    this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstances[i],
+                        bufferSystem, buffers, this._activeBB);
+                }
+                gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+            }
+        }
     }
 
     /** Unbind/reset everything. */

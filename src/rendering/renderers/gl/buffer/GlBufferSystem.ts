@@ -1,6 +1,6 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { BufferUsage } from '../../shared/buffer/const';
-import { BUFFER_TYPE } from './const';
+import {BUFFER_TYPE, BUFFER_TYPE_EX} from './const';
 import { GlBuffer } from './GlBuffer';
 
 import type { Buffer } from '../../shared/buffer/Buffer';
@@ -136,8 +136,9 @@ export class GlBufferSystem implements System
     /**
      * Will ensure the data in the buffer is uploaded to the GPU.
      * @param {Buffer} buffer - the buffer to update
+     * @param bufferTypeEx - special buffer location
      */
-    public updateBuffer(buffer: Buffer): GlBuffer
+    public updateBuffer(buffer: Buffer, bufferTypeEx?: BUFFER_TYPE_EX): GlBuffer
     {
         const { _gl: gl } = this;
 
@@ -145,12 +146,19 @@ export class GlBufferSystem implements System
 
         if (buffer._updateID === glBuffer.updateID)
         {
+            if (bufferTypeEx)
+            {
+                gl.bindBuffer(bufferTypeEx, glBuffer.buffer);
+            }
+
             return glBuffer;
         }
 
         glBuffer.updateID = buffer._updateID;
 
-        gl.bindBuffer(glBuffer.type, glBuffer.buffer);
+        const type = bufferTypeEx || glBuffer.type;
+
+        gl.bindBuffer(type, glBuffer.buffer);
 
         const data = buffer.data;
 
@@ -158,7 +166,7 @@ export class GlBufferSystem implements System
         {
             // assuming our buffers are aligned to 4 bits...
             // offset is always zero for now!
-            gl.bufferSubData(glBuffer.type, 0, data, 0, buffer._updateSize / data.BYTES_PER_ELEMENT);
+            gl.bufferSubData(type, 0, data, 0, buffer._updateSize / data.BYTES_PER_ELEMENT);
         }
         else
         {
@@ -167,7 +175,7 @@ export class GlBufferSystem implements System
             glBuffer.byteLength = data.byteLength;
 
             // assuming our buffers are aligned to 4 bits...
-            gl.bufferData(glBuffer.type, data, drawType);
+            gl.bufferData(type, data, drawType);
         }
 
         return glBuffer;

@@ -1,4 +1,5 @@
 import { ExtensionType } from '../../../extensions/Extensions';
+import { BufferCopyOperation } from "../shared/buffer/BufferCopyOperation";
 import { MultiDrawBuffer } from '../shared/geometry/MultiDrawBuffer';
 
 import type { Rectangle } from '../../../maths/shapes/Rectangle';
@@ -15,7 +16,6 @@ import type { GpuRenderTargetAdaptor } from './renderTarget/GpuRenderTargetAdapt
 import type { BindGroup } from './shader/BindGroup';
 import type { GpuProgram } from './shader/GpuProgram';
 import type { WebGPURenderer } from './WebGPURenderer';
-import {BUFFER_TYPE} from "../gl/buffer/const";
 
 /**
  * The system that handles encoding commands for the GPU.
@@ -378,5 +378,40 @@ export class GpuEncoderSystem implements System
     protected contextChange(gpu: GPU): void
     {
         this._gpu = gpu;
+    }
+
+    enableTFCopier(_strideFloats: number)
+    {
+        // nothing, gpu is completely fine
+    }
+
+    multiCopyBuffer(src: Buffer, target: Buffer,
+        strideBytes: number, copies: Array<BufferCopyOperation>, copyCount?: number): void
+    {
+        const srcBuf = this._renderer.buffer.updateBuffer(src);
+        const targetBuf = this._renderer.buffer.updateBuffer(target);
+
+        let commandEncoder = this.commandEncoder;
+        let createdEncoder = false;
+
+
+        if (!commandEncoder)
+        {
+            commandEncoder = this._renderer.gpu.device.createCommandEncoder();
+            createdEncoder = true;
+        }
+
+        for (let i = 0; i < copyCount; i++)
+        {
+            const op = copies[i];
+
+            commandEncoder.copyBufferToBuffer(srcBuf,
+                op.src * strideBytes, targetBuf, op.dst * strideBytes, op.count * strideBytes);
+        }
+
+        if (createdEncoder)
+        {
+            this._gpu.device.queue.submit([commandEncoder.finish()]);
+        }
     }
 }

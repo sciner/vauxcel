@@ -16,3 +16,10 @@ export enum BUFFER_TYPE
     UNIFORM_BUFFER = 35345,
 }
 
+export enum BUFFER_TYPE_EX
+    // eslint-disable-next-line @typescript-eslint/indent
+{
+    COPY_READ_BUFFER = 0x8F36,
+    COPY_WRITE_BUFFER = 0x8F37
+}
+

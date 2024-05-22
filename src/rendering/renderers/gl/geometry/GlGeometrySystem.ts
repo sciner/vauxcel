@@ -652,7 +652,7 @@ export class GlGeometrySystem implements System
     }
 
     /** Unbind/reset everything. */
-    protected unbind(): void
+    public unbind(): void
     {
         this.gl.bindVertexArray(null);
         this._activeGPS = null;

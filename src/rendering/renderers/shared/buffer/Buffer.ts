@@ -213,19 +213,12 @@ export class Buffer extends EventEmitter<{
     /** whether the buffer is static or not */
     get static()
     {
-        return !!(this.descriptor.usage & BufferUsage.STATIC);
+        return this.glStatic;
     }
 
     set static(value: boolean)
     {
-        if (value)
-        {
-            this.descriptor.usage |= BufferUsage.STATIC;
-        }
-        else
-        {
-            this.descriptor.usage &= ~BufferUsage.STATIC;
-        }
+        this.glStatic = value;
     }
 
     /**

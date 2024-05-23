@@ -105,7 +105,8 @@ export class GpuMeshAdapter implements MeshAdaptor
             renderer.encoder.draw({
                 geometry: mesh._geometry,
                 shader,
-                state: mesh.state
+                state: mesh.state,
+                size: mesh.drawSize,
             });
         }
     }

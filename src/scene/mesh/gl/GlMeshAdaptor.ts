@@ -95,6 +95,7 @@ export class GlMeshAdaptor implements MeshAdaptor
                 geometry: mesh._geometry,
                 shader,
                 state: mesh.state,
+                size: mesh.drawSize,
             });
         }
     }

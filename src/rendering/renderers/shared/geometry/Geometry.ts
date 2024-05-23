@@ -322,7 +322,12 @@ export class Geometry extends EventEmitter<{
             const attribute = this.attributes[i];
             const buffer = this.buffers[attribute.buffer_index];
 
-            return (buffer.data as any).length / (attribute.stride / 4);
+            if (buffer.data)
+            {
+                return ((buffer.data as any).length) / (attribute.stride / 4);
+            }
+
+            return buffer.descriptor.size;
         }
 
         return 0;

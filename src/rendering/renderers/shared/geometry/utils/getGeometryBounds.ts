@@ -24,6 +24,11 @@ export function getGeometryBounds(geometry: Geometry, attributeId: string, bound
 
     const data = attribute.buffer.data as Float32Array;
 
+    if (!data)
+    {
+        return bounds;
+    }
+
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;

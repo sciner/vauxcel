@@ -200,7 +200,6 @@ export class GpuEncoderSystem implements System
         start?: number;
         instanceCount?: number;
         skipSync?: boolean;
-        multiDrawBuffer?: MultiDrawBuffer;
     })
     {
         const { geometry, shader, state, topology, size, start, instanceCount, skipSync } = options;

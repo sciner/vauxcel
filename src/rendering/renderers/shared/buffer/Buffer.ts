@@ -21,6 +21,8 @@ export interface BufferOptions
     size?: number;
     /** the usage of the buffer, see {@link rendering.BufferUsage} */
     usage: number;
+    /** use static for webgl */
+    glStatic?: boolean;
     /** a label for the buffer, this is useful for debugging */
     label?: string;
     /**
@@ -161,6 +163,8 @@ export class Buffer extends EventEmitter<{
      */
     public destroyed = false;
 
+    public glStatic: boolean;
+
     /**
      * Creates a new Buffer with the given options
      * @param options - the options for the buffer
@@ -168,7 +172,7 @@ export class Buffer extends EventEmitter<{
     constructor(options: BufferOptions)
     {
         let { data, size } = options;
-        const { usage, label, shrinkToFit } = options;
+        const { usage, label, shrinkToFit, glStatic } = options;
 
         super();
 
@@ -185,12 +189,14 @@ export class Buffer extends EventEmitter<{
 
         this.descriptor = {
             size,
-            usage,
+            usage: usage & 0x2ff,
             mappedAtCreation,
             label,
         };
 
         this.shrinkToFit = shrinkToFit ?? true;
+
+        this.glStatic = glStatic || ((usage & BufferUsage.STATIC) > 0);
     }
 
     /** the data in the buffer */

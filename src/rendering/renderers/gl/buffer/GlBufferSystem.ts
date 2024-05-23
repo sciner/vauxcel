@@ -162,7 +162,7 @@ export class GlBufferSystem implements System
 
         const data = buffer.data;
 
-        if (glBuffer.byteLength >= buffer.data.byteLength)
+        if (data && glBuffer.byteLength >= data.byteLength)
         {
             // assuming our buffers are aligned to 4 bits...
             // offset is always zero for now!
@@ -170,12 +170,19 @@ export class GlBufferSystem implements System
         }
         else
         {
-            const drawType = (buffer.descriptor.usage & BufferUsage.STATIC) ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
+            const drawType = buffer.glStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
 
-            glBuffer.byteLength = data.byteLength;
-
-            // assuming our buffers are aligned to 4 bits...
-            gl.bufferData(type, data, drawType);
+            if (data)
+            {
+                glBuffer.byteLength = data.byteLength;
+                // assuming our buffers are aligned to 4 bits...
+                gl.bufferData(type, data, drawType);
+            }
+            else
+            {
+                glBuffer.byteLength = buffer.descriptor.size;
+                gl.bufferData(type, glBuffer.byteLength, drawType);
+            }
         }
 
         return glBuffer;

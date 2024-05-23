@@ -60,6 +60,7 @@ export interface MeshOptions<
     texture?: Texture;
     /** Whether or not to round the x/y position. */
     roundPixels?: boolean;
+    drawSize?: number;
 }
 /**
  * Base mesh class.
@@ -97,6 +98,12 @@ export class Mesh<
     public _multiDrawBuffer: MultiDrawBuffer = null;
 
     /**
+     * How much of the geometry vertices to draw, by default `0` renders everything.
+     * @default 0
+     */
+    public drawSize: number;
+
+    /**
      * @param {scene.MeshOptions} options - options for the mesh instance
      */
     constructor(options: MeshOptions<GEOMETRY, SHADER>);
@@ -127,7 +134,7 @@ export class Mesh<
             }
         }
 
-        const { geometry, shader, texture, roundPixels, state, ...rest } = options;
+        const { geometry, shader, texture, roundPixels, state, drawSize, ...rest } = options;
 
         super({
             label: 'Mesh',
@@ -139,6 +146,7 @@ export class Mesh<
         this.shader = shader;
         this.texture = texture ?? (shader as unknown as TextureShader)?.texture ?? Texture.WHITE;
         this.state = state ?? State.for2d();
+        this.drawSize = drawSize || 0;
 
         this._geometry = geometry;
         this._geometry.on('update', this.onViewUpdate, this);

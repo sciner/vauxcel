@@ -1,4 +1,6 @@
-const vertexSrc = `
+import * as PIXI from 'pixi.js';
+
+const vertexSrc = `#version 300 es
 in vec2 aPosition;
 in vec3 aColor;
 in vec2 aUV;
@@ -21,15 +23,18 @@ void main() {
     vUV = aUV;
 }`;
 
-const fragmentSrc = `
+const fragmentSrc = `#version 300 es
 in vec3 vColor;
 in vec2 vUV;
 
-uniform sampler2D uTexture;
+uniform mediump sampler3D uTexture;
+
+out vec4 outColor;
 
 void main() {
-    gl_FragColor = texture2D(uTexture, vUV) * vec4(vColor, 1.0);
+    outColor = texture(uTexture, vec3(vUV, vUV.y)); // * vec4(vColor, 1.0);
 }`;
+
 
 const wgsl = `
 struct GlobalUniforms {
@@ -48,7 +53,7 @@ struct LocalUniforms {
 @group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
 @group(1) @binding(0) var<uniform> localUniforms : LocalUniforms;
 
-@group(2) @binding(1) var uTexture : texture_2d<f32>;
+@group(2) @binding(1) var uTexture : texture_3d<f32>;
 @group(2) @binding(2) var uSampler : sampler;
 
 struct VertexOutput {
@@ -76,20 +81,12 @@ fn mainVert(
 
 @fragment
 fn mainFrag(input: VertexOutput) -> @location(0) vec4<f32>{
-    let sample1 = textureSample(uTexture, uSampler, input.vUV);
-    return sample1 * vec4f(input.vColor, 1.0);
+    let sample1 = textureSample(uTexture, uSampler, vec3(input.vUV, input.vUV.y));
+    // return sample1 * vec4f(input.vColor, 1.0);
+    return sample1;
 }`;
 
 const usage = PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST
-
-const buf1 = new PIXI.Buffer({ data: new Float32Array([-100, -100, // x, y
-    100, -100, // x, y
-    100, 100]), usage });
-
-
-const buf2 = new PIXI.Buffer({ data: new Float32Array([-50, -50, // x, y
-    50, -50, // x, y
-    50, 50]), usage});
 
 const geometry = new PIXI.Geometry({
     attributes: {
@@ -114,21 +111,23 @@ const geometry = new PIXI.Geometry({
     },
 });
 
+const tex3d = new PIXI.Buffer3DSource({
+    data: new Uint8Array([255, 0, 0, 255, 0, 255, 255, 255]),
+    width: 1, height: 1, depth: 2, scaleMode: 'nearest'});
+
 (async () => {
     // Create a new application
     const app = new PIXI.Application();
 
     // Initialize the application
-    await app.init({background: '#1099bb', resizeTo: window, preference: 'webgpu',});
+    await app.init({background: '#1099bb', resizeTo: window, preference: 'webgl',});
 
     // Append the application canvas to the document body
     document.body.appendChild(app.canvas);
 
-    const tex = await PIXI.Assets.load('examples/assets/bg_scene_rotate.jpg');
-
     const resources = {
-        uTexture: tex.source,
-        uSampler: tex.source.style,
+        uTexture: tex3d.source,
+        uSampler: tex3d.source.style,
     };
 
     const shader = PIXI.Shader.from({
@@ -146,8 +145,6 @@ const geometry = new PIXI.Geometry({
 
     const triangle = new PIXI.Mesh({geometry, shader});
 
-    console.log(tex)
-
     triangle.position.set(400, 300);
     triangle.scale.set(2);
 
@@ -156,14 +153,4 @@ const geometry = new PIXI.Geometry({
     app.ticker.add((delta) => {
         triangle.rotation += 0.01;
     });
-
-    let toggle = 0;
-    setInterval(() => {
-        toggle = 1 - toggle;
-        if (toggle) {
-            geometry.swapBuffer(0, buf2);
-        } else {
-            geometry.swapBuffer(0, buf1);
-        }
-    }, 500);
 })();

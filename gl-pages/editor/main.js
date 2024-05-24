@@ -1,4 +1,4 @@
-import examplesData from '../examples/manifest.json';
+import examplesData from '../examples/manifest.json' with {type: 'json'};
 
 /* Brett Meyer - Broken Pony Club */
 
@@ -70,6 +70,7 @@ jQuery(document).ready(($) => {
     bpc.init = function init() {
         const embedded = bpc.embedMode();
 
+        console.log(examplesData);
         examplesData.filter((section) => section.visible !== false).forEach(({ id, title, items }) => {
             let html = `<span class="section" data-section="${id}">${title}</span><ul data-section="${id}">`;
             items.filter((item) => item.visible !== false).forEach((item) => {
@@ -231,22 +232,26 @@ jQuery(document).ready(($) => {
 
             // Generate HTML and insert into iFrame
             let pixiUrl = '';
-            let pixiWebWorkerUrl = '';
 
             if (bpc.pixiVersionString === 'local') {
-                pixiUrl = 'dist/pixi.js';
-                pixiWebWorkerUrl = 'dist/webworker.js';
+                pixiUrl = '../dist/sciner-pixi.mjs';
             } else { // other versions come from S3
-                pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${bpc.pixiVersionString}/pixi-legacy.js`;
-                pixiWebWorkerUrl = `https://d157l7jdn8e5sf.cloudfront.net/${bpc.pixiVersionString}/webworker.js`;
+                pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${bpc.pixiVersionString}/pixi.mjs`;
             }
 
             let html = '<!DOCTYPE html><html><head><style>';
             html += 'body,html{margin:0px;height:100%;overflow:hidden;}canvas{width:100%;height:100%;}';
             html += '</style></head><body>';
             html += '<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>';
-            html += `<script src="${pixiUrl}"></script>`;
-
+            html += `
+            <script type="importmap">
+              {
+                "imports": {
+                  "pixi.js": "${pixiUrl}"
+                }
+              }
+            </script>`;
+            html += `<script src="${pixiUrl}" type="module"></script>`;
             const exampleRequiredPluginsHTML = [];
 
             for (let i = 0; i < bpc.exampleRequiredPlugins.length; i++) {
@@ -306,7 +311,7 @@ jQuery(document).ready(($) => {
                 $('.example-frame').hide();
             } else {
                 $('#example-title').html(bpc.exampleTitle);
-                html += `<script>window.PIXI_WEBWORKER_URL = "${pixiWebWorkerUrl}"; window.onload = function(){${bpc.exampleSourceCode}}</script></body></html>`;
+                html += `<script type="module">${bpc.exampleSourceCode}</script></body></html>`;
 
                 $('.example-frame').show();
             }

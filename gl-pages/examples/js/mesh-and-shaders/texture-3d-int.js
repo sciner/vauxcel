@@ -1,4 +1,6 @@
-const vertexSrc = `
+import * as PIXI from 'pixi.js';
+
+const vertexSrc = `#version 300 es
 in vec2 aPosition;
 in vec3 aColor;
 in vec2 aUV;
@@ -21,15 +23,19 @@ void main() {
     vUV = aUV;
 }`;
 
-const fragmentSrc = `
+const fragmentSrc = `#version 300 es
 in vec3 vColor;
 in vec2 vUV;
 
-uniform sampler2D uTexture;
+uniform mediump isampler3D uTexture;
+
+out vec4 outColor;
 
 void main() {
-    gl_FragColor = texture2D(uTexture, vUV) * vec4(vColor, 1.0);
+    ivec4 tst = texelFetch(uTexture, ivec3(0,0, round(vUV.y *2.0 - 0.5)), 0);
+    outColor=vec4(tst)/255.0;
 }`;
+
 
 const wgsl = `
 struct GlobalUniforms {
@@ -48,7 +54,7 @@ struct LocalUniforms {
 @group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
 @group(1) @binding(0) var<uniform> localUniforms : LocalUniforms;
 
-@group(2) @binding(1) var uTexture : texture_2d<f32>;
+@group(2) @binding(1) var uTexture : texture_3d<f32>;
 @group(2) @binding(2) var uSampler : sampler;
 
 struct VertexOutput {
@@ -76,18 +82,12 @@ fn mainVert(
 
 @fragment
 fn mainFrag(input: VertexOutput) -> @location(0) vec4<f32>{
-    let sample1 = textureSample(uTexture, uSampler, input.vUV);
-    return sample1 * vec4f(input.vColor, 1.0);
+    let sample1 = textureSample(uTexture, uSampler, vec3(input.vUV, input.vUV.y));
+    // return sample1 * vec4f(input.vColor, 1.0);
+    return sample1;
 }`;
 
-const usage = PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST | PIXI.BufferUsage.COPY_SRC
-
-const buf1 = new PIXI.Buffer({ data: new Float32Array([-100, -100, // x, y
-        100, -100, // x, y
-        100, 100]), usage });
-
-
-const buf2 = new PIXI.Buffer({ data: null, usage, size: 240000000});
+const usage = PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST
 
 const geometry = new PIXI.Geometry({
     attributes: {
@@ -112,6 +112,16 @@ const geometry = new PIXI.Geometry({
     },
 });
 
+const tex3d = new PIXI.Buffer3DSource({
+    format: 'rgba32sint',
+    width: 1, height: 1, depth: 1, useSubRegions: true, scaleMode: 'nearest', alphaMode: 0,
+    copyOnResize: true});
+
+const layout1 = { offset: { x: 0, y: 0, z: 0 }, size: { width: 1, height: 1, depth: 1}};
+const tex_region1 = new PIXI.Texture3D({ source: tex3d, label: 'tex3d #1', layout: layout1})
+const layout2 = { offset: { x: 0, y: 0, z: 1 }, size: { width: 1, height: 1, depth: 1}};
+const tex_region2 = new PIXI.Texture3D({ source: tex3d, label: 'tex3d #2', layout: layout2});
+
 (async () => {
     // Create a new application
     const app = new PIXI.Application();
@@ -122,13 +132,9 @@ const geometry = new PIXI.Geometry({
     // Append the application canvas to the document body
     document.body.appendChild(app.canvas);
 
-    app.renderer.encoder.enableTFCopier(16);
-
-    const tex = await PIXI.Assets.load('examples/assets/bg_scene_rotate.jpg');
-
     const resources = {
-        uTexture: tex.source,
-        uSampler: tex.source.style,
+        uTexture: tex3d.source,
+        uSampler: tex3d.source.style,
     };
 
     const shader = PIXI.Shader.from({
@@ -146,10 +152,6 @@ const geometry = new PIXI.Geometry({
 
     const triangle = new PIXI.Mesh({geometry, shader});
 
-    triangle.drawSize = 3;
-
-    console.log(tex)
-
     triangle.position.set(400, 300);
     triangle.scale.set(2);
 
@@ -159,38 +161,18 @@ const geometry = new PIXI.Geometry({
         triangle.rotation += 0.01;
     });
 
-    let toggle = 0;
-
-    const copy = new PIXI.BufferCopyOperation();
-    copy.count = 3;
-    const copy2 = new PIXI.BufferCopyOperation();
-    copy2.dst = buf2.descriptor.size / 8 - 3;
-    copy2.count = 3;
-
-
-    // app.ticker.add(() => {
-    //     toggle = 1 - toggle;
-    //     if (toggle) {
-    //         app.renderer.encoder.multiCopyBuffer(buf1, buf2, 8, [copy], 1);
-    //         geometry.swapBuffer(0, buf2);
-    //     } else {
-    //         app.renderer.encoder.multiCopyBuffer(buf2, buf1, 8, [copy], 1);
-    //         geometry.swapBuffer(0, buf1);
-    //     }
-    // });
-    let frame = 0;
+    let upload = 0;
     setInterval(() => {
-        toggle = 1 - toggle;
-        frame++;
-        if (toggle) {
-            buf1._updateSize = 24;
-            buf1.data[0] = -100 + Math.sin(frame / 10.0) * 50;
-            buf1.update();
-            app.renderer.encoder.multiCopyBuffer(buf1, buf2, 8, [copy, copy2], 2);
-            geometry.swapBuffer(0, buf2);
-        } else {
-            app.renderer.encoder.multiCopyBuffer(buf2, buf1, 8, [copy], 1);
-            geometry.swapBuffer(0, buf1);
+        if (upload == 0) {
+            tex_region1.update(new Int32Array([255, 0, 0, 255]));
+            tex3d.update();
+            upload++;
+        } else if (upload == 1) {
+            tex3d.resize3D(1, 1, 2);
+            tex_region2.update(new Int32Array([0, 255, 255, 255]));
+            tex3d.update();
+            upload++;
         }
-    }, 20);
+    }, 500);
+
 })();

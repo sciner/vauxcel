@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 
 const vertexSrc = `#version 300 es
 

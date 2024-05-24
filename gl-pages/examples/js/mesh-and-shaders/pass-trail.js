@@ -1,3 +1,5 @@
+import * as PIXI from 'pixi.js';
+
 const renderer = new PIXI.Renderer({ backgroundColor: 0x1099bb });
 document.body.appendChild(renderer.view);
 

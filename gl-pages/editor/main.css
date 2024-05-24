@@ -276,7 +276,7 @@ a:hover {
   width: 85px;
   height: 33px;
   vertical-align: text-bottom;
-  background: url("logo.8bb9af93.svg") center / 100% no-repeat;
+  background: url("img/logo.svg") center / 100% no-repeat;
   display: inline-block;
 }
 
@@ -340,7 +340,7 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: .05em;
   cursor: pointer;
-  background: url("arrow-right-default.e6d4d7cc.png") 15px 12px no-repeat;
+  background: url("img/arrow-right-default.png") 15px 12px no-repeat;
   padding: 9px 30px 0;
   font-size: 14px;
   font-weight: 500;
@@ -355,7 +355,7 @@ a:hover {
 }
 
 .main-nav .main-menu .section.open {
-  background: url("arrow-down-default.fff9304b.png") 14px 13px no-repeat;
+  background: url("img/arrow-down-default.png") 14px 13px no-repeat;
 }
 
 .main-nav .main-menu ul {
@@ -402,7 +402,7 @@ a:hover {
 .main-nav .about .goodboy-logo {
   width: 99px;
   height: 23px;
-  background: url("goodboy-logo.10ae2d41.png") 0 0 / 99px 23px;
+  background: url("img/goodboy-logo.png") 0 0 / 99px 23px;
   margin-bottom: 12px;
   display: block;
 }
@@ -435,7 +435,7 @@ body.normal .main-content {
 .main-content .example-frame {
   width: 100%;
   max-width: 800px;
-  background: #38404e url("tile.0a2c3fee.png") 56px 56px;
+  background: #38404e url("img/tile.png") 56px 56px;
   position: relative;
 }
 
@@ -550,7 +550,7 @@ body.normal .main-content {
   letter-spacing: .05em;
   color: #fff;
   height: auto;
-  background: #272d37 url("code-lines.f3560810.png") 0 5px;
+  background: #272d37 url("img/code-lines.png") 0 5px;
   font-family: Roboto Mono;
   font-size: 14px;
   font-weight: 400;
@@ -621,12 +621,12 @@ body.normal .main-content {
   height: 40px;
   width: 175px;
   z-index: 10;
-  background: url("icon-arrow-down.5b3c28f4.png") 155px 18px no-repeat;
+  background: url("img/icon-arrow-down.png") 155px 18px no-repeat;
   position: relative;
 }
 
 .main-content .code .footer .select-group .select.open {
-  background-image: url("icon-arrow-up.bbcff6f9.png");
+  background-image: url("img/icon-arrow-up.png");
 }
 
 .main-content .code .footer .select-group .select .current {

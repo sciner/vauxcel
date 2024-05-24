@@ -464,7 +464,7 @@ export class GlGeometrySystem implements System
                 // we can optimise this for older devices that have no VAOs
                 gl.enableVertexAttribArray(location);
 
-                if (attribute.format.substring(1, 4) === 'int')
+                if (program_attrib.format.substring(1, 4) === 'int')
                 {
                     gl.vertexAttribIPointer(location,
                         attr_info.size,

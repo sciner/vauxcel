@@ -4,8 +4,13 @@ import { uid } from '../../../../../utils/data/uid';
 import { EventEmitter } from '../../../../../utils/event_emitter';
 import { TextureStyle } from '../TextureStyle';
 
+import type { GlTexture } from "../../../gl/texture/GlTexture.js";
+import type { GLTextureUploader } from "../../../gl/texture/uploaders/GLTextureUploader";
 import type { BindResource } from '../../../gpu/shader/BindResource';
-import type { ALPHA_MODES, SCALE_MODE, TEXTURE_DIMENSIONS, TEXTURE_FORMATS, WRAP_MODE } from '../const';
+import type { TypedArray } from "../../buffer/Buffer";
+import type {
+    ALPHA_MODES, SCALE_MODE, TEXTURE_DIMENSIONS, TEXTURE_FORMATS, TEXTURE_VIEW_DIMENSIONS, WRAP_MODE
+} from '../const';
 import type { TextureStyleOptions } from '../TextureStyle';
 
 /**
@@ -19,10 +24,18 @@ export interface TextureSourceOptions<T extends Record<string, any> = any> exten
      * eg an ImageBimt / Canvas / Video etc
      */
     resource?: T;
+    /**
+     * in case we have buffer data
+     */
+    data?: TypedArray;
     /** the pixel width of this texture source. This is the REAL pure number, not accounting resolution */
     width?: number;
     /** the pixel height of this texture source. This is the REAL pure number, not accounting resolution */
     height?: number;
+    /**
+     * depth for 2d-array and 3d textures
+     */
+    depth?: number;
     /** the resolution of the texture. */
     resolution?: number;
     /** the format that the texture data has */
@@ -39,7 +52,8 @@ export interface TextureSourceOptions<T extends Record<string, any> = any> exten
      */
     antialias?: boolean;
     /** how many dimensions does this texture have? currently v8 only supports 2d */
-    dimensions?: TEXTURE_DIMENSIONS;
+    dimension?: TEXTURE_DIMENSIONS;
+    viewDimension?: TEXTURE_VIEW_DIMENSIONS;
     /** The number of mip levels to generate for this texture. this is  overridden if autoGenerateMipmaps is true */
     mipLevelCount?: number;
     /**
@@ -57,6 +71,9 @@ export interface TextureSourceOptions<T extends Record<string, any> = any> exten
     label?: string;
     /** If true, the Garbage Collector will unload this texture if it is not used after a period of time */
     autoGarbageCollect?: boolean;
+
+    glMutableSize?: boolean;
+    copyOnResize?: boolean;
 }
 
 /**
@@ -85,12 +102,16 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         resolution: 1,
         format: 'bgra8unorm',
         alphaMode: 'premultiply-alpha-on-upload',
-        dimensions: '2d',
+        dimension: '2d',
+        viewDimension: '2d',
         mipLevelCount: 1,
         autoGenerateMipmaps: false,
         sampleCount: 1,
+        depth: 1,
         antialias: false,
         autoGarbageCollect: false,
+        glMutableSize: false,
+        copyOnResize: false
     };
 
     /** unique id for this Texture source */
@@ -119,7 +140,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
      */
     public uploadMethodId = 'unknown';
 
-    // dimensions
+    // dimension
     public _resolution = 1;
 
     /** the pixel width of this texture source. This is the REAL pure number, not accounting resolution */
@@ -166,7 +187,8 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     /** the format that the texture data has */
     public format: TEXTURE_FORMATS = 'rgba8unorm';
     /** how many dimensions does this texture have? currently v8 only supports 2d */
-    public dimension: TEXTURE_DIMENSIONS = '2d';
+    public dimension: TEXTURE_DIMENSIONS;
+    public viewDimension: TEXTURE_VIEW_DIMENSIONS;
     /** the alpha mode of the texture */
     public alphaMode: ALPHA_MODES;
     private _style: TextureStyle;
@@ -223,6 +245,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
 
         this.label = options.label ?? '';
         this.resource = options.resource;
+        this.data = options.data;
         this.autoGarbageCollect = options.autoGarbageCollect;
         this._resolution = options.resolution;
 
@@ -234,6 +257,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         {
             this.pixelWidth = this.resource ? (this.resourceWidth ?? 1) : 1;
         }
+        this.depth = options.depth ?? 1;
 
         if (options.height)
         {
@@ -248,12 +272,16 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         this.height = this.pixelHeight / this._resolution;
 
         this.format = options.format;
-        this.dimension = options.dimensions;
+        this.dimension = options.dimension;
+        this.viewDimension = options.viewDimension;
         this.mipLevelCount = options.mipLevelCount;
         this.autoGenerateMipmaps = options.autoGenerateMipmaps;
         this.sampleCount = options.sampleCount;
         this.antialias = options.antialias;
         this.alphaMode = options.alphaMode;
+
+        this.glMutableSize = options.glMutableSize;
+        this.copyOnResize = options.copyOnResize;
 
         this.style = new TextureStyle(definedProps(options));
 
@@ -545,4 +573,33 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         // this should be overridden by other sources..
         throw new Error('Unimplemented');
     }
+
+    updateID = 0;
+    gpu_updateID = -1;
+    data?: TypedArray = undefined;
+
+    invalidate()
+    {
+        this.updateID++;
+    }
+
+    checkUpdate()
+    {
+        if (this.updateID !== this.gpu_updateID)
+        {
+            this.update();
+        }
+    }
+
+    markValid()
+    {
+        this.gpu_updateID = this.updateID;
+    }
+
+    _glLastBindLocation: number = -1;
+    _glTexture: GlTexture = null;
+    glMutableSize: boolean;
+    copyOnResize: boolean;
+    glUploader?: GLTextureUploader = undefined;
+    public depth: number;
 }

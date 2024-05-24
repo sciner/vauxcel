@@ -23,6 +23,7 @@ export * from './prepare';
 export * from './rendering';
 export * from './scene';
 export * from './spritesheet';
+export * from './texture-3d';
 export * from './ticker';
 export * from './utils';
 

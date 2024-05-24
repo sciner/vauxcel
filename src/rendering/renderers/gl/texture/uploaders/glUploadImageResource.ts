@@ -5,8 +5,15 @@ import type { GlTexture } from '../GlTexture';
 import type { GLTextureUploader } from './GLTextureUploader';
 
 export const glUploadImageResource = {
-
     id: 'image',
+
+    storage(source: ImageSource | CanvasSource, glTexture: GlTexture, gl: WebGL2RenderingContext)
+    {
+        const w = glTexture.width = source.pixelWidth;
+        const h = glTexture.height = source.pixelHeight;
+
+        gl.texStorage2D(glTexture.target, source.mipLevelCount, glTexture.internalFormat, w, h);
+    },
 
     upload(source: ImageSource | CanvasSource, glTexture: GlTexture, gl: GlRenderingContext, webGLVersion: number)
     {

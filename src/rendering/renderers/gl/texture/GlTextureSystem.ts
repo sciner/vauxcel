@@ -1,6 +1,9 @@
 import { DOMAdapter } from '../../../../environment/adapter';
 import { ExtensionType } from '../../../../extensions/Extensions';
+import { SAMPLER_TYPES } from '../../shared/texture/const';
 import { Texture } from '../../shared/texture/Texture';
+import { mapFormatToSamplerType } from '../../shared/texture/utils/mapFormatToSamplerType';
+import { GL_TARGETS } from './const';
 import { GlTexture } from './GlTexture';
 import { glUploadBufferImageResource } from './uploaders/glUploadBufferImageResource';
 import { glUploadImageResource } from './uploaders/glUploadImageResource';
@@ -23,6 +26,43 @@ import type { GLTextureUploader } from './uploaders/GLTextureUploader';
 
 const BYTES_PER_PIXEL = 4;
 
+export const glUploadUnknown: GLTextureUploader = {
+    id: 'unknown',
+    storage(source: TextureSource, glTexture: GlTexture, gl: WebGL2RenderingContext): void
+    {
+        if (source.glMutableSize)
+        {
+            return;
+        }
+
+        const w = glTexture.width = source.pixelWidth;
+        const h = glTexture.height = source.pixelHeight;
+
+        gl.texStorage2D(gl.TEXTURE_2D, source.mipLevelCount, glTexture.internalFormat, w, h);
+    },
+    upload(source: TextureSource, glTexture: GlTexture, gl: WebGL2RenderingContext): void
+    {
+        if (!source.glMutableSize)
+        {
+            return;
+        }
+        if (glTexture.width === source.pixelWidth
+            && glTexture.height === source.pixelHeight)
+        {
+            return;
+        }
+
+        const w = glTexture.width = source.pixelWidth;
+        const h = glTexture.height = source.pixelHeight;
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, glTexture.internalFormat, w, h,
+            0, glTexture.format, glTexture.type, null);
+        // nothing
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth,
+        // source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    }
+};
+
 /**
  * The system for managing textures in WebGL.
  * @memberof rendering
@@ -37,12 +77,9 @@ export class GlTextureSystem implements System, CanvasGenerator
         name: 'texture',
     } as const;
 
-    public readonly managedTextures: TextureSource[] = [];
+    public readonly managedTextures = new Map<number, TextureSource>();
 
     private readonly _renderer: WebGLRenderer;
-
-    private _glTextures: Record<number, GlTexture> = Object.create(null);
-    private _glSamplers: Record<string, WebGLSampler> = Object.create(null);
 
     private _boundTextures: TextureSource[] = [];
     private _activeTextureLocation = -1;
@@ -50,6 +87,7 @@ export class GlTextureSystem implements System, CanvasGenerator
     private _boundSamplers: Record<number, WebGLSampler> = Object.create(null);
 
     private readonly _uploads: Record<string, GLTextureUploader> = {
+        unknown: glUploadUnknown,
         image: glUploadImageResource,
         buffer: glUploadBufferImageResource,
         video: glUploadVideoResource,
@@ -80,8 +118,6 @@ export class GlTextureSystem implements System, CanvasGenerator
             this._mapFormatToFormat = mapFormatToGlFormat(gl);
         }
 
-        this._glTextures = Object.create(null);
-        this._glSamplers = Object.create(null);
         this._boundSamplers = Object.create(null);
 
         for (let i = 0; i < 16; i++)
@@ -119,9 +155,11 @@ export class GlTextureSystem implements System, CanvasGenerator
         }
     }
 
-    public bindSource(source: TextureSource, location = 0): void
+    public bindSource(source: TextureSource, location?: number): void
     {
         const gl = this._gl;
+
+        location = location ?? source._glLastBindLocation;
 
         source._touched = this._renderer.textureGC.count;
 
@@ -135,6 +173,7 @@ export class GlTextureSystem implements System, CanvasGenerator
             // bind texture and source!
             const glTexture = this.getGlSource(source);
 
+            source._glLastBindLocation = location;
             gl.bindTexture(glTexture.target, glTexture.texture);
         }
     }
@@ -189,39 +228,85 @@ export class GlTextureSystem implements System, CanvasGenerator
         }
     }
 
-    private _initSource(source: TextureSource): GlTexture
+    private _initSourceInner(source: TextureSource): GlTexture
     {
-        const gl = this._gl;
-
-        const glTexture = new GlTexture(gl.createTexture());
+        const gl = this._renderer.gl;
+        const glTexture = source._glTexture = new GlTexture(gl.createTexture());
 
         glTexture.type = this._mapFormatToType[source.format];
         glTexture.internalFormat = this._mapFormatToInternalFormat[source.format];
         glTexture.format = this._mapFormatToFormat[source.format];
+        glTexture.samplerType = mapFormatToSamplerType[source.format] ?? SAMPLER_TYPES.FLOAT;
 
-        if (source.autoGenerateMipmaps && (this._renderer.context.supports.nonPowOf2mipmaps || source.isPowerOfTwo))
+        switch (source.viewDimension)
+        {
+            case '2d-array': glTexture.target = GL_TARGETS.TEXTURE_2D_ARRAY; break;
+            case '3d': glTexture.target = GL_TARGETS.TEXTURE_3D; break;
+        }
+
+        if (source.autoGenerateMipmaps && source.isPowerOfTwo)
         {
             const biggestDimension = Math.max(source.width, source.height);
 
             source.mipLevelCount = Math.floor(Math.log2(biggestDimension)) + 1;
         }
 
-        this._glTextures[source.uid] = glTexture;
+        return glTexture;
+    }
 
-        if (!this.managedTextures.includes(source))
+    private _initSource(source: TextureSource, uploader: GLTextureUploader): GlTexture
+    {
+        const gl = this._renderer.gl;
+        const glTexture = this._initSourceInner(source);
+
+        if (!this.managedTextures.has(source.uid))
         {
             source.on('update', this.onSourceUpdate, this);
-            source.on('resize', this.onSourceUpdate, this);
+            source.on('resize', this.onSourceResize, this);
             source.on('styleChange', this.onStyleChange, this);
             source.on('destroy', this.onSourceDestroy, this);
             source.on('unload', this.onSourceUnload, this);
             source.on('updateMipmaps', this.onUpdateMipmaps, this);
 
-            this.managedTextures.push(source);
+            this.managedTextures.set(source.uid, source);
         }
 
-        this.onSourceUpdate(source);
-        this.updateStyle(source, false);
+        gl.bindTexture(glTexture.target, glTexture.texture);
+        if (!source.glMutableSize && uploader.storage)
+        {
+            uploader.storage(source, glTexture, gl);
+        }
+        this._updateSource(source, uploader);
+        this.updateStyle(source, true);
+
+        return glTexture;
+    }
+
+    private _updateSource(source: TextureSource, uploader: GLTextureUploader): GlTexture
+    {
+        const gl = this._renderer.gl;
+
+        const glTexture = this.getGlSource(source);
+
+        if (source._glLastBindLocation >= 0)
+        {
+            this._activateLocation(source._glLastBindLocation);
+        }
+        else
+        {
+            source._glLastBindLocation = this._activeTextureLocation;
+        }
+
+        gl.bindTexture(glTexture.target, glTexture.texture);
+
+        this._boundTextures[this._activeTextureLocation] = source;
+
+        uploader.upload(source, glTexture, gl, this._renderer.context.webGLVersion);
+
+        if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
+        {
+            this.onUpdateMipmaps(source, false);
+        }
 
         return glTexture;
     }
@@ -237,7 +322,16 @@ export class GlTextureSystem implements System, CanvasGenerator
 
         const glTexture = this.getGlSource(source);
 
-        gl.bindTexture(gl.TEXTURE_2D, glTexture.texture);
+        if (source._glLastBindLocation >= 0)
+        {
+            this._activateLocation(source._glLastBindLocation);
+        }
+        else
+        {
+            source._glLastBindLocation = this._activeTextureLocation;
+        }
+
+        gl.bindTexture(glTexture.target, glTexture.texture);
 
         this._boundTextures[this._activeTextureLocation] = source;
 
@@ -247,44 +341,63 @@ export class GlTextureSystem implements System, CanvasGenerator
             source.mipLevelCount > 1,
             this._renderer.context.extensions.anisotropicFiltering,
             'texParameteri',
-            gl.TEXTURE_2D,
+            glTexture.target,
             // will force a clamp to edge if the texture is not a power of two
             !this._renderer.context.supports.nonPowOf2wrapping && !source.isPowerOfTwo,
-            firstCreation,
+            firstCreation
         );
     }
 
     protected onSourceUnload(source: TextureSource): void
     {
-        const glTexture = this._glTextures[source.uid];
+        const glTexture = source._glTexture;
 
         if (!glTexture) return;
 
         this.unbind(source);
-        this._glTextures[source.uid] = null;
+        source._glTexture = null;
 
         this._gl.deleteTexture(glTexture.texture);
     }
 
     protected onSourceUpdate(source: TextureSource): void
     {
-        const gl = this._gl;
+        this._updateSource(source, this.getSourceUploader(source));
+    }
 
-        const glTexture = this.getGlSource(source);
+    protected onSourceResize(source: TextureSource): void
+    {
+        const old_tex = source._glTexture;
+        const uploader = this.getSourceUploader(source);
 
-        gl.bindTexture(gl.TEXTURE_2D, glTexture.texture);
-
-        this._boundTextures[this._activeTextureLocation] = source;
-
-        if (this._uploads[source.uploadMethodId])
+        if (source.glMutableSize || !old_tex || !uploader.storage)
         {
-            this._uploads[source.uploadMethodId].upload(source, glTexture, gl, this._renderer.context.webGLVersion);
+            this.onSourceUpdate(source);
+
+            return;
         }
-        else
+
+        this.unbind(source);
+
+        const gl = this._renderer.gl;
+
+        source._glTexture = null;
+
+        if (!source.copyOnResize)
         {
-            // eslint-disable-next-line max-len
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.pixelWidth, source.pixelHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.deleteTexture(old_tex.texture);
+            this.initSource(source);
+
+            return;
         }
+
+        const glTexture = this._initSourceInner(source);
+
+        this.updateStyle(source, true); // also binds texture
+
+        uploader.storage(source, glTexture, gl);
+        uploader.copyTex(source, glTexture, gl, old_tex);
+        gl.deleteTexture(old_tex.texture);
 
         if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
         {
@@ -305,12 +418,12 @@ export class GlTextureSystem implements System, CanvasGenerator
     {
         source.off('destroy', this.onSourceDestroy, this);
         source.off('update', this.onSourceUpdate, this);
-        source.off('resize', this.onSourceUpdate, this);
+        source.off('resize', this.onSourceResize, this);
         source.off('unload', this.onSourceUnload, this);
         source.off('styleChange', this.onStyleChange, this);
         source.off('updateMipmaps', this.onUpdateMipmaps, this);
 
-        this.managedTextures.splice(this.managedTextures.indexOf(source), 1);
+        this.managedTextures.delete(source.uid);
 
         this.onSourceUnload(source);
     }
@@ -319,9 +432,7 @@ export class GlTextureSystem implements System, CanvasGenerator
     {
         const gl = this._gl;
 
-        const glSampler = this._gl.createSampler();
-
-        this._glSamplers[style._resourceId] = glSampler;
+        const glSampler = style._glSampler = this._gl.createSampler();
 
         applyStyleParams(
             style,
@@ -334,17 +445,22 @@ export class GlTextureSystem implements System, CanvasGenerator
             true,
         );
 
-        return this._glSamplers[style._resourceId];
+        return style._glSampler;
     }
 
     private _getGlSampler(sampler: TextureStyle): WebGLSampler
     {
-        return this._glSamplers[sampler._resourceId] || this._initSampler(sampler);
+        return sampler._glSampler || this._initSampler(sampler);
     }
 
     public getGlSource(source: TextureSource): GlTexture
     {
-        return this._glTextures[source.uid] || this._initSource(source);
+        return source._glTexture || this._initSource(source, this.getSourceUploader(source));
+    }
+
+    public getSourceUploader(source: TextureSource): GLTextureUploader
+    {
+        return source.glUploader || this._uploads[source.uploadMethodId];
     }
 
     public generateCanvas(texture: Texture): ICanvas
@@ -412,9 +528,10 @@ export class GlTextureSystem implements System, CanvasGenerator
     {
         // we copy the array as the array with a slice as onSourceDestroy
         // will remove the source from the real managedTextures array
-        this.managedTextures
-            .slice()
-            .forEach((source) => this.onSourceDestroy(source));
+        for (const ts of this.managedTextures.values())
+        {
+            this.onSourceDestroy(ts);
+        }
 
         (this.managedTextures as null) = null;
 

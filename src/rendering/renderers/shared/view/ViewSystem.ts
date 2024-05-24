@@ -191,7 +191,7 @@ export class ViewSystem implements System<ViewSystemOptions, TypeOrBool<ViewSyst
         this.screen = new Rectangle(0, 0, options.width, options.height);
         this.canvas = options.canvas || DOMAdapter.get().createCanvas();
         this.antialias = !!options.antialias;
-        this.texture = getCanvasTexture(this.canvas, options as CanvasSourceOptions);
+        this.texture = getCanvasTexture(this.canvas, { ...options, depth: 1 } as CanvasSourceOptions);
         this.renderTarget = new RenderTarget({
             colorTextures: [this.texture],
             depth: !!options.depth,

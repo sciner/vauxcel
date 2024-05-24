@@ -9,6 +9,7 @@ import { TextureSource } from './sources/TextureSource';
 import { TextureMatrix } from './TextureMatrix';
 
 import type { TextureResourceOrOptions } from './utils/textureFrom';
+import {TextureHolder} from "../../../../assets/TextureAsync";
 
 /**
  * Stores the width of the non-scalable borders, for example when used with {@link scene.NineSlicePlane} texture.
@@ -387,6 +388,11 @@ export class Texture extends EventEmitter<{
         // #endif
 
         return this._source;
+    }
+
+    returnOrSetLater(_elem: TextureHolder)
+    {
+        return this;
     }
 
     /** an Empty Texture used internally by the engine */

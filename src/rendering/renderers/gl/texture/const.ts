@@ -54,6 +54,7 @@ export enum GL_TARGETS
     // eslint-disable-next-line @typescript-eslint/indent
  {
     TEXTURE_2D = 3553,
+    TEXTURE_3D = 32879,
     TEXTURE_CUBE_MAP = 34067,
     TEXTURE_2D_ARRAY = 35866,
     TEXTURE_CUBE_MAP_POSITIVE_X = 34069,

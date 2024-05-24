@@ -1,3 +1,4 @@
+import { TextureAsync } from "../../assets/TextureAsync";
 import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
@@ -19,7 +20,7 @@ import type { DestroyOptions } from '../container/destroyTypes';
 export interface SpriteOptions extends ContainerOptions
 {
     /** The texture to use for the sprite. */
-    texture?: Texture;
+    texture?: Texture | TextureAsync;
     /** The anchor point of the sprite. */
     anchor?: PointData | number;
     /** Whether or not to round the x/y position. */
@@ -112,16 +113,18 @@ export class Sprite extends Container implements View
             },
         );
 
+        const tex = texture.returnOrSetLater(this);
+
         if (anchor)
         {
             this.anchor = anchor;
         }
-        else if (texture.defaultAnchor)
+        else if (tex.defaultAnchor)
         {
-            this.anchor = texture.defaultAnchor;
+            this.anchor = tex.defaultAnchor;
         }
 
-        this.texture = texture;
+        this.texture = tex;
 
         this.allowChildren = false;
         this.roundPixels = roundPixels ?? false;
@@ -392,4 +395,6 @@ export class Sprite extends Container implements View
             this._setHeight(convertedHeight, this._texture.orig.height);
         }
     }
+
+    textureAsync: TextureAsync = null;
 }

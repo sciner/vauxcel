@@ -245,4 +245,27 @@ export class TextureStyle extends EventEmitter<{
 
         this.removeAllListeners();
     }
+
+    updateID = 0;
+    gpu_updateID = -1;
+
+    invalidate()
+    {
+        this.updateID++;
+    }
+
+    checkUpdate()
+    {
+        if (this.updateID !== this.gpu_updateID)
+        {
+            this.update();
+        }
+    }
+
+    markValid()
+    {
+        this.gpu_updateID = this.updateID;
+    }
+
+    _glSampler: WebGLSampler = null;
 }

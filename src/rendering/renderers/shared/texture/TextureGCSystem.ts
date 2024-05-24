@@ -149,10 +149,8 @@ export class TextureGCSystem implements System<TextureGCSystemOptions>
     {
         const managedTextures = this._renderer.texture.managedTextures;
 
-        for (let i = 0; i < managedTextures.length; i++)
+        for (const texture of managedTextures.values())
         {
-            const texture = managedTextures[i];
-
             // Only supports non generated textures at the moment!
             if (
                 texture.autoGarbageCollect

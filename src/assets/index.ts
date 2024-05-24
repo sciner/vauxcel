@@ -28,6 +28,7 @@ export * from './resolver/parsers/resolveJsonUrl';
 export * from './resolver/parsers/resolveTextureUrl';
 export * from './resolver/Resolver';
 export * from './resolver/types';
+export * from './TextureAsync';
 export * from './types';
 export * from './utils/checkDataUrl';
 export * from './utils/checkExtension';

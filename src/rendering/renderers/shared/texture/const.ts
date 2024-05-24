@@ -188,3 +188,24 @@ export type COMPARE_FUNCTION =
     | 'not-equal'
     | 'greater-equal'
     | 'always';
+
+export enum SAMPLER_TYPES
+// eslint-disable-next-line @typescript-eslint/indent
+{
+    /**
+     * @default 0
+     */
+    FLOAT = 0,
+    /**
+     * @default 1
+     */
+    INT = 1,
+    /**
+     * @default 2
+     */
+    UINT = 2,
+    /**
+     * @default 3
+     */
+    SHADOW = 3,
+}

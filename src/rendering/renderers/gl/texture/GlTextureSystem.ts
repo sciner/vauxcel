@@ -176,6 +176,8 @@ export class GlTextureSystem implements System, CanvasGenerator
             source._glLastBindLocation = location;
             gl.bindTexture(glTexture.target, glTexture.texture);
         }
+
+        source.checkUpdate();
     }
 
     private _bindSampler(style: TextureStyle, location = 0): void
@@ -307,6 +309,8 @@ export class GlTextureSystem implements System, CanvasGenerator
         {
             this.onUpdateMipmaps(source, false);
         }
+
+        source.markValid();
 
         return glTexture;
     }

@@ -84,7 +84,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
         const textureDescriptor: GPUTextureDescriptor = {
             label: source.label,
-            size: { width, height },
+            size: { width, height, depthOrArrayLayers: source.depth },
             format: source.format,
             sampleCount: source.sampleCount,
             mipLevelCount: source.mipLevelCount,
@@ -110,6 +110,20 @@ export class GpuTextureSystem implements System, CanvasGenerator
         this.onSourceUpdate(source);
 
         return gpuTexture;
+    }
+
+    /**
+     * same as in webgl, but we do not have locations - we just have to check if source is valid
+     */
+    public bind(texture: BindableTexture, _location?: number): void
+    {
+        const source = texture?.source;
+
+        if (source)
+        {
+            this.getGpuSource(source);
+            source.checkUpdate();
+        }
     }
 
     protected onSourceUpdate(source: TextureSource): void
@@ -230,7 +244,9 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
     private _createTextureView(texture: TextureSource)
     {
-        this._textureViewHash[texture.uid] = this.getGpuSource(texture).createView();
+        this._textureViewHash[texture.uid] = this.getGpuSource(texture).createView({
+            dimension: texture.viewDimension
+        });
 
         return this._textureViewHash[texture.uid];
     }

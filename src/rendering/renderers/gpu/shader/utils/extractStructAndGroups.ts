@@ -6,6 +6,7 @@ export interface StructsAndGroups
         name: string;
         isUniform: boolean;
         type: string;
+        typeParam: string;
     }[];
     structs: {
         name: string;
@@ -20,7 +21,7 @@ export function extractStructAndGroups(wgsl: string): StructsAndGroups
     const groupPattern = /@group\((\d+)\)/;
     const bindingPattern = /@binding\((\d+)\)/;
     const namePattern = /var(<[^>]+>)? (\w+)/;
-    const typePattern = /:\s*(\w+)/;
+    const typePattern = /:\s*(\w+)(<(\w+)>)?/;
     const structPattern = /struct\s+(\w+)\s*{([^}]+)}/g;
     const structMemberPattern = /(\w+)\s*:\s*([\w\<\>]+)/g;
     const structName = /struct\s+(\w+)/;
@@ -32,6 +33,7 @@ export function extractStructAndGroups(wgsl: string): StructsAndGroups
         name: item.match(namePattern)[2],
         isUniform: item.match(namePattern)[1] === '<uniform>',
         type: item.match(typePattern)[1],
+        typeParam: item.match(typePattern)[3],
     }));
 
     if (!groups)

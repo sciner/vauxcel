@@ -54,7 +54,7 @@ struct LocalUniforms {
 @group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
 @group(1) @binding(0) var<uniform> localUniforms : LocalUniforms;
 
-@group(2) @binding(1) var uTexture : texture_3d<f32>;
+@group(2) @binding(1) var uTexture : texture_3d<i32>;
 @group(2) @binding(2) var uSampler : sampler;
 
 struct VertexOutput {
@@ -82,9 +82,9 @@ fn mainVert(
 
 @fragment
 fn mainFrag(input: VertexOutput) -> @location(0) vec4<f32>{
-    let sample1 = textureSample(uTexture, uSampler, vec3(input.vUV, input.vUV.y));
+    let sample1 = textureLoad(uTexture, vec3i(0,0, i32(round(input.vUV.y *2.0 - 0.5))), 0);
     // return sample1 * vec4f(input.vColor, 1.0);
-    return sample1;
+    return vec4f(sample1)/255.0;
 }`;
 
 const usage = PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST
@@ -114,6 +114,7 @@ const geometry = new PIXI.Geometry({
 
 const tex3d = new PIXI.Buffer3DSource({
     format: 'rgba32sint',
+    label: 'tex3d',
     width: 1, height: 1, depth: 1, useSubRegions: true, scaleMode: 'nearest', alphaMode: 0,
     copyOnResize: true});
 
@@ -127,7 +128,7 @@ const tex_region2 = new PIXI.Texture3D({ source: tex3d, label: 'tex3d #2', layou
     const app = new PIXI.Application();
 
     // Initialize the application
-    await app.init({background: '#1099bb', resizeTo: window, preference: 'webgl',});
+    await app.init({background: '#1099bb', resizeTo: window, preference: 'webgpu',});
 
     // Append the application canvas to the document body
     document.body.appendChild(app.canvas);
@@ -165,12 +166,12 @@ const tex_region2 = new PIXI.Texture3D({ source: tex3d, label: 'tex3d #2', layou
     setInterval(() => {
         if (upload == 0) {
             tex_region1.update(new Int32Array([255, 0, 0, 255]));
-            tex3d.update();
+            tex3d.checkUpdate();
             upload++;
         } else if (upload == 1) {
             tex3d.resize3D(1, 1, 2);
             tex_region2.update(new Int32Array([0, 255, 255, 255]));
-            tex3d.update();
+            tex3d.checkUpdate();
             upload++;
         }
     }, 500);

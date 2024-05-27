@@ -63,6 +63,7 @@ export class Texture3D
         if (!this.dirty && rs.useSubRegions)
         {
             rs.regionsToUpdate.push(this);
+            rs.invalidate();
         }
         this.dirty = true;
         if (data)

@@ -112,6 +112,7 @@ const geometry = new PIXI.Geometry({
 });
 
 const tex3d = new PIXI.Buffer3DSource({
+    format: 'rgba8unorm',
     data: new Uint8Array([255, 0, 0, 255, 0, 255, 255, 255]),
     width: 1, height: 1, depth: 2, scaleMode: 'nearest'});
 

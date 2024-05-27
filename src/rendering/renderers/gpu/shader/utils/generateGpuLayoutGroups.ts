@@ -3,6 +3,12 @@ import { ShaderStage } from '../../../shared/shader/const';
 import type { ProgramPipelineLayoutDescription } from '../GpuProgram';
 import type { StructsAndGroups } from './extractStructAndGroups';
 
+const mapParamToSampleType: Record<string, GPUTextureSampleType> = {
+    'f32': 'float',
+    'i32': 'sint',
+    'u32': 'uint'
+};
+
 export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPipelineLayoutDescription
 {
     const layout: ProgramPipelineLayoutDescription = [];
@@ -40,10 +46,34 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT,
+                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
                 texture: {
                     sampleType: 'float',
                     viewDimension: '2d',
+                    multisampled: false,
+                }
+            });
+        }
+        else if (group.type === 'texture_3d')
+        {
+            layout[group.group].push({
+                binding: group.binding,
+                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                texture: {
+                    sampleType: mapParamToSampleType[group.typeParam],
+                    viewDimension: '3d',
+                    multisampled: false,
+                }
+            });
+        }
+        else if (group.type === 'texture_2d_array')
+        {
+            layout[group.group].push({
+                binding: group.binding,
+                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                texture: {
+                    sampleType: 'float',
+                    viewDimension: '2d-array',
                     multisampled: false,
                 }
             });

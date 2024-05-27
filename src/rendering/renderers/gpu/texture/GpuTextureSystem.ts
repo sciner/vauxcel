@@ -17,6 +17,16 @@ import type { GPU } from '../GpuDeviceSystem';
 import type { WebGPURenderer } from '../WebGPURenderer';
 import type { GpuTextureUploader } from './uploaders/GpuTextureUploader';
 
+export const gpuUploadUnknown = {
+
+    type: 'unknown',
+
+    upload(_source: TextureSource, _gpuTexture: GPUTexture, _gpu: GPU)
+    {
+        // nothing
+    }
+} as GpuTextureUploader<TextureSource>;
+
 /**
  * The system that handles textures for the GPU.
  * @memberof rendering
@@ -40,6 +50,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
     private _textureViewHash: Record<string, GPUTextureView> = Object.create(null);
 
     private readonly _uploads: Record<string, GpuTextureUploader> = {
+        unknown: gpuUploadUnknown,
         image: gpuUploadImageResource,
         buffer: gpuUploadBufferImageResource,
         video: gpuUploadVideoResource,
@@ -60,7 +71,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
         this._gpu = gpu;
     }
 
-    public initSource(source: TextureSource): GPUTexture
+    _initSource(source: TextureSource): GPUTexture
     {
         if (source.autoGenerateMipmaps)
         {
@@ -96,6 +107,13 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
         this._gpuSources[source.uid] = gpuTexture;
 
+        return gpuTexture;
+    }
+
+    public initSource(source: TextureSource): GPUTexture
+    {
+        const gpuTexture = this._initSource(source);
+
         if (!this.managedTextures.includes(source))
         {
             source.on('update', this.onSourceUpdate, this);
@@ -115,15 +133,20 @@ export class GpuTextureSystem implements System, CanvasGenerator
     /**
      * same as in webgl, but we do not have locations - we just have to check if source is valid
      */
-    public bind(texture: BindableTexture, _location?: number): void
+    public bind(texture: BindableTexture, _location?: number): GPUTexture
     {
         const source = texture?.source;
 
         if (source)
         {
-            this.getGpuSource(source);
+            const res = this.getGpuSource(source);
+
             source.checkUpdate();
+
+            return res;
         }
+
+        return null;
     }
 
     protected onSourceUpdate(source: TextureSource): void
@@ -133,10 +156,9 @@ export class GpuTextureSystem implements System, CanvasGenerator
         // destroyed!
         if (!gpuTexture) return;
 
-        if (this._uploads[source.uploadMethodId])
-        {
-            this._uploads[source.uploadMethodId].upload(source, gpuTexture, this._gpu);
-        }
+        this.getSourceUploader(source).upload(source, gpuTexture, this._gpu);
+
+        source.markValid();
 
         if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
         {
@@ -183,20 +205,51 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
     protected onSourceResize(source: TextureSource): void
     {
-        const gpuTexture = this._gpuSources[source.uid];
+        const oldTexture = this._gpuSources[source.uid];
 
-        if (!gpuTexture)
+        if (!oldTexture)
         {
             this.initSource(source);
-        }
-        else if (gpuTexture.width !== source.pixelWidth || gpuTexture.height !== source.pixelHeight)
-        {
-            this._textureViewHash[source.uid] = null;
-            this._bindGroupHash[source.uid] = null;
 
-            this.onSourceUnload(source);
-            this.initSource(source);
+            return;
         }
+
+        if (oldTexture.width === source.pixelWidth && oldTexture.height === source.pixelHeight
+            && oldTexture.depthOrArrayLayers === source.depth)
+        {
+            return;
+        }
+
+        this._textureViewHash[source.uid] = null;
+        this._bindGroupHash[source.uid] = null;
+
+        this._gpuSources[source.uid] = null;
+
+        const gpuTexture = this._initSource(source);
+
+        if (source.copyOnResize)
+        {
+            const renderer = this._renderer;
+            const commandEncoder = renderer.gpu.device.createCommandEncoder();
+
+            // create canvas
+            commandEncoder.copyTextureToTexture({
+                texture: oldTexture,
+                origin: {
+                    x: 0,
+                    y: 0,
+                },
+            }, {
+                texture: gpuTexture,
+            }, {
+                width: gpuTexture.width,
+                height: gpuTexture.height,
+            });
+
+            renderer.gpu.device.queue.submit([commandEncoder.finish()]);
+        }
+        oldTexture.destroy();
+        this.onSourceUpdate(source);
     }
 
     private _initSampler(sampler: TextureStyle): GPUSampler
@@ -214,6 +267,11 @@ export class GpuTextureSystem implements System, CanvasGenerator
     public getGpuSource(source: TextureSource): GPUTexture
     {
         return this._gpuSources[source.uid] || this.initSource(source);
+    }
+
+    public getSourceUploader(source: TextureSource): GpuTextureUploader
+    {
+        return source.gpuUploader || this._uploads[source.uploadMethodId];
     }
 
     public getTextureBindGroup(texture: Texture)
@@ -274,7 +332,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
         });
 
         commandEncoder.copyTextureToTexture({
-            texture: renderer.texture.getGpuSource(texture.source),
+            texture: renderer.texture.bind(texture.source),
             origin: {
                 x: 0,
                 y: 0,

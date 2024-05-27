@@ -7,6 +7,7 @@ import { TextureStyle } from '../TextureStyle';
 import type { GlTexture } from "../../../gl/texture/GlTexture.js";
 import type { GLTextureUploader } from "../../../gl/texture/uploaders/GLTextureUploader";
 import type { BindResource } from '../../../gpu/shader/BindResource';
+import type { GpuTextureUploader } from "../../../gpu/texture/uploaders/GpuTextureUploader";
 import type { TypedArray } from "../../buffer/Buffer";
 import type {
     ALPHA_MODES, SCALE_MODE, TEXTURE_DIMENSIONS, TEXTURE_FORMATS, TEXTURE_VIEW_DIMENSIONS, WRAP_MODE
@@ -601,5 +602,6 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     glMutableSize: boolean;
     copyOnResize: boolean;
     glUploader?: GLTextureUploader = undefined;
+    gpuUploader?: GpuTextureUploader = undefined;
     public depth: number;
 }

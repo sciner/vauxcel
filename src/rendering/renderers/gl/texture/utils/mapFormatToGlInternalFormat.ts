@@ -59,7 +59,7 @@ export function mapFormatToGlInternalFormat(
         rg16uint: gl.RG16UI,
         rg16sint: gl.RG16I,
         rg16float: gl.RG16F,
-        rgba8unorm: gl.RGBA,
+        rgba8unorm: gl.RGBA8,
 
         ...srgb,
 

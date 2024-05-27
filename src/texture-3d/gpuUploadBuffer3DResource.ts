@@ -1,5 +1,6 @@
 import type { GPU } from '../rendering/renderers/gpu/GpuDeviceSystem';
 import type { Buffer3DSource } from "./Buffer3DSource";
+import {mapFormatToPixelSize} from "../rendering/renderers/shared/texture/utils/mapFormatToPixelSize";
 
 export const gpuUploadBuffer3DResource = {
 
@@ -8,6 +9,7 @@ export const gpuUploadBuffer3DResource = {
     upload(source: Buffer3DSource, gpuTexture: GPUTexture, gpu: GPU)
     {
         const data = source.data;
+        const bytesPerPixel = mapFormatToPixelSize[source.format];
 
         if (source.useSubRegions)
         {
@@ -19,9 +21,6 @@ export const gpuUploadBuffer3DResource = {
         {
             return;
         }
-
-        const total = (source.pixelWidth | 0) * (source.pixelHeight | 0) * source.depth;
-        const bytesPerPixel = data.byteLength / total;
 
         gpu.device.queue.writeTexture(
             { texture: gpuTexture },
@@ -43,6 +42,8 @@ export const gpuUploadBuffer3DResource = {
     {
         const { regionsToUpdate } = source;
 
+        const bytesPerPixel = mapFormatToPixelSize[source.format];
+
         for (let i = 0; i < regionsToUpdate.length; i++)
         {
             const region = regionsToUpdate[i];
@@ -58,8 +59,6 @@ export const gpuUploadBuffer3DResource = {
                 continue;
             }
             const layout = region.layout;
-            const total = layout.width * layout.height * layout.depth;
-            const bytesPerPixel = region.data.byteLength / total;
 
             gpu.device.queue.writeTexture(
                 { texture: gpuTexture, origin: layout },

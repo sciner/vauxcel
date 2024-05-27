@@ -200,6 +200,7 @@ export * from './renderers/shared/texture/TextureUvs';
 export * from './renderers/shared/texture/utils/generateUID';
 export * from './renderers/shared/texture/utils/getCanvasTexture';
 export * from './renderers/shared/texture/utils/getSupportedTextureFormats';
+export * from './renderers/shared/texture/utils/mapFormatToPixelSize';
 export * from './renderers/shared/texture/utils/mapFormatToSamplerType';
 export * from './renderers/shared/texture/utils/maxRecommendedTextures';
 export * from './renderers/shared/texture/utils/textureFrom';

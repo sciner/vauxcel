@@ -5,6 +5,7 @@ import { mapWebGLBlendModesToPixi } from './mapWebGLBlendModesToPixi';
 import type { BLEND_MODES } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GlRenderingContext } from '../context/GlRenderingContext';
+import { CULL_MODES } from '../../shared/state/const';
 
 const BLEND = 0;
 const OFFSET = 1;
@@ -75,6 +76,8 @@ export class GlStateSystem implements System
      * @readonly
      */
     protected defaultState: State;
+
+    swapCullSide = false;
 
     constructor()
     {
@@ -331,7 +334,23 @@ export class GlStateSystem implements System
      */
     private static _checkPolygonOffset(system: GlStateSystem, state: State): void
     {
-        system.setPolygonOffset(1, state.polygonOffset);
+        system.setPolygonOffset(state._depthBiasValue, state._depthBiasScale);
+    }
+
+    public toggleCullSide(): void
+    {
+        this.swapCullSide = !this.swapCullSide;
+        this.setFrontFace(this.get);
+    }
+
+    public getCullMode(state: State): CULL_MODES
+    {
+        if (!state.culling)
+        {
+            return 'none';
+        }
+
+        return (state.clockwiseFrontFace !== this.swapCullSide) ? 'front' : 'back';
     }
 
     /**

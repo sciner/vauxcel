@@ -200,6 +200,7 @@ export class PipelineSystem implements System
         const buffers = this._createVertexBufferLayouts(geometry);
 
         const blendModes = this._renderer.state.getColorTargets(state);
+        const cullMode = this._renderer.state.getCullMode(state);
 
         blendModes[0].writeMask = this._stencilMode === STENCIL_MODES.RENDERING_MASK_ADD ? 0 : this._colorMask;
 
@@ -221,7 +222,7 @@ export class PipelineSystem implements System
             },
             primitive: {
                 topology,
-                cullMode: state.cullMode,
+                cullMode,
             },
             layout,
             multisample: {

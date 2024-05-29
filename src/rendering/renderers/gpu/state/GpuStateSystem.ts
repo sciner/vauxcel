@@ -5,6 +5,7 @@ import { GpuBlendModesToPixi } from './GpuBlendModesToPixi';
 import type { BLEND_MODES } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GPU } from '../GpuDeviceSystem';
+import { CULL_MODES } from '../../shared/state/const';
 
 /**
  * System plugin to the renderer to manage WebGL state machines.
@@ -54,6 +55,8 @@ export class GpuStateSystem implements System
      */
     protected defaultState: State;
 
+    swapCullSide = false;
+
     constructor()
     {
         this.defaultState = new State();
@@ -80,6 +83,21 @@ export class GpuStateSystem implements System
                 blend,
             },
         ];
+    }
+
+    public toggleCullSide(): void
+    {
+        this.swapCullSide = !this.swapCullSide;
+    }
+
+    public getCullMode(state: State): CULL_MODES
+    {
+        if (!state.culling)
+        {
+            return 'none';
+        }
+
+        return (state.clockwiseFrontFace !== this.swapSide) ? 'front' : 'back';
     }
 
     public destroy(): void

@@ -36,14 +36,15 @@ export class State
     public data: number;
     public _blendModeId: number;
     private _blendMode: BLEND_MODES;
-    private _polygonOffset: number;
+    _depthBiasScale: number;
+    _depthBiasValue: number;
 
     constructor()
     {
         this.data = 0;
 
         this.blendMode = 'normal';
-        this.polygonOffset = 0;
+        this.depthBias = 0;
 
         this.blend = true;
         this.depthMask = true;
@@ -196,15 +197,26 @@ export class State
      * The polygon offset. Setting this property to anything other than 0 will automatically enable polygon offset fill.
      * @default 0
      */
-    get polygonOffset(): number
+    get depthBiasScale(): number
     {
-        return this._polygonOffset;
+        return this._depthBiasScale;
     }
 
-    set polygonOffset(value: number)
+    set depthBiasScale(value: number)
     {
         this.offsets = !!value;
-        this._polygonOffset = value;
+        this._depthBiasScale = value;
+    }
+
+    get depthBias(): number
+    {
+        return this._depthBiasValue;
+    }
+
+    set depthBias(value: number)
+    {
+        // set scale to actually change offsets, this is extra value
+        this._depthBiasValue = value;
     }
 
     // #if _DEBUG
@@ -215,7 +227,7 @@ export class State
             + `clockwiseFrontFace=${this.clockwiseFrontFace} `
             + `culling=${this.culling} `
             + `depthMask=${this.depthMask} `
-            + `polygonOffset=${this.polygonOffset}`
+            + `depthBias=${this.depthBias}`
             + `]`;
     }
     // #endif

@@ -36,7 +36,7 @@ export class State
     public data: number;
     public _blendModeId: number;
     private _blendMode: BLEND_MODES;
-    _depthBiasScale: number;
+    _depthBiasSlopeScale: number;
     _depthBiasValue: number;
 
     constructor()
@@ -197,15 +197,15 @@ export class State
      * The polygon offset. Setting this property to anything other than 0 will automatically enable polygon offset fill.
      * @default 0
      */
-    get depthBiasScale(): number
+    get depthBiasSlopeScale(): number
     {
-        return this._depthBiasScale;
+        return this._depthBiasSlopeScale;
     }
 
-    set depthBiasScale(value: number)
+    set depthBiasSlopeScale(value: number)
     {
         this.offsets = !!value;
-        this._depthBiasScale = value;
+        this._depthBiasSlopeScale = value;
     }
 
     get depthBias(): number
@@ -247,5 +247,10 @@ export class State
     }
 
     public static default2d = State.for2d();
+
+    static isStateClockwiseFrontFace(stateId: number)
+    {
+        return (stateId & (1 << WINDING)) > 0;
+    }
 }
 

@@ -52,3 +52,14 @@ export interface UboLayout
 
 /* eslint-disable quote-props */
 export type UniformsSyncCallback = (...args: any[]) => void;
+
+export const UNIFORM_TYPES_ALIAS = {
+    vec4f: 'vec4<f32>' as UNIFORM_TYPES_SINGLE,
+    vec3f: 'vec3<f32>' as UNIFORM_TYPES_SINGLE,
+    vec2f: 'vec2<f32>' as UNIFORM_TYPES_SINGLE,
+    mat4x4f: 'mat4x4<f32>' as UNIFORM_TYPES_SINGLE,
+    mat3x3f: 'mat3x3<f32>' as UNIFORM_TYPES_SINGLE,
+    mat2x2f: 'mat2x2<f32>' as UNIFORM_TYPES_SINGLE,
+    float: 'f32' as UNIFORM_TYPES_SINGLE,
+    int: 'int32' as UNIFORM_TYPES_SINGLE,
+};

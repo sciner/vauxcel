@@ -38,7 +38,8 @@ export class GlStateSystem implements System
      * Polygon offset
      * @readonly
      */
-    public polygonOffset: number;
+    public depthBias: number = 0;
+    public depthBiasSlopeScale: number = 0;
 
     /**
      * Blend mode
@@ -77,14 +78,13 @@ export class GlStateSystem implements System
      */
     protected defaultState: State;
 
-    swapCullSide = false;
+    _swapWinding = false;
 
     constructor()
     {
         this.gl = null;
 
         this.stateId = 0;
-        this.polygonOffset = 0;
         this.blendMode = 'none';
 
         this._blendEq = false;
@@ -277,7 +277,12 @@ export class GlStateSystem implements System
      */
     public setPolygonOffset(value: number, scale: number): void
     {
-        this.gl.polygonOffset(value, scale);
+        if (this.depthBias !== value || this.depthBiasSlopeScale !== scale)
+        {
+            this.depthBias = value;
+            this.depthBiasSlopeScale = scale;
+            this.gl.polygonOffset(value, scale);
+        }
     }
 
     // used
@@ -334,13 +339,23 @@ export class GlStateSystem implements System
      */
     private static _checkPolygonOffset(system: GlStateSystem, state: State): void
     {
-        system.setPolygonOffset(state._depthBiasValue, state._depthBiasScale);
+        system.setPolygonOffset(state._depthBiasValue, state._depthBiasSlopeScale);
     }
 
-    public toggleCullSide(): void
+    public toggleWinding(): void
     {
-        this.swapCullSide = !this.swapCullSide;
-        this.setFrontFace(this.get);
+        this.setSwapWinding(!this._swapWinding);
+    }
+
+    public setSwapWinding(value: boolean): void
+    {
+        if (this._swapWinding === value)
+        {
+            return;
+        }
+
+        this._swapWinding = value;
+        this.setFrontFace(this._swapWinding !== State.isStateClockwiseFrontFace(this.stateId));
     }
 
     public getCullMode(state: State): CULL_MODES
@@ -350,7 +365,7 @@ export class GlStateSystem implements System
             return 'none';
         }
 
-        return (state.clockwiseFrontFace !== this.swapCullSide) ? 'front' : 'back';
+        return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
     }
 
     /**

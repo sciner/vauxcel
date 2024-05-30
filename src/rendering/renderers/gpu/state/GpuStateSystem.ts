@@ -55,7 +55,7 @@ export class GpuStateSystem implements System
      */
     protected defaultState: State;
 
-    swapCullSide = false;
+    _swapWinding = false;
 
     constructor()
     {
@@ -85,9 +85,14 @@ export class GpuStateSystem implements System
         ];
     }
 
-    public toggleCullSide(): void
+    public toggleWinding(): void
     {
-        this.swapCullSide = !this.swapCullSide;
+        this._swapWinding = !this._swapWinding;
+    }
+
+    public setSwapWinding(value: boolean): void
+    {
+        this._swapWinding = value;
     }
 
     public getCullMode(state: State): CULL_MODES
@@ -97,7 +102,7 @@ export class GpuStateSystem implements System
             return 'none';
         }
 
-        return (state.clockwiseFrontFace !== this.swapSide) ? 'front' : 'back';
+        return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
     }
 
     public destroy(): void

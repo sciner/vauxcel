@@ -241,6 +241,8 @@ export class PipelineSystem implements System
                 format: 'depth24plus-stencil8',
                 depthWriteEnabled: state.depthTest,
                 depthCompare: state.depthTest ? 'less' : 'always',
+                depthBias: state._depthBiasValue,
+                depthBiasSlopeScale: state._depthBiasSlopeScale
             };
         }
 

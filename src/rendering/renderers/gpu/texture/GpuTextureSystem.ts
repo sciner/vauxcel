@@ -149,6 +149,11 @@ export class GpuTextureSystem implements System, CanvasGenerator
         return null;
     }
 
+    public unbind(_texture: BindableTexture): void
+    {
+        // nothing
+    }
+
     protected onSourceUpdate(source: TextureSource): void
     {
         const gpuTexture = this.getGpuSource(source);

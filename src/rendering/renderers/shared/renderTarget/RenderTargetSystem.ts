@@ -500,7 +500,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
             }
 
             // TODO add a test for this
-            renderSurface.once('destroy', () =>
+            renderSurface.once('unload', () =>
             {
                 renderTarget.destroy();
 

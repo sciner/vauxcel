@@ -20,17 +20,6 @@ export class GpuStateSystem implements System
         ],
         name: 'state',
     } as const;
-    /**
-     * State ID
-     * @readonly
-     */
-    public stateId: number;
-
-    /**
-     * Polygon offset
-     * @readonly
-     */
-    public polygonOffset: number;
 
     /**
      * Blend mode
@@ -56,6 +45,8 @@ export class GpuStateSystem implements System
     protected defaultState: State;
 
     _swapWinding = false;
+
+    depthCompare: GPUCompareFunction = 'less-equal';
 
     constructor()
     {

@@ -199,8 +199,9 @@ export class PipelineSystem implements System
 
         const buffers = this._createVertexBufferLayouts(geometry);
 
-        const blendModes = this._renderer.state.getColorTargets(state);
-        const cullMode = this._renderer.state.getCullMode(state);
+        const stateSystem = this._renderer.state;
+        const blendModes = stateSystem.getColorTargets(state);
+        const cullMode = stateSystem.getCullMode(state);
 
         blendModes[0].writeMask = this._stencilMode === STENCIL_MODES.RENDERING_MASK_ADD ? 0 : this._colorMask;
 
@@ -239,10 +240,10 @@ export class PipelineSystem implements System
             descriptor.depthStencil = {
                 ...this._stencilState,
                 format: 'depth24plus-stencil8',
-                depthWriteEnabled: state.depthTest,
-                depthCompare: state.depthTest ? 'less' : 'always',
+                depthWriteEnabled: state.depthTest && stateSystem.depthCompare !== 'equal',
+                depthCompare: state.depthTest ? stateSystem.depthCompare : 'always',
                 depthBias: state._depthBiasValue,
-                depthBiasSlopeScale: state._depthBiasSlopeScale
+                depthBiasSlopeScale: state._depthBiasSlopeScale,
             };
         }
 

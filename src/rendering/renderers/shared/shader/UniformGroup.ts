@@ -26,6 +26,8 @@ export type UniformGroupOptions = {
     ubo?: boolean;
     /** if true, then you are responsible for when the data is uploaded to the GPU by calling `update()` */
     isStatic?: boolean;
+
+    cloneValues?: boolean;
 };
 
 /**
@@ -151,9 +153,17 @@ export class UniformGroup<UNIFORMS extends { [key: string]: UniformData } = any>
 
             uniformData.name = i;
             uniformData.size = uniformData.size ?? 1;
+
             uniformData.value ??= getDefaultUniformValue(uniformData.type, uniformData.size);
 
-            uniforms[i] = uniformData.value as ExtractUniformObject<UNIFORMS>[keyof UNIFORMS];
+            if (options.cloneValues && (uniformData.value as any).slice)
+            {
+                uniforms[i] = (uniformData.value as any).slice(0);
+            }
+            else
+            {
+                uniforms[i] = uniformData.value as ExtractUniformObject<UNIFORMS>[keyof UNIFORMS];
+            }
         }
 
         this.uniforms = uniforms;

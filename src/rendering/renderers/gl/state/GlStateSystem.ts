@@ -38,8 +38,9 @@ export class GlStateSystem implements System
      * Polygon offset
      * @readonly
      */
-    public depthBias: number = 0;
-    public depthBiasSlopeScale: number = 0;
+    public depthBias = 0;
+    public depthBiasSlopeScale = 0;
+    private _depthCompare: GPUCompareFunction = 'less-equal';
 
     /**
      * Blend mode
@@ -207,7 +208,7 @@ export class GlStateSystem implements System
      */
     public setDepthMask(value: boolean): void
     {
-        this.gl.depthMask(value);
+        this.gl.depthMask(value && this._depthCompare !== 'equal');
     }
 
     /**
@@ -290,6 +291,8 @@ export class GlStateSystem implements System
     public reset(): void
     {
         this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
+        this.gl.depthFunc(this.gl.LEQUAL);
+        this._depthCompare = 'less-equal';
 
         this.forceState(this.defaultState);
 
@@ -366,6 +369,23 @@ export class GlStateSystem implements System
         }
 
         return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
+    }
+
+    set depthCompare(value: GPUCompareFunction)
+    {
+        if (this._depthCompare === value)
+        {
+            return;
+        }
+        this._depthCompare = value;
+
+        this.gl.depthMask((this.stateId & (1 << DEPTH_MASK)) > 0 && value !== 'equal');
+        this.gl.enable(value === 'equal' ? this.gl.EQUAL : this.gl.LEQUAL);
+    }
+
+    get depthCompare()
+    {
+        return this._depthCompare;
     }
 
     /**

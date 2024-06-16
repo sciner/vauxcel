@@ -35,11 +35,13 @@ export class BatcherPipe implements InstructionPipe<Batch>, BatchPipe
     public renderer: Renderer;
 
     private _batches: Record<number, Batcher> = Object.create(null);
-    private _geometries: Record<number, BatchGeometry> = Object.create(null);
+    private _geometries: Record<number, Geometry> = Object.create(null);
     private _adaptor: BatcherAdaptor;
 
     private _activeBatch: Batcher;
     private _activeGeometry: Geometry;
+    geometryClass: typeof Geometry;
+    batcherClass: typeof Batcher;
 
     constructor(renderer: Renderer, adaptor: BatcherAdaptor)
     {
@@ -47,16 +49,19 @@ export class BatcherPipe implements InstructionPipe<Batch>, BatchPipe
         this._adaptor = adaptor;
 
         this._adaptor.init(this);
+
+        this.geometryClass = BatchGeometry;
+        this.batcherClass = Batcher;
     }
 
     public buildStart(instructionSet: InstructionSet)
     {
         if (!this._batches[instructionSet.uid])
         {
-            const batcher = new Batcher();
+            const batcher = new this.batcherClass();
 
             this._batches[instructionSet.uid] = batcher;
-            this._geometries[batcher.uid] = new BatchGeometry();
+            this._geometries[batcher.uid] = new this.geometryClass();
         }
 
         this._activeBatch = this._batches[instructionSet.uid];

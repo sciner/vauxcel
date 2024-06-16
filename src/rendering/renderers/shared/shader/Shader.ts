@@ -162,8 +162,8 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
     /** A record of the resources used by the shader. */
     public resources: Record<string, any>;
     /**
-     * A record of the uniform groups and resources used by the shader.
-     * This is used by WebGL renderer to sync uniform data.
+     * A record of the uniform groups and resources
+     *
      * @internal
      * @ignore
      */

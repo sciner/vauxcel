@@ -23,6 +23,10 @@ export function mapWebGLBlendModesToPixi(gl: GlRenderingContext): Record<BLEND_M
     blendMap['add-npm'] = [gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE];
     blendMap['screen-npm'] = [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_COLOR, gl.ONE, gl.ONE_MINUS_SRC_ALPHA];
 
+    blendMap['normal-hack'] = [gl.ONE, gl.ONE, gl.ONE, gl.ONE, gl.FUNC_ADD, gl.MAX];
+    blendMap['normal-npm-hack'] = [gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE, gl.FUNC_ADD, gl.MAX];
+    blendMap.inverse = [gl.ONE_MINUS_DST_COLOR, gl.ONE_MINUS_SRC_COLOR, gl.ZERO, gl.ONE];
+
     blendMap.erase = [gl.ZERO, gl.ONE_MINUS_SRC_ALPHA];
     // TODO - implement if requested!
     // composite operations

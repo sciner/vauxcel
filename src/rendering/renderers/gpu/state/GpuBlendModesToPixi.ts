@@ -133,6 +133,45 @@ GpuBlendModesToPixi.erase = {
     },
 };
 
+GpuBlendModesToPixi['normal-hack'] = {
+    alpha: {
+        srcFactor: 'one',
+        dstFactor: 'one',
+        operation: 'max',
+    },
+    color: {
+        srcFactor: 'one',
+        dstFactor: 'one-minus-src-alpha',
+        operation: 'add',
+    },
+};
+
+GpuBlendModesToPixi['normal-npm-hack'] = {
+    alpha: {
+        srcFactor: 'one',
+        dstFactor: 'one',
+        operation: 'max',
+    },
+    color: {
+        srcFactor: 'src-alpha',
+        dstFactor: 'one-minus-src-alpha',
+        operation: 'add',
+    },
+};
+
+GpuBlendModesToPixi.inverse = {
+    alpha: {
+        srcFactor: 'zero',
+        dstFactor: 'one',
+        operation: 'add',
+    },
+    color: {
+        srcFactor: 'one-minus-dst',
+        dstFactor: 'one-minus-src',
+        operation: 'add',
+    },
+};
+
 // composite operations
 // GpuBlendModesToPixi[BLEND_MODES.SRC_IN] = {
 //     alpha: {

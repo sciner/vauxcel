@@ -34,7 +34,10 @@ export type BLEND_MODES = 'inherit'
 | 'divide'
 | 'vivid-light'
 | 'hard-mix'
-| 'negation';
+| 'negation'
+| 'inverse'
+| 'normal-hack'
+| 'normal-npm-hack';
 
 /**
  * The map of blend modes supported by Pixi

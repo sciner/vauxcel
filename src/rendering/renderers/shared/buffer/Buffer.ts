@@ -20,7 +20,7 @@ export interface BufferOptions
     /** the size of the buffer in bytes, if not supplied, it will be inferred from the data */
     size?: number;
     /** the usage of the buffer, see {@link rendering.BufferUsage} */
-    usage: number;
+    usage?: number;
     /** use static for webgl */
     glStatic?: boolean;
     /** a label for the buffer, this is useful for debugging */
@@ -147,6 +147,8 @@ export class Buffer extends EventEmitter<{
 
     private _data: TypedArray;
 
+    private _dataInt32: TypedArray = null;
+
     /**
      * should the GPU buffer be shrunk when the data becomes smaller?
      * changing this will cause the buffer to be destroyed and a new one created on the GPU
@@ -171,8 +173,10 @@ export class Buffer extends EventEmitter<{
      */
     constructor(options: BufferOptions)
     {
-        let { data, size } = options;
-        const { usage, label, shrinkToFit, glStatic } = options;
+        let { data, size, usage } = options;
+        const { label, shrinkToFit, glStatic } = options;
+
+        usage ??= BufferUsage.COPY_DST | BufferUsage.VERTEX;
 
         super();
 
@@ -208,6 +212,16 @@ export class Buffer extends EventEmitter<{
     set data(value: TypedArray)
     {
         this.setDataWithSize(value, value.length, true);
+    }
+
+    get dataInt32()
+    {
+        if (!this._dataInt32)
+        {
+            this._dataInt32 = new Int32Array((this.data as any).buffer);
+        }
+
+        return this._dataInt32;
     }
 
     /** whether the buffer is static or not */

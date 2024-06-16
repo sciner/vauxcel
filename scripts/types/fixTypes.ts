@@ -80,7 +80,8 @@ function copyShaders()
 
     if (!contents.includes('/// <reference path="./Shaders.d.ts" />'))
     {
-        const updatedContents = `/// <reference path="./Shaders.d.ts" />\n${contents}`;
+        // eslint-disable-next-line max-len
+        const updatedContents = `/// <reference path="./Shaders.d.ts" />\n/// <reference path="./../types/webgpu.d.ts" />\n${contents}`;
 
         fs.writeFileSync(filePath, updatedContents);
     }

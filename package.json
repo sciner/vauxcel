@@ -49,9 +49,7 @@
     "*.{ts,js,mjs}": "npm run lint --"
   },
   "dependencies": {
-    "@types/css-font-loading-module": "^0.0.12",
-    "@types/earcut": "^2.1.4",
-    "@webgpu/types": "^0.1.40"
+    "@types/css-font-loading-module": "^0.0.12"
   },
   "devDependencies": {
     "@pixi/eslint-config": "^5.1.0",

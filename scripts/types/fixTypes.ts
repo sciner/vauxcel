@@ -58,7 +58,7 @@ function replaceWebgpuTypes()
         {
             const updatedContents = contents.replace(
                 '/// <reference types="dist" />',
-                '/// <reference types="@webgpu/types" />'
+                ''
             );
 
             fs.writeFileSync(file, updatedContents);
@@ -81,7 +81,9 @@ function copyShaders()
     if (!contents.includes('/// <reference path="./Shaders.d.ts" />'))
     {
         // eslint-disable-next-line max-len
-        const updatedContents = `/// <reference path="./Shaders.d.ts" />\n/// <reference path="./../types/webgpu.d.ts" />\n${contents}`;
+        const updatedContents = `/// <reference path="./Shaders.d.ts" />
+/// <reference path="./../types/webgpu.d.ts" />
+/// <reference path="./../types/fontface.d.ts" />${contents}`;
 
         fs.writeFileSync(filePath, updatedContents);
     }

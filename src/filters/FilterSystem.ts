@@ -534,8 +534,9 @@ export class FilterSystem implements System
         // set the output texture - this is where we are going to render to
 
         const renderTarget = this.renderer.renderTarget.getRenderTarget(output);
+        const doClear = (clear === 'clear' || (clear === 'auto' && this.forceClear));
 
-        renderer.renderTarget.bind(output, clear === 'clear' || (clear === 'auto' && this.forceClear));
+        renderer.renderTarget.bind(output, doClear ? filter.clearBits : false);
 
         if (output instanceof Texture)
         {

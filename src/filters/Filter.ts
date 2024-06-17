@@ -1,3 +1,4 @@
+import { CLEAR } from '../rendering/renderers/gl/const';
 import { GlProgram } from '../rendering/renderers/gl/shader/GlProgram';
 import { GpuProgram } from '../rendering/renderers/gpu/shader/GpuProgram';
 import { Shader } from '../rendering/renderers/shared/shader/Shader';
@@ -202,6 +203,8 @@ export class Filter extends Shader
     public autoFit: boolean;
 
     public colorFormat: FilterColorFormat;
+
+    public clearBits = CLEAR.ALL;
 
     /**
      * @param options - The optional parameters of this filter.

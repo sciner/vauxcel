@@ -314,7 +314,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
         return this._textureViewHash[texture.uid];
     }
 
-    public generateCanvas(texture: Texture): ICanvas
+    public generateCanvas(texture: Texture | TextureSource): ICanvas
     {
         const renderer = this._renderer;
 
@@ -354,7 +354,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
         return canvas;
     }
 
-    public getPixels(texture: Texture): GetPixelsOutput
+    public getPixels(texture: Texture | TextureSource): GetPixelsOutput
     {
         const webGPUCanvas = this.generateCanvas(texture);
 

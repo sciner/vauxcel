@@ -467,7 +467,7 @@ export class GlTextureSystem implements System, CanvasGenerator
         return source.glUploader || this._uploads[source.uploadMethodId];
     }
 
-    public generateCanvas(texture: Texture): ICanvas
+    public generateCanvas(texture: Texture | TextureSource): ICanvas
     {
         const { pixels, width, height } = this.getPixels(texture);
 
@@ -489,13 +489,24 @@ export class GlTextureSystem implements System, CanvasGenerator
         return canvas;
     }
 
-    public getPixels(texture: Texture): GetPixelsOutput
+    public getPixels(texture: Texture | TextureSource): GetPixelsOutput
     {
         const resolution = texture.source.resolution;
-        const frame = texture.frame;
 
-        const width = Math.max(Math.round(frame.width * resolution), 1);
-        const height = Math.max(Math.round(frame.height * resolution), 1);
+        let width = texture.source.pixelWidth;
+        let height = texture.source.pixelHeight;
+        let x = 0;
+        let y = 0;
+
+        if (texture instanceof Texture)
+        {
+            const frame = texture.frame;
+
+            x = Math.round(frame.x * resolution);
+            y = Math.round(frame.y * resolution);
+            width = Math.max(Math.round(frame.width * resolution), 1);
+            height = Math.max(Math.round(frame.height * resolution), 1);
+        }
         const pixels = new Uint8Array(BYTES_PER_PIXEL * width * height);
 
         const renderer = this._renderer;
@@ -508,8 +519,8 @@ export class GlTextureSystem implements System, CanvasGenerator
         gl.bindFramebuffer(gl.FRAMEBUFFER, glRenterTarget.resolveTargetFramebuffer);
 
         gl.readPixels(
-            Math.round(frame.x * resolution),
-            Math.round(frame.y * resolution),
+            x,
+            y,
             width,
             height,
             gl.RGBA,

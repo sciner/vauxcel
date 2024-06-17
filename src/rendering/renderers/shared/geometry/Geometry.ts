@@ -438,6 +438,23 @@ export class Geometry extends EventEmitter<{
         this.emit('update', this);
     }
 
+    swapIndex(newBuffer: Buffer)
+    {
+        if (this.bufRefCount > 0)
+        {
+            return;
+        }
+
+        const ind = this.buffers.indexOf(this.indexBuffer);
+
+        if (ind < 0)
+        {
+            return;
+        }
+
+        this.buffers[ind] = this.indexBuffer = newBuffer;
+    }
+
     getInstancedAttributes()
     {
         const instAttribs: Attribute[] = [];

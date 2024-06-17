@@ -1,4 +1,5 @@
 import type { ICanvas } from '../../../../environment/canvas/ICanvas';
+import type { TextureSource } from './sources/TextureSource';
 import type { Texture } from './Texture';
 
 export type GetPixelsOutput = {
@@ -9,6 +10,6 @@ export type GetPixelsOutput = {
 
 export interface CanvasGenerator
 {
-    generateCanvas(texture: Texture): ICanvas;
-    getPixels(texture: Texture): GetPixelsOutput;
+    generateCanvas(texture: Texture | TextureSource): ICanvas;
+    getPixels(texture: Texture | TextureSource): GetPixelsOutput;
 }

@@ -1,6 +1,7 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { Container } from '../../../../scene/container/Container';
 import { Texture } from '../texture/Texture';
+import { TextureSource } from '../texture/sources/TextureSource';
 
 import type { ColorSource } from '../../../../color/Color';
 import type { ICanvas } from '../../../../environment/canvas/ICanvas';
@@ -37,7 +38,7 @@ export interface ImageOptions
 export interface BaseExtractOptions
 {
     /** The target to extract. */
-    target: Container | Texture;
+    target: Container | Texture | TextureSource;
     /** The region of the target to extract. */
     frame?: Rectangle;
     /** The resolution of the extracted content. */
@@ -221,7 +222,7 @@ export class ExtractSystem implements System
 
         const renderer = this._renderer;
 
-        if (target instanceof Texture)
+        if (target instanceof Texture || target instanceof TextureSource)
         {
             return renderer.texture.generateCanvas(target);
         }

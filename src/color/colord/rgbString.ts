@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { clampRgba, roundRgba } from './rgb';
-import { RgbaColor } from './types';
+
+import type { RgbaColor } from './types';
 
 // Functional syntax
 // rgb( <percentage>#{3} , <alpha-value>? )

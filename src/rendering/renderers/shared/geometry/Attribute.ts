@@ -1,6 +1,7 @@
-import { Buffer, TypedArray } from '../buffer/Buffer.js';
-import { VertexFormat } from './const';
-import { BufferOption,ensureIsBuffer } from './utils/ensureIsBuffer';
+import { Buffer, type TypedArray } from '../buffer/Buffer.js';
+import { type BufferOption, ensureIsBuffer } from './utils/ensureIsBuffer';
+
+import type { VertexFormat } from './const';
 
 /* eslint-disable max-len */
 

@@ -2,7 +2,7 @@ import { Bounds } from '../../../../scene/container/bounds/Bounds';
 import { uid } from '../../../../utils/data/uid';
 import { EventEmitter } from '../../../../utils/event_emitter';
 import { Buffer } from '../buffer/Buffer';
-import { Attribute, AttributeOption, ensureIsAttribute } from './Attribute';
+import { Attribute, type AttributeOption, ensureIsAttribute } from './Attribute';
 import { ensureIsBuffer } from './utils/ensureIsBuffer';
 import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat';
 import { getGeometryBounds } from './utils/getGeometryBounds';

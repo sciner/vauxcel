@@ -1,4 +1,4 @@
-import { Texture3DLayout, TextureLayout3DOptions } from './Texture3DLayout.js';
+import { Texture3DLayout, type TextureLayout3DOptions } from './Texture3DLayout.js';
 
 import type { TypedArray } from '../rendering/index.js';
 import type { Buffer3DSource } from './Buffer3DSource.js';

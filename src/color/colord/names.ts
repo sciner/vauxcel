@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary,no-mixed-operators */
 import { Colord } from './colord';
-import { ColorParseFunction, ColorParsers, RgbaColor } from './types';
+
+import type { ColorParseFunction, ColorParsers, RgbaColor } from './types';
 
 export interface ColorConvertOptions
 {

@@ -1,5 +1,5 @@
 import { type Adapter } from '../environment/adapter';
-import { DOMParser } from '@xmldom/xmldom';
+// import { DOMParser } from '@xmldom/xmldom';
 
 /**
  * This is an implementation of the {@link environment.Adapter} interface.
@@ -23,10 +23,12 @@ export const WebWorkerAdapter = {
     getBaseUrl: () => globalThis.location.href,
     getFontFaceSet: () => (globalThis as unknown as WorkerGlobalScope).fonts,
     fetch: (url: RequestInfo, options?: RequestInit) => fetch(url, options),
-    parseXML: (xml: string) =>
+    parseXML: (_xml: string): Document | null =>
+    // eslint-disable-next-line arrow-body-style
     {
-        const parser = new DOMParser();
+        // const parser = new DOMParser();
 
-        return parser.parseFromString(xml, 'text/xml');
+        // return parser.parseFromString(xml, 'text/xml');
+        return null;
     },
 } as Adapter;

@@ -17,6 +17,7 @@
         "resolveJsonModule": true,
         "downlevelIteration": true,
         "skipDefaultLibCheck": true,
+        "verbatimModuleSyntax": true
     },
     "exclude": [
         "node_modules",
@@ -28,6 +29,7 @@
         "files": true,
         "compilerOptions": {
             "esModuleInterop": true,
+            "verbatimModuleSyntax": false,
             "module": "commonjs"
         }
     }

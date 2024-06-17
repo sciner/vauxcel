@@ -2,10 +2,9 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { State } from '../../shared/state/State';
 import { mapWebGLBlendModesToPixi } from './mapWebGLBlendModesToPixi';
 
-import type { BLEND_MODES } from '../../shared/state/const';
+import type { BLEND_MODES, CULL_MODES } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GlRenderingContext } from '../context/GlRenderingContext';
-import { CULL_MODES } from '../../shared/state/const';
 
 const BLEND = 0;
 const OFFSET = 1;

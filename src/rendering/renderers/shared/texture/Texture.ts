@@ -1,15 +1,15 @@
-import { EventEmitter } from '../../../../utils/event_emitter';
 import { groupD8 } from '../../../../maths/matrix/groupD8';
 import { Rectangle } from '../../../../maths/shapes/Rectangle';
 import { uid } from '../../../../utils/data/uid';
+import { EventEmitter } from '../../../../utils/event_emitter';
 import { deprecation, v8_0_0 } from '../../../../utils/logging/deprecation';
 import { NOOP } from '../../../../utils/misc/NOOP';
 import { BufferImageSource } from './sources/BufferImageSource';
 import { TextureSource } from './sources/TextureSource';
 import { TextureMatrix } from './TextureMatrix';
 
+import type {TextureHolder} from "../../../../assets/TextureAsync";
 import type { TextureResourceOrOptions } from './utils/textureFrom';
-import {TextureHolder} from "../../../../assets/TextureAsync";
 
 /**
  * Stores the width of the non-scalable borders, for example when used with {@link scene.NineSlicePlane} texture.

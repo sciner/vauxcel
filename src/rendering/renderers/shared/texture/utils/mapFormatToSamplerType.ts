@@ -1,4 +1,4 @@
-import { SAMPLER_TYPES, TEXTURE_FORMATS } from "../const";
+import { SAMPLER_TYPES, type TEXTURE_FORMATS } from "../const";
 
 export const mapFormatToSamplerType: Record<TEXTURE_FORMATS, SAMPLER_TYPES> = {
     // 8-bit formats

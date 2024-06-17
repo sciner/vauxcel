@@ -78,12 +78,12 @@ async function main()
         ...commonPlugins
     ];
 
-    const bundlePluginsProd = [
-        webworker(),
-        jscc({ values: { _VERSION: repo.version, _DEBUG: false } }),
-        esbuild({ target: bundleTarget, minify: true }),
-        ...commonPlugins,
-    ];
+    // const bundlePluginsProd = [
+    //     webworker(),
+    //     jscc({ values: { _VERSION: repo.version, _DEBUG: false } }),
+    //     esbuild({ target: bundleTarget, minify: true }),
+    //     ...commonPlugins,
+    // ];
 
     const results = [];
 
@@ -184,7 +184,7 @@ async function main()
                 ],
                 treeshake: false,
                 plugins: [...bundlePlugins, externalPlugin],
-            }, {
+            }, /*{
                 input: path.join(process.cwd(), bundle.src),
                 external,
                 output: [
@@ -208,7 +208,7 @@ async function main()
                 ],
                 treeshake: false,
                 plugins: [...bundlePluginsProd, externalPlugin]
-            });
+            }*/);
         });
     }
 

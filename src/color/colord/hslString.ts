@@ -1,6 +1,7 @@
 import { parseHue } from './helpers';
 import { clampHsla, hslaToRgba, rgbaToHsla, roundHsla } from './hsl';
-import { RgbaColor } from './types';
+
+import type { RgbaColor } from './types';
 
 // Functional syntax
 // hsl( <hue>, <percentage>, <percentage>, <alpha-value>? )

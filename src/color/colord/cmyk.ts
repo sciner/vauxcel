@@ -1,7 +1,8 @@
 /* eslint-disable no-mixed-operators */
 import { ALPHA_PRECISION } from './constants';
 import { clamp, isPresent, round } from './helpers';
-import { CmykaColor, ColorInputObject, RgbaColor } from './types';
+
+import type { CmykaColor, ColorInputObject, RgbaColor } from './types';
 
 /**
  * Clamps the CMYK color object values.

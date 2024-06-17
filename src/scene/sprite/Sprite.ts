@@ -1,9 +1,9 @@
-import { TextureAsync } from "../../assets/TextureAsync";
 import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
 import { Container } from '../container/Container';
 
+import type { TextureAsync } from "../../assets/TextureAsync";
 import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { TextureSourceLike } from '../../rendering/renderers/shared/texture/Texture';

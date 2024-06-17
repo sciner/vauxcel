@@ -1,4 +1,4 @@
-import { type Adapter } from '../environment/adapter';
+import type { Adapter } from '../environment/adapter';
 
 /**
  * This is an implementation of the {@link environment.Adapter} interface.

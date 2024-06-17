@@ -2,10 +2,9 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { State } from '../../shared/state/State';
 import { GpuBlendModesToPixi } from './GpuBlendModesToPixi';
 
-import type { BLEND_MODES } from '../../shared/state/const';
+import type { BLEND_MODES, CULL_MODES } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GPU } from '../GpuDeviceSystem';
-import { CULL_MODES } from '../../shared/state/const';
 
 /**
  * System plugin to the renderer to manage WebGL state machines.

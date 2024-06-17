@@ -1,7 +1,8 @@
 /* eslint-disable no-nested-ternary,no-mixed-operators */
 import { ALPHA_PRECISION } from './constants';
 import { clamp, clampHue, isPresent, round } from './helpers';
-import { ColorInputObject, HsvaColor, RgbaColor } from './types';
+
+import type { ColorInputObject, HsvaColor, RgbaColor } from './types';
 
 export const clampHsva = (hsva: HsvaColor): HsvaColor => ({
     h: clampHue(hsva.h),

@@ -1,4 +1,4 @@
-import { PoolItem } from "../../../../utils";
+import type { PoolItem } from "../../../../utils";
 
 export class BufferCopyOperation implements PoolItem
 {

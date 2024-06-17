@@ -1,7 +1,8 @@
 import { ALPHA_PRECISION } from './constants';
 import { clamp, clampHue, isPresent, round } from './helpers';
 import { hsvaToRgba, rgbaToHsva } from './hsv';
-import { ColorInputObject, HslaColor, HsvaColor, RgbaColor } from './types';
+
+import type { ColorInputObject, HslaColor, HsvaColor, RgbaColor } from './types';
 
 export const clampHsla = (hsla: HslaColor): HslaColor => ({
     h: clampHue(hsla.h),

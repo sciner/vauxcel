@@ -4,10 +4,11 @@ import { rgbaToHex } from './hex';
 import { rgbaToHsla, roundHsla } from './hsl';
 import { rgbaToHslaString } from './hslString';
 import { rgbaToHsva, roundHsva } from './hsv';
-import { ColorConvertOptions } from './names';
 import { roundRgba } from './rgb';
 import { rgbaToRgbaString } from './rgbString';
-import { AnyColor, ColorInput, HslaColor, HsvaColor, RgbaColor } from './types';
+
+import type { ColorConvertOptions } from './names';
+import type { AnyColor, ColorInput, HslaColor, HsvaColor, RgbaColor } from './types';
 
 export class Colord
 {

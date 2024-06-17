@@ -1,4 +1,4 @@
-import { TEXTURE_FORMATS } from '../const';
+import type { TEXTURE_FORMATS } from '../const';
 
 export const mapFormatToPixelSize: Record<TEXTURE_FORMATS, number> = {
     // 8-bit formats

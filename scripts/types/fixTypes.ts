@@ -83,12 +83,26 @@ function copyShaders()
         // eslint-disable-next-line max-len
         const updatedContents = `/// <reference path="./Shaders.d.ts" />
 /// <reference path="./../types/webgpu.d.ts" />
-/// <reference path="./../types/fontface.d.ts" />${contents}`;
+/// <reference path="./../types/fontface.d.ts" />
+/// <reference path="./PixiMixins.d.ts" />${contents}`;
 
         fs.writeFileSync(filePath, updatedContents);
     }
 }
 
+/** Copy the PixiMixins.d.ts file to the lib folder */
+function copyMixins()
+{
+    const src = path.join(process.cwd(), './types');
+    const lib = path.join(process.cwd(), './lib');
+
+    const contents = fs.readFileSync(`${src}/PixiMixins.d.ts`, 'utf8');
+    const updatedContents = contents.replaceAll('../src', '.');
+
+    fs.writeFileSync(`${lib}/PixiMixins.d.ts`, updatedContents);
+}
+
 replaceWebgpuTypes();
 addMixinReferencePaths();
 copyShaders();
+copyMixins();

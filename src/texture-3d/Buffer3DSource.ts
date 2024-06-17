@@ -1,7 +1,7 @@
-import { TextureSource, TextureSourceOptions, TypedArray } from '../rendering/index.js';
+import { TextureSource, type TextureSourceOptions, type TypedArray } from '../rendering/index.js';
 import { glUploadBuffer3DResource } from './glUploadBuffer3DResource.js';
-import { Texture3D } from './Texture3D.js';
 import { gpuUploadBuffer3DResource } from './gpuUploadBuffer3DResource';
+import { Texture3D } from './Texture3D.js';
 
 /**
  * Constructor options for BufferResource.

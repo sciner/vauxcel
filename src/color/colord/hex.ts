@@ -1,6 +1,7 @@
-import { RgbaColor } from "./types";
 import { round } from "./helpers";
 import { roundRgba } from "./rgb";
+
+import type { RgbaColor } from "./types";
 
 const hexMatcher = /^#([0-9a-f]{3,8})$/i;
 

@@ -1,6 +1,7 @@
 import { ALPHA_PRECISION } from './constants';
 import { clamp, isPresent, round } from './helpers';
-import { ColorInputObject, RgbaColor } from './types';
+
+import type { ColorInputObject, RgbaColor } from './types';
 
 export const clampRgba = (rgba: RgbaColor): RgbaColor => ({
     r: clamp(rgba.r, 0, 255),

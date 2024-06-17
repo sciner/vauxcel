@@ -4,7 +4,8 @@ import { parseHslaString } from './hslString';
 import { parseHsva } from './hsv';
 import { parseRgba } from './rgb';
 import { parseRgbaString } from './rgbString';
-import { ColorInput, ColorInputObject, ColorParser, ColorParseResult, ColorParsers } from './types';
+
+import type { ColorInput, ColorInputObject, ColorParser, ColorParseResult, ColorParsers } from './types';
 
 // The built-in input parsing functions.
 // We use array instead of object to keep the bundle size lighter.

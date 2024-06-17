@@ -2,7 +2,8 @@
 import { ALPHA_PRECISION } from './constants';
 import { clamp, isPresent, round } from './helpers';
 import { clampRgba, linearizeRgbChannel, unlinearizeRgbChannel } from './rgb';
-import { ColorInputObject, RgbaColor, XyzaColor, XyzColor } from './types';
+
+import type { ColorInputObject, RgbaColor, XyzaColor, XyzColor } from './types';
 
 // Theoretical light source that approximates "warm daylight" and follows the CIE standard.
 // https://en.wikipedia.org/wiki/Standard_illuminant

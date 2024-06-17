@@ -1,5 +1,6 @@
 import { clampCmyka, cmykaToRgba, rgbaToCmyka, roundCmyka } from './cmyk';
-import { RgbaColor } from './types';
+
+import type { RgbaColor } from './types';
 
 // eslint-disable-next-line max-len
 const cmykMatcher = /^device-cmyk\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;

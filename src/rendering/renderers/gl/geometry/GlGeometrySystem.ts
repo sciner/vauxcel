@@ -2,7 +2,7 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { getAttributeInfoFromFormat } from '../../shared/geometry/utils/getAttributeInfoFromFormat';
 import { BUFFER_TYPE } from '../buffer/const';
 import { ensureAttributes } from '../shader/program/ensureAttributes';
-import { AttributeBaseCallbackStruct,generateAttribSyncForGeom } from "./utils/generateAttributeSync";
+import { type AttributeBaseCallbackStruct, generateAttribSyncForGeom } from "./utils/generateAttributeSync";
 import { getGlTypeFromFormat } from './utils/getGlTypeFromFormat';
 
 import type { Buffer } from '../../shared/buffer/Buffer';

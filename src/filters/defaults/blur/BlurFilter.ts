@@ -1,7 +1,7 @@
 import { TexturePool } from '../../../rendering/renderers/shared/texture/TexturePool';
 import { RendererType } from '../../../rendering/renderers/types';
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
-import { Filter } from '../../Filter';
+import { Filter, type FilterClearMode } from '../../Filter';
 import { BlurFilterPass } from './BlurFilterPass';
 
 import type { RenderSurface } from '../../../rendering/renderers/shared/renderTarget/RenderTargetSystem';
@@ -113,7 +113,7 @@ export class BlurFilter extends Filter
         filterManager: FilterSystem,
         input: Texture,
         output: RenderSurface,
-        clearMode: boolean
+        clearMode: FilterClearMode
     ): void
     {
         const xStrength = Math.abs(this.blurXFilter.strength);
@@ -123,7 +123,7 @@ export class BlurFilter extends Filter
         {
             const tempTexture = TexturePool.getSameSizeTexture(input);
 
-            this.blurXFilter.apply(filterManager, input, tempTexture, true);
+            this.blurXFilter.apply(filterManager, input, tempTexture, 'clear');
             this.blurYFilter.apply(filterManager, tempTexture, output, clearMode);
 
             TexturePool.returnTexture(tempTexture);

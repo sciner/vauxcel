@@ -21,7 +21,7 @@ import type { RenderSurface } from '../rendering/renderers/shared/renderTarget/R
 import type { System } from '../rendering/renderers/shared/system/System';
 import type { Container } from '../scene/container/Container';
 import type { Sprite } from '../scene/sprite/Sprite';
-import type { Filter } from './Filter';
+import type { Filter, FilterClearMode } from './Filter';
 import type { FilterEffect } from './FilterEffect';
 
 type FilterAction = 'pushFilter' | 'popFilter';
@@ -103,6 +103,8 @@ export class FilterSystem implements System
     private _filterStackIndex = 0;
     private _filterStack: FilterData[] = [];
 
+    public forceClear = false;
+
     private readonly _filterGlobalUniforms = new UniformGroup({
         uInputSize: { value: new Float32Array(4), type: 'vec4<f32>' },
         uInputPixel: { value: new Float32Array(4), type: 'vec4<f32>' },
@@ -118,6 +120,7 @@ export class FilterSystem implements System
     constructor(renderer: Renderer)
     {
         this.renderer = renderer;
+        this.forceClear = renderer.type === RendererType.WEBGPU;
     }
 
     /**
@@ -197,6 +200,8 @@ export class FilterSystem implements System
         // true if any filter in the list is enabled
         let enabled = false;
 
+        let autoFit = false;
+
         for (let i = 0; i < filters.length; i++)
         {
             const filter = filters[i];
@@ -237,6 +242,7 @@ export class FilterSystem implements System
 
             enabled = filter.enabled || enabled;
             blendRequired = blendRequired || filter.blendRequired;
+            autoFit = autoFit && filter.autoFit;
         }
 
         // if no filters are enabled lets skip!
@@ -249,15 +255,16 @@ export class FilterSystem implements System
 
         const viewPort = renderer.renderTarget.rootViewPort;
 
-        // here we constrain the bounds to the viewport we will render too
-        // this should not take into account the x, y offset of the viewport - as this is
-        // handled by the viewport on the gpu.
-        // need to factor in resolutions also..
-        bounds.scale(resolution)
-            .fitBounds(0, viewPort.width, 0, viewPort.height)
-            .scale(1 / resolution)
-            .pad(padding)
-            .ceil();
+        if (autoFit)
+        {
+            // here we constrain the bounds to the viewport we will render too
+            // this should not take into account the x, y offset of the viewport - as this is
+            // handled by the viewport on the gpu.
+            // need to factor in resolutions also..
+            bounds.scale(resolution)
+                .fitBounds(0, viewPort.width, 0, viewPort.height)
+                .scale(1 / resolution);
+        }
 
         // skip if the bounds are negative or zero as this means they are
         // not visible on the screen
@@ -348,7 +355,7 @@ export class FilterSystem implements System
         {
             // render a single filter...
             // this.applyFilter(filters[0], inputTexture, filterData.previousRenderSurface, false);
-            filters[0].apply(this, inputTexture, filterData.previousRenderSurface, false);
+            filters[0].apply(this, inputTexture, filterData.previousRenderSurface, 'clear');
 
             // return the texture to the pool so we can reuse the next frame
             TexturePool.returnTexture(inputTexture);
@@ -372,14 +379,14 @@ export class FilterSystem implements System
             {
                 const filter = filters[i];
 
-                filter.apply(this, flip, flop, true);
+                filter.apply(this, flip, flop, 'auto');
                 const t = flip;
 
                 flip = flop;
                 flop = t;
             }
 
-            filters[i].apply(this, flip, filterData.previousRenderSurface, false);
+            filters[i].apply(this, flip, filterData.previousRenderSurface, 'blend');
 
             // return those textures for later!
             TexturePool.returnTexture(flip);
@@ -430,7 +437,7 @@ export class FilterSystem implements System
         return backTexture;
     }
 
-    public applyFilter(filter: Filter, input: Texture, output: RenderSurface, clear: boolean)
+    public applyFilter(filter: Filter, input: Texture, output: RenderSurface, clear: FilterClearMode)
     {
         const renderer = this.renderer;
 
@@ -528,7 +535,7 @@ export class FilterSystem implements System
 
         const renderTarget = this.renderer.renderTarget.getRenderTarget(output);
 
-        renderer.renderTarget.bind(output, !!clear);
+        renderer.renderTarget.bind(output, clear === 'clear' || (clear === 'auto' && this.forceClear));
 
         if (output instanceof Texture)
         {
@@ -624,6 +631,33 @@ export class FilterSystem implements System
         mappedMatrix.translate(sprite.anchor.x, sprite.anchor.y);
 
         return mappedMatrix;
+    }
+
+    /**
+     * Gets extra render texture to use inside current filter
+     * To be compliant with older filters, you can use params in any order
+     * @param input - renderTexture from which size and resolution will be copied
+     * @param resolution - override resolution of the renderTexture
+     * @param multisample - number of samples of the renderTexture
+     */
+    getFilterTexture(input?: Texture, resolution?: number): Texture
+    {
+        if (typeof input === 'number')
+        {
+            const swap = input;
+
+            input = resolution as any;
+            resolution = swap;
+        }
+
+        input = input || this._activeFilterData.inputTexture;
+
+        return TexturePool.getOptimalTexture(input.width, input.height, resolution || input.source.resolution, false);
+    }
+
+    returnFilterTexture(tex: Texture): void
+    {
+        TexturePool.returnTexture(tex);
     }
 
     public destroy?: () => void;

@@ -5,7 +5,7 @@ import { GpuProgram } from '../../../rendering/renderers/gpu/shader/GpuProgram';
 import { UniformGroup } from '../../../rendering/renderers/shared/shader/UniformGroup';
 import { Sprite } from '../../../scene/sprite/Sprite';
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
-import { Filter } from '../../Filter';
+import { Filter, type FilterClearMode } from '../../Filter';
 import fragment from './displacement.frag';
 import vertex from './displacement.vert';
 import source from './displacement.wgsl';
@@ -127,7 +127,7 @@ export class DisplacementFilter extends Filter
         filterManager: FilterSystem,
         input: Texture,
         output: Texture,
-        clearMode: boolean
+        clearMode: FilterClearMode
     ): void
     {
         const uniforms = this.resources.filterUniforms.uniforms;

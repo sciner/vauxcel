@@ -1,4 +1,10 @@
-import { TextureSource, type TextureSourceOptions, type TypedArray } from '../rendering/index.js';
+import {
+    type GLTextureUploader,
+    type GpuTextureUploader,
+    TextureSource,
+    type TextureSourceOptions,
+    type TypedArray
+} from '../rendering/index.js';
 import { glUploadBuffer3DResource } from './glUploadBuffer3DResource.js';
 import { gpuUploadBuffer3DResource } from './gpuUploadBuffer3DResource';
 import { Texture3D } from './Texture3D.js';
@@ -19,8 +25,8 @@ export interface IBuffer3DResourceOptions extends TextureSourceOptions
  */
 export class Buffer3DSource extends TextureSource
 {
-    public glUploader = glUploadBuffer3DResource;
-    public gpuUploader = gpuUploadBuffer3DResource;
+    public glUploader: GLTextureUploader = glUploadBuffer3DResource;
+    public gpuUploader: GpuTextureUploader = gpuUploadBuffer3DResource;
 
     public depth: number;
     public useSubRegions: boolean;

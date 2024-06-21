@@ -81,7 +81,7 @@ export class GlTextureSystem implements System, CanvasGenerator
 
     private readonly _renderer: WebGLRenderer;
 
-    private _boundTextures: TextureSource[] = [];
+    _boundTextures: TextureSource[] = [];
     private _activeTextureLocation = -1;
 
     private _boundSamplers: Record<number, WebGLSampler> = Object.create(null);

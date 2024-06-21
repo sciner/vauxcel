@@ -1,4 +1,4 @@
-import { Texture } from '../rendering/index.js';
+import { Texture } from '../rendering/renderers/shared/texture/Texture.js';
 import { Assets } from './Assets.js';
 
 export interface TextureHolder

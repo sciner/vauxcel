@@ -9,7 +9,14 @@ import { getTestContext } from '../../../gl/shader/program/getTestContext';
  */
 export function maxRecommendedTextures(): number
 {
-    const gl = getTestContext();
+    try
+    {
+        const gl = getTestContext();
 
-    return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    }
+    catch (e)
+    {
+        return 0;
+    }
 }

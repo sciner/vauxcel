@@ -764,7 +764,7 @@ export class Graphics extends Container implements View, Instruction
     {
         // #if _DEBUG
         // eslint-disable-next-line max-len
-        deprecation(v8_0_0, 'Graphics#lineStyle is no longer needed. Use Graphics#setStrokeStyle to set the stroke style.');
+        // deprecation(v8_0_0, 'Graphics#lineStyle is no longer needed. Use Graphics#setStrokeStyle to set the stroke style.');
         // #endif
 
         const strokeStyle: Partial<StrokeStyle> = {};

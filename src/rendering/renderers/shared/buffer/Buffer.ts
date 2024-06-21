@@ -263,9 +263,9 @@ export class Buffer extends EventEmitter<{
         this._data = value;
 
         // Event handling
-        if (oldData.length !== value.length)
+        if (!oldData || oldData.length !== value.length)
         {
-            if (!this.shrinkToFit && value.byteLength < oldData.byteLength)
+            if (!this.shrinkToFit && oldData && value.byteLength < oldData.byteLength)
             {
                 if (syncGPU) this.emit('update', this);
             }

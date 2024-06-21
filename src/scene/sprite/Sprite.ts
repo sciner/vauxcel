@@ -3,7 +3,7 @@ import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
 import { Container } from '../container/Container';
 
-import type { TextureAsync } from "../../assets/TextureAsync";
+import { TextureAsync } from "../../assets/TextureAsync";
 import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { TextureSourceLike } from '../../rendering/renderers/shared/texture/Texture';
@@ -89,9 +89,9 @@ export class Sprite extends Container implements View
     /**
      * @param options - The options for creating the sprite.
      */
-    constructor(options: SpriteOptions | Texture = Texture.EMPTY)
+    constructor(options: SpriteOptions | Texture | TextureAsync = Texture.EMPTY)
     {
-        if (options instanceof Texture)
+        if (options instanceof Texture || options instanceof TextureAsync)
         {
             options = { texture: options };
         }
@@ -137,6 +137,7 @@ export class Sprite extends Container implements View
     set texture(value: Texture)
     {
         value ||= Texture.EMPTY;
+        value = value.returnOrSetLater(this);
 
         const currentTexture = this._texture;
 

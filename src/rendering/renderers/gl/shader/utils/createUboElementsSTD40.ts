@@ -2,9 +2,14 @@ import type { UboElement, UboLayout, UniformData } from '../../../shared/shader/
 
 export const WGSL_TO_STD40_SIZE: Record<string, number> = {
     f32: 4,
+    i32: 4,
     'vec2<f32>': 8,
     'vec3<f32>': 12,
     'vec4<f32>': 16,
+
+    'vec2<i32>': 8,
+    'vec3<i32>': 12,
+    'vec4<i32>': 16,
 
     'mat2x2<f32>': 16 * 2,
     'mat3x3<f32>': 16 * 3,

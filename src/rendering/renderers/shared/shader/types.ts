@@ -17,7 +17,10 @@ export type UNIFORM_TYPES_SINGLE =
     'mat4x3<f32>' |
 
     'mat2x4<f32>' |
-    'mat3x4<f32>';
+    'mat3x4<f32>' |
+    'vec2<i32>' |
+    'vec3<i32>' |
+    'vec4<i32>';
     // TODO add more types as required
 
     type OPTIONAL_SPACE = ' ' | '';
@@ -57,6 +60,9 @@ export const UNIFORM_TYPES_ALIAS = {
     vec4f: 'vec4<f32>' as UNIFORM_TYPES_SINGLE,
     vec3f: 'vec3<f32>' as UNIFORM_TYPES_SINGLE,
     vec2f: 'vec2<f32>' as UNIFORM_TYPES_SINGLE,
+    vec4i: 'vec4<i32>' as UNIFORM_TYPES_SINGLE,
+    vec3i: 'vec3<i32>' as UNIFORM_TYPES_SINGLE,
+    vec2i: 'vec2<i32>' as UNIFORM_TYPES_SINGLE,
     mat4x4f: 'mat4x4<f32>' as UNIFORM_TYPES_SINGLE,
     mat3x3f: 'mat3x3<f32>' as UNIFORM_TYPES_SINGLE,
     mat2x2f: 'mat2x2<f32>' as UNIFORM_TYPES_SINGLE,

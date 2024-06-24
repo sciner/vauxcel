@@ -133,9 +133,9 @@ export class GlTextureSystem implements System, CanvasGenerator
 
     public bind(texture: BindableTexture, location = 0)
     {
-        const source = texture.source;
+        const source = texture?.source;
 
-        if (texture)
+        if (source)
         {
             this.bindSource(source, location);
 
@@ -161,8 +161,6 @@ export class GlTextureSystem implements System, CanvasGenerator
 
         location = location ?? source._glLastBindLocation;
 
-        source._touched = this._renderer.textureGC.count;
-
         if (this._boundTextures[location] !== source)
         {
             this._boundTextures[location] = source;
@@ -177,7 +175,11 @@ export class GlTextureSystem implements System, CanvasGenerator
             gl.bindTexture(glTexture.target, glTexture.texture);
         }
 
-        source.checkUpdate();
+        if (source)
+        {
+            source._touched = this._renderer.textureGC.count;
+            source.checkUpdate();
+        }
     }
 
     private _bindSampler(style: TextureStyle, location = 0): void

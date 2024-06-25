@@ -56,7 +56,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
                     funcFragments.push(`
                         sS.bindUniformBlock(
                             resources[${j}],
-                            sS._uniformBindMap[${i}][${j}],
+                            s._uniformBindMap[${i}][${j}],
                             ${blockIndex++}
                         );
                     `);
@@ -73,7 +73,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
                 funcFragments.push(`
                     sS.bindUniformBlock(
                         resources[${j}],
-                        sS._uniformBindMap[${i}][${j}],
+                        s._uniformBindMap[${i}][${j}],
                         ${blockIndex++}
                     );
                 `);

@@ -379,7 +379,7 @@ export class GlStateSystem implements System
         this._depthCompare = value;
 
         this.gl.depthMask((this.stateId & (1 << DEPTH_MASK)) > 0 && value !== 'equal');
-        this.gl.enable(value === 'equal' ? this.gl.EQUAL : this.gl.LEQUAL);
+        this.gl.depthFunc(value === 'equal' ? this.gl.EQUAL : this.gl.LEQUAL);
     }
 
     get depthCompare()

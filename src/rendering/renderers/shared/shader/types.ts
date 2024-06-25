@@ -67,5 +67,5 @@ export const UNIFORM_TYPES_ALIAS = {
     mat3x3f: 'mat3x3<f32>' as UNIFORM_TYPES_SINGLE,
     mat2x2f: 'mat2x2<f32>' as UNIFORM_TYPES_SINGLE,
     float: 'f32' as UNIFORM_TYPES_SINGLE,
-    int: 'int32' as UNIFORM_TYPES_SINGLE,
+    int: 'i32' as UNIFORM_TYPES_SINGLE,
 };

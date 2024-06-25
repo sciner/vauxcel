@@ -117,7 +117,7 @@ export class GlShaderSystem
 
         const isBufferResource = (uniformGroup as BufferResource)._bufferResource;
 
-        if (isBufferResource)
+        if (!isBufferResource)
         {
             this._renderer.ubo.updateUniformGroup(uniformGroup as UniformGroup);
         }

@@ -147,7 +147,7 @@ export class Buffer extends EventEmitter<{
 
     private _data: TypedArray;
 
-    private _dataInt32: TypedArray = null;
+    private _dataInt32: Int32Array = null;
 
     /**
      * should the GPU buffer be shrunk when the data becomes smaller?

@@ -565,9 +565,9 @@ export class GlGeometrySystem implements System
 
         instanceCount ||= geometry.instanceCount;
 
-        if (geometry.indexBuffer)
+        if (bvbi)
         {
-            bvbi.drawArrays(glTopology, start || 0, size || geometry.getSize());
+            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getSize(), instanceCount, baseInstance);
 
             return this;
         }

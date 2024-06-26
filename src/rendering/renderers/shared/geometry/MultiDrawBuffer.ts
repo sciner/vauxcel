@@ -21,8 +21,8 @@ export class MultiDrawBuffer extends EventEmitter<{
     constructor(capacity = 64, params?: DrawInstanceParameters)
     {
         super();
-        this.resize(capacity);
         this.params = params;
+        this.resize(capacity);
     }
 
     ensureSize(sz: number)
@@ -45,7 +45,7 @@ export class MultiDrawBuffer extends EventEmitter<{
 
     resize(sz: number, copyOldInfo = true)
     {
-        const oldSize = this.size;
+        const oldSize = this.size || 0;
         const oldCnt = this.counts; const oldOff = this.offsets;
         const oldInst = this.instanceCounts; const oldBaseInst = this.baseInstances;
 

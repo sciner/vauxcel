@@ -15,6 +15,7 @@ export interface WebGLExtensions
     vertexAttribDivisorANGLE?: ANGLE_instanced_arrays;
     multiDraw?: WEBGL_multi_draw;
     multiDrawBvbi?: any;
+    bvbi?: any;
 
     // webgl1 EXT_sRGB
     srgb?: EXT_sRGB;

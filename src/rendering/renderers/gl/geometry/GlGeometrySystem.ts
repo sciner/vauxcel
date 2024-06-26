@@ -513,6 +513,13 @@ export class GlGeometrySystem implements System
         const { gl } = this._renderer;
         const geometry = this._activeGeometry;
 
+        if (this._activeGPS.emulateBaseInstance !== 0)
+        {
+            this.drawBI(topology, size, start, instanceCount, 0);
+
+            return this;
+        }
+
         const glTopology = topologyToGlMap[geometry.topology || topology];
 
         instanceCount ||= geometry.instanceCount;
@@ -543,6 +550,65 @@ export class GlGeometrySystem implements System
         else
         {
             gl.drawArrays(glTopology, start || 0, size || geometry.getSize());
+        }
+
+        return this;
+    }
+
+    public drawBI(topology?: Topology, size?: number, start?: number, instanceCount?: number, baseInstance?: number): this
+    {
+        const geometry = this._activeGeometry;
+
+        const glTopology = topologyToGlMap[geometry.topology || topology];
+
+        const { bvbi } = this._renderer.context.extensions;
+
+        instanceCount ||= geometry.instanceCount;
+
+        if (geometry.indexBuffer)
+        {
+            bvbi.drawArrays(glTopology, start || 0, size || geometry.getSize());
+
+            return this;
+        }
+
+        const { gl, buffer } = this._renderer;
+        const gps = this._activeGPS;
+        const program = this._renderer.shader._activeProgram;
+        const attribSync = this.getGlAttributeBaseCallback(geometry);
+
+        if (!gps.instLocations)
+        {
+            gps.instLocations = program.getLocationListByAttributes(geometry.getInstancedAttributeNames());
+        }
+
+        if (attribSync.bufSyncCount === 0)
+        {
+            const bb = attribSync.bufFirstIndex;
+
+            if (this._activeBB !== geometry.buffers[bb])
+            {
+                this._activeBB = geometry.buffers[bb];
+                buffer.bind(this._activeBB);
+            }
+            if (gps.emulateBaseInstance !== baseInstance)
+            {
+                gps.emulateBaseInstance = baseInstance;
+                attribSync.syncFunc(gl, gps.instLocations, baseInstance);
+            }
+            gl.drawArraysInstanced(glTopology, start, size, instanceCount);
+        }
+        else
+        {
+            const buffers = geometry.buffers;
+
+            if (gps.emulateBaseInstance !== baseInstance)
+            {
+                gps.emulateBaseInstance = baseInstance;
+                this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstance,
+                    buffer, buffers, this._activeBB);
+            }
+            gl.drawArraysInstanced(glTopology, start, size, instanceCount);
         }
 
         return this;

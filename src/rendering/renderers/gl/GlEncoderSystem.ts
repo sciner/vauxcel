@@ -52,11 +52,12 @@ export class GlEncoderSystem implements System
         size?: number;
         start?: number;
         instanceCount?: number;
+        baseInstance?: number;
         skipSync?: boolean;
     })
     {
         const renderer = this._renderer;
-        const { geometry, shader, state, skipSync, topology: type, size, start, instanceCount } = options;
+        const { geometry, shader, state, skipSync, topology: type, size, start, instanceCount, baseInstance } = options;
 
         renderer.shader.bind(shader, skipSync);
 
@@ -67,7 +68,14 @@ export class GlEncoderSystem implements System
             renderer.state.set(state);
         }
 
-        renderer.geometry.draw(type, size, start, instanceCount ?? geometry.instanceCount);
+        if (baseInstance)
+        {
+            renderer.geometry.drawBI(type, size, start, instanceCount ?? geometry.instanceCount, baseInstance);
+        }
+        else
+        {
+            renderer.geometry.draw(type, size, start, instanceCount ?? geometry.instanceCount);
+        }
     }
 
     public multiDraw(options: {

@@ -63,6 +63,11 @@ export interface ContextSystemOptions
      * @memberof rendering.SharedRendererOptions
      */
     preferWebGLVersion?: 1 | 2;
+
+    /**
+     * WebGL depth
+     */
+    depth?: boolean;
 }
 
 /**
@@ -106,6 +111,8 @@ export class GlContextSystem implements System<ContextSystemOptions>
          * @default 2
          */
         preferWebGLVersion: 2,
+
+        depth: false
     };
 
     protected CONTEXT_UID: number;
@@ -203,6 +210,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 alpha,
                 premultipliedAlpha,
                 antialias,
+                depth: options.depth,
                 stencil: true,
                 preserveDrawingBuffer: options.preserveDrawingBuffer,
                 powerPreference: options.powerPreference ?? 'default',

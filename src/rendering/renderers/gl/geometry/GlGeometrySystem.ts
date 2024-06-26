@@ -453,7 +453,7 @@ export class GlGeometrySystem implements System
                 {
                     bufferSystem.bind(buffer);
 
-                    lastBuffer = glBuffer;
+                    lastBuffer = buffer.glData;
                 }
 
                 const location = program_attrib.location;

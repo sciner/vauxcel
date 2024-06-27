@@ -2,6 +2,7 @@ import { Bounds } from '../../../../scene/container/bounds/Bounds';
 import { uid } from '../../../../utils/data/uid';
 import { EventEmitter } from '../../../../utils/event_emitter';
 import { Buffer } from '../buffer/Buffer';
+import { BufferUsage } from '../buffer/const.js';
 import { Attribute, type AttributeOption, ensureIsAttribute } from './Attribute';
 import { ensureIsBuffer } from './utils/ensureIsBuffer';
 import { getAttributeInfoFromFormat } from './utils/getAttributeInfoFromFormat';
@@ -445,7 +446,16 @@ export class Geometry extends EventEmitter<{
             return;
         }
 
-        const ind = this.buffers.indexOf(this.indexBuffer);
+        let ind = -1;
+
+        if (this.indexBuffer)
+        {
+            ind = this.buffers.indexOf(this.indexBuffer);
+        }
+        else if ((this.buffers.at(-1)?.descriptor.usage & BufferUsage.INDEX))
+        {
+            ind = this.buffers.length - 1;
+        }
 
         if (ind < 0)
         {

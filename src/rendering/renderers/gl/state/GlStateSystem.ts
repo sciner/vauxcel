@@ -201,13 +201,15 @@ export class GlStateSystem implements System
         this.gl[value ? 'enable' : 'disable'](this.gl.DEPTH_TEST);
     }
 
+    _last_depth_mask = false;
     /**
      * Sets whether to enable or disable depth mask.
      * @param value - Turn on or off webgl depth mask.
      */
     public setDepthMask(value: boolean): void
     {
-        this.gl.depthMask(value && this._depthCompare !== 'equal');
+        this._last_depth_mask = value && this._depthCompare !== 'equal';
+        this.gl.depthMask(this._last_depth_mask);
     }
 
     /**

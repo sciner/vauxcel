@@ -243,7 +243,21 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
             }
         }
 
+        const toggleDepth = ((clear & CLEAR.DEPTH) > 0
+            && (_renderTarget.depth || _renderTarget.depthStencilTexture)
+            && !this._renderer.state._last_depth_mask);
+
+        if (toggleDepth)
+        {
+            gl.depthMask(true);
+        }
+
         gl.clear(clear);
+
+        if (toggleDepth)
+        {
+            gl.depthMask(false);
+        }
     }
 
     public resizeGpuRenderTarget(renderTarget: RenderTarget)

@@ -655,12 +655,14 @@ export class GlGeometrySystem implements System
             else
             {
                 multiDraw.multiDrawArraysWEBGL(
-                    gl.TRIANGLE_STRIP,
+                    gl_draw_mode,
                     offsets, 0,
                     counts, 0,
                     count,
                 );
             }
+
+            return;
         }
 
         const { multiDrawBvbi } = renderer.context.extensions;

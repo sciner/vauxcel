@@ -634,7 +634,6 @@ export class GlGeometrySystem implements System
         const gl_draw_mode = topologyToGlMap[geometry.topology];
         const { offsets, counts, instanceCounts, baseInstances, count } = mdb;
 
-
         if (!geometry.instanced)
         {
             const { multiDraw } = renderer.context.extensions;

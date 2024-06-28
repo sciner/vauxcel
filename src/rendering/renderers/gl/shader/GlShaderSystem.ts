@@ -93,6 +93,13 @@ export class GlShaderSystem
         }
 
         syncFunction(this._renderer, shader, defaultSyncData);
+
+        // const code = this._renderer.gl.getError();
+
+        // if (code !== 0)
+        // {
+        //     console.warn(`Found gl error on shader bind code=${code}`);
+        // }
     }
 
     /**

@@ -167,6 +167,9 @@ export class Buffer extends EventEmitter<{
 
     public glStatic: boolean;
 
+    public _lastBindBaseLocation: number = -1;
+    public _lastBindCallId: number = -1;
+
     /**
      * Creates a new Buffer with the given options
      * @param options - the options for the buffer

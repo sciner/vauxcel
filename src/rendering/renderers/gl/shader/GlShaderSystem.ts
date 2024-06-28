@@ -47,10 +47,6 @@ export class GlShaderSystem
     private _programDataHash: Record<string, GlProgramData> = Object.create(null);
     private readonly _renderer: WebGLRenderer;
     public _gl: WebGL2RenderingContext;
-    private _maxBindings: number;
-    private _nextIndex = 0;
-    private _boundUniformsIdsToIndexHash: Record<number, number> = Object.create(null);
-    private _boundIndexToUniformsHash: Record<number, UniformGroup | BufferResource> = Object.create(null);
     private _shaderSyncFunctions: Record<string, ShaderSyncFunction> = Object.create(null);
 
     constructor(renderer: WebGLRenderer)
@@ -62,11 +58,7 @@ export class GlShaderSystem
     {
         this._gl = gl;
 
-        this._maxBindings = gl.MAX_UNIFORM_BUFFER_BINDINGS ? gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS) : 0;
-
         this._programDataHash = Object.create(null);
-        this._boundUniformsIdsToIndexHash = Object.create(null);
-        this._boundIndexToUniformsHash = Object.create(null);
         this._activeProgram = null;
     }
 
@@ -92,6 +84,7 @@ export class GlShaderSystem
             syncFunction = this._shaderSyncFunctions[shader.glProgram._key] = this._generateShaderSync(shader, this);
         }
 
+        this._renderer.buffer.nextBindBase();
         syncFunction(this._renderer, shader, defaultSyncData);
 
         // const code = this._renderer.gl.getError();
@@ -129,44 +122,27 @@ export class GlShaderSystem
             this._renderer.ubo.updateUniformGroup(uniformGroup as UniformGroup);
         }
 
-        bufferSystem.updateBuffer(uniformGroup.buffer);
+        const buffer = uniformGroup.buffer;
 
-        let boundIndex = this._boundUniformsIdsToIndexHash[uniformGroup.uid];
+        bufferSystem.updateBuffer(buffer);
 
-        // check if it is already bound..
-        if (boundIndex === undefined)
+        const boundLocation = bufferSystem.freeLocationForBufferBase(buffer);
+
+        if (isBufferResource)
         {
-            const nextIndex = this._nextIndex++ % this._maxBindings;
-
-            const currentBoundUniformGroup = this._boundIndexToUniformsHash[nextIndex];
-
-            if (currentBoundUniformGroup)
-            {
-                this._boundUniformsIdsToIndexHash[currentBoundUniformGroup.uid] = undefined;
-            }
-
-            // find a free slot..
-            boundIndex = this._boundUniformsIdsToIndexHash[uniformGroup.uid] = nextIndex;
-            this._boundIndexToUniformsHash[nextIndex] = uniformGroup;
-
-            if (isBufferResource)
-            {
-                bufferSystem.bindBufferRange(uniformGroup.buffer, nextIndex, (uniformGroup as BufferResource).offset);
-            }
-            else
-            {
-                bufferSystem.bindBufferBase(uniformGroup.buffer, nextIndex);
-            }
+            bufferSystem.bindBufferRange(buffer, boundLocation, (uniformGroup as BufferResource).offset);
         }
-
-        const gl = this._gl;
+        else
+        {
+            bufferSystem.bindBufferBase(buffer, boundLocation);
+        }
 
         const uniformBlockIndex = this._activeProgram._uniformBlockData[name].index;
 
-        if (programData.uniformBlockBindings[index] === boundIndex) return;
-        programData.uniformBlockBindings[index] = boundIndex;
+        if (programData.uniformBlockBindings[index] === boundLocation) return;
+        programData.uniformBlockBindings[index] = boundLocation;
 
-        gl.uniformBlockBinding(programData.program, uniformBlockIndex, boundIndex);
+        this._renderer.gl.uniformBlockBinding(programData.program, uniformBlockIndex, boundLocation);
     }
 
     private _setProgram(program: GlProgram)
@@ -210,7 +186,6 @@ export class GlShaderSystem
         }
 
         this._programDataHash = null;
-        this._boundUniformsIdsToIndexHash = null;
     }
 
     /**

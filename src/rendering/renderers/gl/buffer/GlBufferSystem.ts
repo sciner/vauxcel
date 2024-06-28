@@ -1,6 +1,6 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { BufferUsage } from '../../shared/buffer/const';
-import {BUFFER_TYPE, BUFFER_TYPE_EX} from './const';
+import { BUFFER_TYPE, BUFFER_TYPE_EX } from './const';
 import { GlBuffer } from './GlBuffer';
 
 import type { Buffer } from '../../shared/buffer/Buffer';
@@ -39,9 +39,13 @@ export class GlBufferSystem implements System
     private _gpuBuffers: {[key: number]: GlBuffer} = Object.create(null);
 
     /** Cache keeping track of the base bound buffer bases */
-    private readonly _boundBufferBases: {[key: number]: Buffer} = Object.create(null);
+    readonly _boundBufferBases: {[key: number]: Buffer} = Object.create(null);
 
     private _renderer: WebGLRenderer;
+
+    MIN_BASE_LOCATION = 0;
+    private _maxBindings: number;
+    private _nextBindBaseIndex = this.MIN_BASE_LOCATION;
 
     /**
      * @param {Renderer} renderer - The renderer this System works for.
@@ -65,8 +69,10 @@ export class GlBufferSystem implements System
     /** Sets up the renderer context and necessary buffers. */
     protected contextChange(): void
     {
+        const gl = this._gl = this._renderer.gl;
+
         this._gpuBuffers = Object.create(null);
-        this._gl = this._renderer.gl;
+        this._maxBindings = gl.MAX_UNIFORM_BUFFER_BINDINGS ? gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS) : 0;
     }
 
     public getGlBuffer(buffer: Buffer): GlBuffer
@@ -110,9 +116,82 @@ export class GlBufferSystem implements System
             const glBuffer = this.getGlBuffer(buffer);
 
             this._boundBufferBases[index] = buffer;
+            buffer._lastBindBaseLocation = index;
 
             gl.bindBufferBase(gl.UNIFORM_BUFFER, index, glBuffer.buffer);
         }
+    }
+
+    nextBindBase()
+    {
+        this._bindCallId++;
+    }
+
+    _bindCallId = 0;
+
+    public freeLocationForBufferBase(buffer: Buffer): number
+    {
+        let free_index = this.getLastBindBaseLocation(buffer);
+
+        // check if it is already bound..
+        if (free_index >= this.MIN_BASE_LOCATION)
+        {
+            buffer._lastBindCallId = this._bindCallId;
+
+            return free_index;
+        }
+
+        let loop = 0;
+        let nextIndex = this._nextBindBaseIndex;
+
+        while (loop < 2)
+        {
+            if (nextIndex >= this._maxBindings)
+            {
+                nextIndex = this.MIN_BASE_LOCATION;
+                loop++;
+            }
+
+            const cur_buf = this._boundBufferBases[nextIndex];
+
+            if (cur_buf && cur_buf._lastBindCallId === this._bindCallId)
+            {
+                nextIndex++;
+                continue;
+            }
+            break;
+        }
+
+        free_index = nextIndex;
+        this._nextBindBaseIndex = nextIndex + 1;
+
+        if (loop >= 2)
+        {
+            // TODO: error
+            return -1;
+        }
+
+        buffer._lastBindCallId = this._bindCallId;
+        this._boundBufferBases[free_index] = null;
+
+        return free_index;
+    }
+
+    freeLocationForTransformFeedback()
+    {
+        this._boundBufferBases[0] = null;
+    }
+
+    public getLastBindBaseLocation(buffer: Buffer): number
+    {
+        const index = buffer._lastBindBaseLocation;
+
+        if (this._boundBufferBases[index] === buffer)
+        {
+            return index;
+        }
+
+        return -1;
     }
 
     /**
@@ -121,16 +200,20 @@ export class GlBufferSystem implements System
      * @param buffer - the buffer to bind
      * @param index - the base index to bind at, defaults to 0
      * @param offset - the offset to bind at (this is blocks of 256). 0 = 0, 1 = 256, 2 = 512 etc
+     * @param size - the size to bind at (this is blocks of 256).
      */
-    public bindBufferRange(buffer: Buffer, index?: number, offset?: number): void
+    public bindBufferRange(buffer: Buffer, index?: number, offset?: number, size?: number): void
     {
         const { _gl: gl } = this;
 
         offset = offset || 0;
+        index = index || 0;
+
+        this._boundBufferBases[index] = null;
 
         const glBuffer = this.getGlBuffer(buffer);
 
-        gl.bindBufferRange(gl.UNIFORM_BUFFER, index || 0, glBuffer.buffer, offset * 256, 256);
+        gl.bindBufferRange(gl.UNIFORM_BUFFER, index || 0, glBuffer.buffer, offset * 256, size || 256);
     }
 
     /**

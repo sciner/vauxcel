@@ -81,6 +81,8 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
 
         let viewPortY = viewport.y;
 
+        this._renderer.state.setSwapWinding(!renderTarget.isRoot);
+
         if (renderTarget.isRoot)
         {
             // /TODO this is the same logic?

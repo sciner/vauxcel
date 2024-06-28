@@ -43,7 +43,7 @@ export class GpuStateSystem implements System
      */
     protected defaultState: State;
 
-    _swapWinding = false;
+    _swapWinding = true;
 
     depthCompare: GPUCompareFunction = 'less-equal';
 

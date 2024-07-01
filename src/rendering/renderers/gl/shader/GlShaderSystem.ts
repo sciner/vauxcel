@@ -84,7 +84,7 @@ export class GlShaderSystem
             syncFunction = this._shaderSyncFunctions[shader.glProgram._key] = this._generateShaderSync(shader, this);
         }
 
-        this._renderer.buffer.nextBindBase();
+        this._renderer.buffer.nextBindBase(!!shader.glProgram.transformFeedbackVaryings);
         syncFunction(this._renderer, shader, defaultSyncData);
 
         // const code = this._renderer.gl.getError();
@@ -132,8 +132,9 @@ export class GlShaderSystem
         {
             bufferSystem.bindBufferRange(buffer, boundLocation, (uniformGroup as BufferResource).offset);
         }
-        else
+        else if (bufferSystem.getLastBindBaseLocation(buffer) !== boundLocation)
         {
+            // confirmation that buffer isn't there yet
             bufferSystem.bindBufferBase(buffer, boundLocation);
         }
 

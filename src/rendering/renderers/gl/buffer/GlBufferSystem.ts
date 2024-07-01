@@ -43,7 +43,7 @@ export class GlBufferSystem implements System
 
     private _renderer: WebGLRenderer;
 
-    MIN_BASE_LOCATION = 0;
+    MIN_BASE_LOCATION = 1;
     private _maxBindings: number;
     private _nextBindBaseIndex = this.MIN_BASE_LOCATION;
 
@@ -122,9 +122,19 @@ export class GlBufferSystem implements System
         }
     }
 
-    nextBindBase()
+    nextBindBase(hasTransformFeedback: boolean)
     {
         this._bindCallId++;
+        this.MIN_BASE_LOCATION = 0;
+        if (hasTransformFeedback)
+        {
+            this._boundBufferBases[0] = null;
+            this.MIN_BASE_LOCATION = 1;
+            if (this._nextBindBaseIndex < 1)
+            {
+                this._nextBindBaseIndex = 1;
+            }
+        }
     }
 
     _bindCallId = 0;
@@ -175,11 +185,6 @@ export class GlBufferSystem implements System
         this._boundBufferBases[free_index] = null;
 
         return free_index;
-    }
-
-    freeLocationForTransformFeedback()
-    {
-        this._boundBufferBases[0] = null;
     }
 
     public getLastBindBaseLocation(buffer: Buffer): number

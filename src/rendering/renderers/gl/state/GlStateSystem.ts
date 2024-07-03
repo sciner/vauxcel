@@ -227,7 +227,9 @@ export class GlStateSystem implements System
      */
     public setFrontFace(value: boolean): void
     {
-        this.gl.frontFace(this.gl[value ? 'CW' : 'CCW']);
+        const swapped = value !== this._swapWinding;
+
+        this.gl.frontFace(this.gl[swapped ? 'CW' : 'CCW']);
     }
 
     /**
@@ -359,7 +361,7 @@ export class GlStateSystem implements System
         }
 
         this._swapWinding = value;
-        this.setFrontFace(this._swapWinding !== State.isStateClockwiseFrontFace(this.stateId));
+        this.setFrontFace(State.isStateClockwiseFrontFace(this.stateId));
     }
 
     public getCullMode(state: State): CULL_MODES

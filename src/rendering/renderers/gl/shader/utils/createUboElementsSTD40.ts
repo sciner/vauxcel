@@ -45,8 +45,9 @@ export function createUboElementsSTD40(uniformData: UniformData[]): UboLayout
             size: 0,
         }));
 
+    const chunkSize = 16;
+
     let size = 0;
-    let chunkSize = 0;
     let offset = 0;
 
     for (let i = 0; i < uboElements.length; i++)
@@ -62,35 +63,26 @@ export function createUboElementsSTD40(uniformData: UniformData[]): UboLayout
 
         if (uboElement.data.size > 1)
         {
-            size = Math.max(size, 16) * uboElement.data.size;
+            size = Math.max(size, chunkSize) * uboElement.data.size;
         }
+
+        const boundary = size === 12 ? 16 : size;
 
         uboElement.size = size;
 
-        // add some size offset..
-        // must align to the nearest 16 bytes or internally nearest round size
-        if (chunkSize % size !== 0 && chunkSize < 16)
-        {
-            // diff required to line up..
-            const lineUpValue = (chunkSize % size) % 16;
+        const cur_offset = offset % chunkSize;
 
-            chunkSize += lineUpValue;
-            offset += lineUpValue;
-        }
-
-        if ((chunkSize + size) > 16)
+        if (cur_offset > 0 && chunkSize - cur_offset < boundary)
         {
-            offset = Math.ceil(offset / 16) * 16;
-            uboElement.offset = offset;
-            offset += size;
-            chunkSize = size;
+            offset += (chunkSize - cur_offset) % 16;
         }
         else
         {
-            uboElement.offset = offset;
-            chunkSize += size;
-            offset += size;
+            offset += (size - (cur_offset % size)) % size;
         }
+
+        uboElement.offset = offset;
+        offset += size;
     }
 
     offset = Math.ceil(offset / 16) * 16;

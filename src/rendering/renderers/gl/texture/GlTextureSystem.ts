@@ -258,6 +258,28 @@ export class GlTextureSystem implements System, CanvasGenerator
         return glTexture;
     }
 
+    private setLocationAuto(source: TextureSource, bind_gl_tex: GlTexture = null)
+    {
+        if (source._glLastBindLocation >= 0)
+        {
+            this._activateLocation(source._glLastBindLocation);
+        }
+        else
+        {
+            // TODO: choose something else, rotate locations 8-16?
+            source._glLastBindLocation = this._activeTextureLocation;
+        }
+
+        if (bind_gl_tex)
+        {
+            if (this._boundTextures[this._activeTextureLocation] !== source)
+            {
+                this._renderer.gl.bindTexture(bind_gl_tex.target, bind_gl_tex.texture);
+                this._boundTextures[this._activeTextureLocation] = source
+            }
+        }
+    }
+
     private _initSource(source: TextureSource, uploader: GLTextureUploader): GlTexture
     {
         const gl = this._renderer.gl;
@@ -274,7 +296,7 @@ export class GlTextureSystem implements System, CanvasGenerator
 
             this.managedTextures.set(source.uid, source);
         }
-
+        this.setLocationAuto(source);
         gl.bindTexture(glTexture.target, glTexture.texture);
         if (!source.glMutableSize && uploader.storage)
         {
@@ -292,18 +314,7 @@ export class GlTextureSystem implements System, CanvasGenerator
 
         const glTexture = this.getGlSource(source);
 
-        if (source._glLastBindLocation >= 0)
-        {
-            this._activateLocation(source._glLastBindLocation);
-        }
-        else
-        {
-            source._glLastBindLocation = this._activeTextureLocation;
-        }
-
-        gl.bindTexture(glTexture.target, glTexture.texture);
-
-        this._boundTextures[this._activeTextureLocation] = source;
+        this.setLocationAuto(source, glTexture);
 
         uploader.upload(source, glTexture, gl, this._renderer.context.webGLVersion);
 
@@ -328,18 +339,7 @@ export class GlTextureSystem implements System, CanvasGenerator
 
         const glTexture = this.getGlSource(source);
 
-        if (source._glLastBindLocation >= 0)
-        {
-            this._activateLocation(source._glLastBindLocation);
-        }
-        else
-        {
-            source._glLastBindLocation = this._activeTextureLocation;
-        }
-
-        gl.bindTexture(glTexture.target, glTexture.texture);
-
-        this._boundTextures[this._activeTextureLocation] = source;
+        this.setLocationAuto(source, glTexture);
 
         applyStyleParams(
             source.style,
@@ -404,6 +404,10 @@ export class GlTextureSystem implements System, CanvasGenerator
         uploader.storage(source, glTexture, gl);
         uploader.copyTex(source, glTexture, gl, old_tex);
         gl.deleteTexture(old_tex.texture);
+
+        // TODO: whether upload new data after copying old?
+        uploader.upload(source, glTexture, gl, 2);
+        source.markValid();
 
         if (source.autoGenerateMipmaps && source.mipLevelCount > 1)
         {

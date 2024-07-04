@@ -82,22 +82,22 @@ export class MultiDrawBuffer extends EventEmitter<{
             return;
         }
 
-        const { offsets, counts, count } = this;
+        const { offsets, counts, baseInstances, instanceCounts, count } = this;
 
         if (params.indexPerInstance > 0)
         {
             for (let j = 0; j < count; j++)
             {
-                offsets[j] *= params.indexPerInstance * 4;
-                counts[j] *= params.indexPerInstance;
+                offsets[j] = baseInstances[j] * params.indexPerInstance * 4;
+                counts[j] = instanceCounts[j] * params.indexPerInstance;
             }
         }
         else
         {
             for (let j = 0; j < count; j++)
             {
-                offsets[j] *= params.vertexPerInstance;
-                counts[j] *= params.vertexPerInstance;
+                offsets[j] = baseInstances[j] * params.vertexPerInstance;
+                counts[j] = instanceCounts[j] * params.vertexPerInstance;
             }
         }
     }

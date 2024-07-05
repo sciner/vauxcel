@@ -31,11 +31,13 @@ export class MultiDrawBuffer extends EventEmitter<{
         {
             return;
         }
-        while (sz > this.size)
+        let new_size = this.size;
+
+        while (sz > new_size)
         {
-            this.size *= 2;
+            new_size *= 2;
         }
-        this.resize(this.size);
+        this.resize(new_size);
     }
 
     update()

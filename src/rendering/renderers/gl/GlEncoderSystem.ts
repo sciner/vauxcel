@@ -112,7 +112,7 @@ export class GlEncoderSystem implements System
     }
 
     multiCopyBuffer(src: Buffer, target: Buffer,
-        strideBytes: number, copies: Array<BufferCopyOperation>, copyCount?: number): void
+        strideBytes: number, copies: Array<BufferCopyOperation>, copyCount = copies.length): void
     {
         if (this.copier?.doCopy(this._renderer, src, target, strideBytes, copies, copyCount))
         {

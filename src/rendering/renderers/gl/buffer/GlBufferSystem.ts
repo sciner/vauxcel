@@ -298,6 +298,8 @@ export class GlBufferSystem implements System
     {
         const glBuffer = this._gpuBuffers[buffer.uid];
 
+        buffer.glData = null;
+
         const gl = this._gl;
 
         if (!contextLost)
@@ -330,6 +332,7 @@ export class GlBufferSystem implements System
 
         const glBuffer = new GlBuffer(gl.createBuffer(), type);
 
+        buffer.glData = glBuffer;
         this._gpuBuffers[buffer.uid] = glBuffer;
 
         buffer.on('destroy', this.onBufferDestroy, this);

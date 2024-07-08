@@ -102,8 +102,6 @@ export interface FilterOptions
     blendRequired?: boolean;
 
     autoFit?: boolean;
-
-    colorFormat?: FilterColorFormat
 }
 
 /** Filter options mixed with shader resources. A filter needs a shader and some resources to work. */
@@ -119,8 +117,6 @@ export type FilterWithShader = FilterOptions & IShaderWithResources;
 export type FilterAntialias = 'on' | 'off' | 'inherit';
 
 export type FilterClearMode = 'blend' | 'clear' | 'auto';
-
-export type FilterColorFormat = 'bgra8unorm' | 'rgba16float' | 'inherit';
 
 /**
  * The Filter class is the base for all filter effects used in Pixi.js
@@ -162,7 +158,6 @@ export class Filter extends Shader
         resolution: 1,
         padding: 0,
         antialias: 'off',
-        colorFormat: 'bgra8unorm',
         blendRequired: false,
         autoFit: true,
         hdr: false
@@ -212,8 +207,6 @@ export class Filter extends Shader
 
     public autoFit: boolean;
 
-    public colorFormat: FilterColorFormat;
-
     public clearBits = CLEAR.ALL;
 
     /**
@@ -240,7 +233,6 @@ export class Filter extends Shader
         this.resolution = options.resolution;
         this.blendRequired = options.blendRequired;
         this.autoFit = options.autoFit;
-        this.colorFormat = options.colorFormat;
         this.hdr = options.hdr;
 
         this.addResource('uTexture', 0, 1);

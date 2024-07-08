@@ -367,8 +367,7 @@ export class FilterSystem implements System
         if (filters.length === 1)
         {
             // render a single filter...
-            // this.applyFilter(filters[0], inputTexture, filterData.previousRenderSurface, false);
-            filters[0].apply(this, inputTexture, filterData.previousRenderSurface, 'clear');
+            filters[0].apply(this, inputTexture, filterData.previousRenderSurface, 'blend');
 
             // return the texture to the pool so we can reuse the next frame
             TexturePool.returnTexture(inputTexture);

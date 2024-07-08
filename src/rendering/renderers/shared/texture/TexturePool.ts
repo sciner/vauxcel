@@ -277,8 +277,8 @@ export class TexturePoolClass
 
         const { screenAlign, screenPadding } = this;
 
-        this._pixelsWidth = Math.ceil((size.width + screenPadding + screenAlign) / screenAlign) * screenAlign;
-        this._pixelsHeight = Math.ceil((size.height + screenPadding + screenAlign) / screenAlign) * screenAlign;
+        this._pixelsWidth = Math.ceil((size.width + screenPadding) / screenAlign) * screenAlign;
+        this._pixelsHeight = Math.ceil((size.height + screenPadding) / screenAlign) * screenAlign;
     }
 }
 

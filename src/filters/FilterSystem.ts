@@ -104,7 +104,7 @@ export class FilterSystem implements System
     private _filterStackIndex = 0;
     private _filterStack: FilterData[] = [];
 
-    public forceClear = false;
+    public forceClear = true;
 
     private readonly _filterGlobalUniforms = new UniformGroup({
         uInputSize: { value: new Float32Array(4), type: 'vec4<f32>' },
@@ -121,7 +121,7 @@ export class FilterSystem implements System
     constructor(renderer: Renderer)
     {
         this.renderer = renderer;
-        this.forceClear = renderer.type === RendererType.WEBGPU;
+        // this.forceClear = renderer.type === RendererType.WEBGPU;
     }
 
     /**
@@ -307,7 +307,7 @@ export class FilterSystem implements System
             hdr
         );
 
-        renderer.renderTarget.bind(filterData.inputTexture, true);
+        renderer.renderTarget.push(filterData.inputTexture, true);
         // set the global uniforms to take into account the bounds offset required
 
         renderer.globalUniforms.push({
@@ -363,6 +363,7 @@ export class FilterSystem implements System
         this._globalFilterBindGroup.setResource(backTexture.source, 3);
 
         renderer.globalUniforms.pop();
+        renderer.renderTarget.pop(false);
 
         if (filters.length === 1)
         {

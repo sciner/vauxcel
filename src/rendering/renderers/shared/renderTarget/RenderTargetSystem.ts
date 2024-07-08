@@ -364,13 +364,16 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     }
 
     /** Pops the current render target from the renderer and restores the previous render target. */
-    public pop()
+    public pop(bind_gl = true)
     {
         this._renderTargetStack.pop();
 
         const currentRenderTargetData = this._renderTargetStack[this._renderTargetStack.length - 1];
 
-        this.bind(currentRenderTargetData.renderTarget, false, null, currentRenderTargetData.frame);
+        if (bind_gl)
+        {
+            this.bind(currentRenderTargetData.renderTarget, false, null, currentRenderTargetData.frame);
+        }
     }
 
     /**

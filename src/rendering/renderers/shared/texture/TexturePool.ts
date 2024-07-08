@@ -76,16 +76,22 @@ export class TexturePoolClass
      */
     public createTexture(pixelWidth: number, pixelHeight: number, antialias: boolean, hdr: boolean): Texture
     {
-        const textureSource = new TextureSource({
+        const options = {
             ...this.textureOptions,
 
             width: pixelWidth,
             height: pixelHeight,
             resolution: 1,
             antialias,
-            format: hdr ? 'rgba16float' : undefined,
             autoGarbageCollect: true,
-        });
+        };
+
+        if (hdr)
+        {
+            options.format = 'rgba16float';
+        }
+
+        const textureSource = new TextureSource(options);
 
         return new Texture({
             source: textureSource,
@@ -100,9 +106,11 @@ export class TexturePoolClass
      * @param resolution - The resolution of the render texture.
      * @param antialias
      * @param hdr
+     * @param ignoreScreen
      * @returns The new render texture.
      */
-    public getOptimalTexture(frameWidth: number, frameHeight: number, resolution = 1, antialias: boolean, hdr: boolean): Texture
+    public getOptimalTexture(frameWidth: number, frameHeight: number, resolution = 1,
+        antialias: boolean, hdr: boolean, ignoreScreen = false): Texture
     {
         let width = Math.ceil((frameWidth * resolution) - 1e-6);
         let height = Math.ceil((frameHeight * resolution) - 1e-6);
@@ -112,7 +120,7 @@ export class TexturePoolClass
 
         let sign: number;
 
-        if (width < this.screenThreshold || height < this.screenThreshold
+        if (ignoreScreen || width < this.screenThreshold || height < this.screenThreshold
             || width > screenWidth || height > screenHeight)
         {
             width = nextPow2(width);
@@ -189,8 +197,16 @@ export class TexturePoolClass
     public returnTexture(renderTexture: Texture): void
     {
         const key = this._poolKeyHash[renderTexture.uid];
+        const arr = this._texturePool[key];
 
-        this._texturePool[key].push(renderTexture);
+        if (arr)
+        {
+            arr.push(renderTexture);
+        }
+        else
+        {
+            renderTexture.destroy(true);
+        }
     }
 
     /**
@@ -251,6 +267,8 @@ export class TexturePoolClass
                         textures[j].destroy(true);
                     }
                 }
+
+                delete this._texturePool[i];
             }
         }
 

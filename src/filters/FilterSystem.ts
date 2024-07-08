@@ -68,6 +68,7 @@ export interface FilterInstruction extends Instruction
     container?: Container,
     renderables?: Renderable[],
     filterEffect: FilterEffect,
+    useScreenSize?: boolean
 }
 
 export interface FilterData
@@ -162,7 +163,12 @@ export class FilterSystem implements System
         // this path is used by the blend modes mostly!
         // they collect all renderables and push them into a list.
         // this list is then used to calculate the bounds of the filter area
-        if (instruction.renderables)
+        if (instruction.useScreenSize)
+        {
+            bounds.clear();
+            bounds.addRect(this.renderer.screen);
+        }
+        else if (instruction.renderables)
         {
             getGlobalRenderableBounds(instruction.renderables, bounds);
         }
@@ -202,6 +208,8 @@ export class FilterSystem implements System
 
         let autoFit = false;
 
+        let hdr = false;
+
         for (let i = 0; i < filters.length; i++)
         {
             const filter = filters[i];
@@ -219,6 +227,10 @@ export class FilterSystem implements System
                 {
                     antialias = false;
                 }
+            }
+            if (filter.hdr)
+            {
+                hdr = true;
             }
 
             const isCompatible = !!(filter.compatibleRenderers & renderer.type);
@@ -292,6 +304,7 @@ export class FilterSystem implements System
             bounds.height,
             resolution,
             antialias,
+            hdr
         );
 
         renderer.renderTarget.bind(filterData.inputTexture, true);
@@ -369,7 +382,8 @@ export class FilterSystem implements System
                 bounds.width,
                 bounds.height,
                 flip.source._resolution,
-                false
+                false,
+                filters[1].hdr
             );
 
             let i = 0;
@@ -409,6 +423,7 @@ export class FilterSystem implements System
             bounds.height,
             backgroundResolution,
             false,
+            lastRenderSurface.colorTexture.source.isHdr(),
         );
 
         let x = bounds.minX;
@@ -653,7 +668,7 @@ export class FilterSystem implements System
 
         input = input || this._activeFilterData.inputTexture;
 
-        return TexturePool.getOptimalTexture(input.width, input.height, resolution || input.source.resolution, false);
+        return TexturePool.getOptimalTexture(input.width, input.height, resolution || input.source.resolution, false, input.source.isHdr());
     }
 
     returnFilterTexture(tex: Texture): void

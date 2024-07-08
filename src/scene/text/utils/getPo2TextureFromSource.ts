@@ -34,7 +34,9 @@ export function getPo2TextureFromSource(
         bounds.width,
         bounds.height,
         resolution,
-        false
+        false,
+        false,
+        true
     );
 
     texture.source.uploadMethodId = 'image';

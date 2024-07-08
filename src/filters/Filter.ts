@@ -90,6 +90,10 @@ export interface FilterOptions
      */
     antialias?: FilterAntialias | boolean;
     /**
+     * Filter requires HDR input
+     */
+    hdr?: boolean;
+    /**
      * If this is set to true, the filter system will grab a snap shot oif the are being rendered
      * to and pass this into the shader. This is useful for blend modes that need to be aware of the pixels
      * they are rendering to. Only use if you need that data, otherwise its an extra gpu copy you don't need!
@@ -160,7 +164,8 @@ export class Filter extends Shader
         antialias: 'off',
         colorFormat: 'bgra8unorm',
         blendRequired: false,
-        autoFit: true
+        autoFit: true,
+        hdr: false
     };
 
     /**
@@ -176,6 +181,11 @@ export class Filter extends Shader
      * @default inherit
      */
     public antialias: FilterAntialias;
+
+    /**
+     * Filter requires HDR input
+     */
+    public hdr: boolean;
 
     /** If enabled is true the filter is applied, if false it will not. */
     public enabled = true;
@@ -231,6 +241,7 @@ export class Filter extends Shader
         this.blendRequired = options.blendRequired;
         this.autoFit = options.autoFit;
         this.colorFormat = options.colorFormat;
+        this.hdr = options.hdr;
 
         this.addResource('uTexture', 0, 1);
     }

@@ -604,4 +604,9 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     glUploader?: GLTextureUploader = undefined;
     gpuUploader?: GpuTextureUploader = undefined;
     public depth: number;
+
+    isHdr()
+    {
+        return this.format === 'rgba16float'
+    }
 }

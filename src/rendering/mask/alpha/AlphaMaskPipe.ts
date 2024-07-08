@@ -161,6 +161,7 @@ export class AlphaMaskPipe implements InstructionPipe<AlphaMaskInstruction>
                     bounds.width,
                     bounds.height,
                     1,
+                    false,
                     false
                 );
 

@@ -184,6 +184,8 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     /** A reference to the renderer */
     private readonly _renderer: Renderer;
 
+    public forceDepthTexture: TextureSource = null;
+
     constructor(renderer: Renderer)
     {
         this._renderer = renderer;

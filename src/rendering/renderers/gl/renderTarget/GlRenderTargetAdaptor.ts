@@ -125,6 +125,30 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
             this._initStencil(gpuRenderTarget);
         }
 
+        const dst = renderTarget.depthStencilTexture || renderTargetSystem.forceDepthTexture;
+
+        if (dst)
+        {
+            if (gpuRenderTarget.attachedDepthTexture !== dst)
+            {
+                gpuRenderTarget.attachedDepthTexture = dst
+                if (!dst._glTexture)
+                {
+                    this._renderer.texture.bind(dst, 0);
+                    this._renderer.texture.bind(null, 0);
+                }
+                // TODO: DEPTH_STENCIL_ATTACHMENT case!
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, dst._glTexture.texture, 0);
+            }
+        }
+        else if (gpuRenderTarget.attachedDepthTexture)
+        {
+            // ... WTF?
+            console.warn('Using render target with wrong attached depth texture!');
+            gpuRenderTarget.attachedDepthTexture = null;
+            // gl.framebufferTexture2D(gl.TEXTURE_2D, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, dst._glTexture, 0);
+        }
+
         this.clear(renderTarget, clear, clearColor);
     }
 

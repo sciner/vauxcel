@@ -113,6 +113,9 @@ export class FilterSystem implements System
         uOutputFrame: { value: new Float32Array(4), type: 'vec4<f32>' },
         uGlobalFrame: { value: new Float32Array(4), type: 'vec4<f32>' },
         uOutputTexture: { value: new Float32Array(4), type: 'vec4<f32>' },
+        uFrameSize: { value: new Float32Array(4), type: 'vec4<f32>' },
+        uShift: { value: new Float32Array(4), type: 'vec4<f32>' },
+        uOutputSize: { value: new Float32Array(4), type: 'vec4<f32>' },
     });
 
     private readonly _globalFilterBindGroup: BindGroup = new BindGroup({});
@@ -492,6 +495,9 @@ export class FilterSystem implements System
         const inputClamp = uniforms.uInputClamp;
         const globalFrame = uniforms.uGlobalFrame;
         const outputTexture = uniforms.uOutputTexture;
+        const frameSize = uniforms.uFrameSize;
+        const shift = uniforms.uShift;
+        const outputSize = uniforms.uOutputSize;
 
         // are we rendering back to the original surface?
         if (isFinalTarget)
@@ -513,8 +519,8 @@ export class FilterSystem implements System
                 }
             }
 
-            outputFrame[0] = bounds.minX - offset.x;
-            outputFrame[1] = bounds.minY - offset.y;
+            outputFrame[0] = shift[2] = bounds.minX - offset.x;
+            outputFrame[1] = shift[3] = bounds.minY - offset.y;
         }
         else
         {
@@ -524,6 +530,8 @@ export class FilterSystem implements System
 
         outputFrame[2] = input.frame.width;
         outputFrame[3] = input.frame.height;
+        frameSize[0] = input.frame.width;
+        frameSize[1] = input.frame.height;
 
         inputSize[0] = input.source.width;
         inputSize[1] = input.source.height;
@@ -561,22 +569,27 @@ export class FilterSystem implements System
         {
             const doClear = (clear === 'clear' || (clear === 'auto' && this.forceClear));
 
-            renderer.renderTarget.bind(output, doClear ? filter.clearBits : false);
+            renderer.renderTarget.bind(renderTarget, doClear ? filter.clearBits : false);
         }
 
         if (output instanceof Texture)
         {
-            outputTexture[0] = output.frame.width;
-            outputTexture[1] = output.frame.height;
+            outputTexture[0] = frameSize[2] = output.frame.width;
+            outputTexture[1] = frameSize[3] = output.frame.height;
+            outputSize[0] = output.source.width;
+            outputSize[1] = output.source.height;
         }
         else
         {
             // this means a renderTarget was passed directly
-            outputTexture[0] = renderTarget.width;
-            outputTexture[1] = renderTarget.height;
+            outputTexture[0] = outputSize[0] = renderTarget.width;
+            outputTexture[1] = outputSize[1] = renderTarget.height;
         }
-
         outputTexture[2] = renderTarget.isRoot ? -1 : 1;
+        outputSize[1] *= outputTexture[2];
+        outputSize[2] = 1.0 / outputSize[0];
+        outputSize[3] = 1.0 / outputSize[1];
+
         filterUniforms.update();
 
         // TODO - should prolly use a adaptor...

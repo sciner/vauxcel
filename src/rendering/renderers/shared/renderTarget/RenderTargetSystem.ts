@@ -38,6 +38,7 @@ interface RenderTargetAndFrame
     renderTarget: RenderTarget;
     /** the frame to use when using the render target */
     frame: Rectangle
+    depthTexture?: TextureSource
 }
 
 /**
@@ -184,7 +185,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     /** A reference to the renderer */
     private readonly _renderer: Renderer;
 
-    public forceDepthTexture: TextureSource = null;
+    public attachedDepthTexture: TextureSource = null;
 
     constructor(renderer: Renderer)
     {
@@ -242,13 +243,15 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
      * @param clear - the clear mode to use. Can be true or a CLEAR number 'COLOR | DEPTH | STENCIL' 0b111
      * @param clearColor - the color to clear to
      * @param frame - the frame to render to
+     * @param depthTexture - special depth texture
      * @returns the render target that was bound
      */
     public bind(
         renderSurface: RenderSurface,
         clear: CLEAR_OR_BOOL = true,
         clearColor?: RgbaArray,
-        frame?: Rectangle
+        frame?: Rectangle,
+        depthTexture?: TextureSource
     ): RenderTarget
     {
         const renderTarget = this.getRenderTarget(renderSurface);
@@ -305,6 +308,10 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
             !renderTarget.isRoot
         );
 
+        this.attachedDepthTexture = renderTarget.depthStencilTexture || depthTexture;
+
+        this.attachedDepthTexture?.resize(renderTarget.pixelWidth, renderTarget.pixelHeight);
+
         this.adaptor.startRenderPass(renderTarget, clear, clearColor, viewport);
 
         if (didChange)
@@ -347,34 +354,42 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
      * @param clear - the clear mode to use. Can be true or a CLEAR number 'COLOR | DEPTH | STENCIL' 0b111
      * @param clearColor - the color to clear to
      * @param frame - the frame to use when rendering to the render surface
+     * @param depthTexture - special depth texture
      */
     public push(
         renderSurface: RenderSurface,
         clear: CLEAR | boolean = CLEAR.ALL,
         clearColor?: RgbaArray,
-        frame?: Rectangle
+        frame?: Rectangle,
+        depthTexture?: TextureSource
     )
     {
-        const renderTarget = this.bind(renderSurface, clear, clearColor, frame);
+        const renderTarget = this.bind(renderSurface, clear, clearColor, frame, depthTexture);
 
         this._renderTargetStack.push({
             renderTarget,
             frame,
+            depthTexture
         });
 
         return renderTarget;
     }
 
+    public bindFromStack(reverseInd: number)
+    {
+        const currentRenderTargetData = this._renderTargetStack[this._renderTargetStack.length - reverseInd - 1];
+
+        this.bind(currentRenderTargetData.renderTarget, false, null, currentRenderTargetData.frame,
+            currentRenderTargetData.depthTexture);
+    }
+
     /** Pops the current render target from the renderer and restores the previous render target. */
-    public pop(bind_gl = true)
+    public pop(do_bind = true)
     {
         this._renderTargetStack.pop();
-
-        const currentRenderTargetData = this._renderTargetStack[this._renderTargetStack.length - 1];
-
-        if (bind_gl)
+        if (do_bind)
         {
-            this.bind(currentRenderTargetData.renderTarget, false, null, currentRenderTargetData.frame);
+            this.bindFromStack(0);
         }
     }
 

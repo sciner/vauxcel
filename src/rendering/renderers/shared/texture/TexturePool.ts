@@ -36,8 +36,8 @@ export class TexturePoolClass
     // Those are screen-related options
     private _screenWidth = 0;
     private _screenHeight = 0;
-    private _pixelsWidth = 0;
-    private _pixelsHeight = 0;
+    _pixelsWidth = 0;
+    _pixelsHeight = 0;
     /**
      * all textures bigger than that will have screen-pow2 size
      */
@@ -120,7 +120,7 @@ export class TexturePoolClass
 
         let sign: number;
 
-        if (ignoreScreen || width < this.screenThreshold || height < this.screenThreshold
+        if (ignoreScreen || width <= this.screenThreshold || height <= this.screenThreshold
             || width > screenWidth || height > screenHeight)
         {
             width = nextPow2(width);

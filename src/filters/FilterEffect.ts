@@ -1,4 +1,5 @@
 import type { Rectangle } from '../maths/shapes/Rectangle';
+import type { TextureSource } from '../rendering/renderers/shared/texture/sources/TextureSource';
 import type { Effect } from '../scene/container/Effect';
 import type { Filter } from './Filter';
 
@@ -21,6 +22,10 @@ export class FilterEffect implements Effect
     public pipe = 'filter';
     /** the priority of this effect */
     public priority = 1;
+
+    useScreenSize = false;
+    clearDepth = false;
+    depthTexture: TextureSource = null;
 
     public destroy(): void
     {

@@ -78,16 +78,7 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
 
         const source = renderTarget.colorTexture;
         const gpuRenderTarget = renderTargetSystem.getGpuRenderTarget(renderTarget);
-        const depthTexture = renderTarget.depthStencilTexture || renderTargetSystem.forceDepthTexture;
-
-        // TODO: if attached depth , but this depth is null - re-init framebuffer
-        if (!depthTexture && gpuRenderTarget.attachedDepthTexture)
-        {
-            // ... WTF?
-            console.warn('Using render target with wrong attached depth texture!');
-            gpuRenderTarget.attachedDepthTexture = null;
-            // gl.framebufferTexture2D(gl.TEXTURE_2D, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture._glTexture, 0);
-        }
+        const depthTexture = renderTargetSystem.attachedDepthTexture;
 
         let viewPortY = viewport.y;
 
@@ -127,6 +118,15 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
                 viewport.width,
                 viewport.height,
             );
+        }
+
+        // TODO: if attached depth , but this depth is null - re-init framebuffer
+        if (!depthTexture && gpuRenderTarget.attachedDepthTexture)
+        {
+            // ... WTF?
+            // console.warn('Using render target with wrong attached depth texture!');
+            gpuRenderTarget.attachedDepthTexture = null;
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, null, 0);
         }
 
         // if the stencil buffer has been requested, we need to create a stencil buffer
@@ -272,7 +272,7 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
         }
 
         const toggleDepth = ((clear & CLEAR.DEPTH) > 0
-            && (_renderTarget.depth || _renderTarget.depthStencilTexture)
+            && (_renderTarget.depth || renderTargetSystem.attachedDepthTexture)
             && !this._renderer.state._last_depth_mask);
 
         if (toggleDepth)

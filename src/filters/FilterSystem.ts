@@ -1,6 +1,7 @@
 import { ExtensionType } from '../extensions/Extensions';
 import { Matrix } from '../maths/matrix/Matrix';
 import { Point } from '../maths/point/Point';
+import { CLEAR } from '../rendering/renderers/gl/const.js';
 import { BindGroup } from '../rendering/renderers/gpu/shader/BindGroup';
 import { Geometry } from '../rendering/renderers/shared/geometry/Geometry';
 import { UniformGroup } from '../rendering/renderers/shared/shader/UniformGroup';
@@ -68,7 +69,6 @@ export interface FilterInstruction extends Instruction
     container?: Container,
     renderables?: Renderable[],
     filterEffect: FilterEffect,
-    useScreenSize?: boolean
 }
 
 export interface FilterData
@@ -137,7 +137,8 @@ export class FilterSystem implements System
     {
         const renderer = this.renderer;
 
-        const filters = instruction.filterEffect.filters;
+        const { filterEffect } = instruction;
+        const { filters } = filterEffect;
 
         if (!this._filterStack[this._filterStackIndex])
         {
@@ -163,7 +164,7 @@ export class FilterSystem implements System
         // this path is used by the blend modes mostly!
         // they collect all renderables and push them into a list.
         // this list is then used to calculate the bounds of the filter area
-        if (instruction.useScreenSize)
+        if (filterEffect.useScreenSize)
         {
             bounds.clear();
             bounds.addRect(this.renderer.screen);
@@ -173,7 +174,7 @@ export class FilterSystem implements System
             getGlobalRenderableBounds(instruction.renderables, bounds);
         }
         // if a filterArea is provided, we save our selves some measuring and just use that area supplied
-        else if (instruction.filterEffect.filterArea)
+        else if (filterEffect.filterArea)
         {
             bounds.clear();
 
@@ -307,7 +308,8 @@ export class FilterSystem implements System
             hdr
         );
 
-        renderer.renderTarget.push(filterData.inputTexture, true);
+        renderer.renderTarget.push(filterData.inputTexture, filterEffect.clearDepth ? true : CLEAR.COLOR,
+            undefined, undefined, filterEffect.depthTexture);
         // set the global uniforms to take into account the bounds offset required
 
         renderer.globalUniforms.push({
@@ -549,9 +551,18 @@ export class FilterSystem implements System
         // set the output texture - this is where we are going to render to
 
         const renderTarget = this.renderer.renderTarget.getRenderTarget(output);
-        const doClear = (clear === 'clear' || (clear === 'auto' && this.forceClear));
 
-        renderer.renderTarget.bind(output, doClear ? filter.clearBits : false);
+        if (isFinalTarget)
+        {
+            // TODO: might be a problem if output target is input to one of filters
+            renderer.renderTarget.bindFromStack(0);
+        }
+        else
+        {
+            const doClear = (clear === 'clear' || (clear === 'auto' && this.forceClear));
+
+            renderer.renderTarget.bind(output, doClear ? filter.clearBits : false);
+        }
 
         if (output instanceof Texture)
         {

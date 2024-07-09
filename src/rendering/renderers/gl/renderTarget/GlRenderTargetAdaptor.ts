@@ -78,6 +78,16 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
 
         const source = renderTarget.colorTexture;
         const gpuRenderTarget = renderTargetSystem.getGpuRenderTarget(renderTarget);
+        const depthTexture = renderTarget.depthStencilTexture || renderTargetSystem.forceDepthTexture;
+
+        // TODO: if attached depth , but this depth is null - re-init framebuffer
+        if (!depthTexture && gpuRenderTarget.attachedDepthTexture)
+        {
+            // ... WTF?
+            console.warn('Using render target with wrong attached depth texture!');
+            gpuRenderTarget.attachedDepthTexture = null;
+            // gl.framebufferTexture2D(gl.TEXTURE_2D, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture._glTexture, 0);
+        }
 
         let viewPortY = viewport.y;
 
@@ -125,28 +135,20 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
             this._initStencil(gpuRenderTarget);
         }
 
-        const dst = renderTarget.depthStencilTexture || renderTargetSystem.forceDepthTexture;
-
-        if (dst)
+        if (depthTexture)
         {
-            if (gpuRenderTarget.attachedDepthTexture !== dst)
+            if (!depthTexture._glTexture)
             {
-                gpuRenderTarget.attachedDepthTexture = dst
-                if (!dst._glTexture)
-                {
-                    this._renderer.texture.bind(dst, 0);
-                    this._renderer.texture.bind(null, 0);
-                }
-                // TODO: DEPTH_STENCIL_ATTACHMENT case!
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, dst._glTexture.texture, 0);
+                this._renderer.texture.bind(depthTexture, 0);
+                this._renderer.texture.bind(null, 0);
             }
-        }
-        else if (gpuRenderTarget.attachedDepthTexture)
-        {
-            // ... WTF?
-            console.warn('Using render target with wrong attached depth texture!');
-            gpuRenderTarget.attachedDepthTexture = null;
-            // gl.framebufferTexture2D(gl.TEXTURE_2D, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, dst._glTexture, 0);
+            if (gpuRenderTarget.attachedDepthTexture !== depthTexture._glTexture)
+            {
+                gpuRenderTarget.attachedDepthTexture = depthTexture._glTexture;
+                // TODO: DEPTH_STENCIL_ATTACHMENT case!
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D,
+                    depthTexture._glTexture.texture, 0);
+            }
         }
 
         this.clear(renderTarget, clear, clearColor);

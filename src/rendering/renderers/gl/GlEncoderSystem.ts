@@ -76,6 +76,8 @@ export class GlEncoderSystem implements System
         {
             renderer.geometry.draw(type, size, start, instanceCount ?? geometry.instanceCount);
         }
+
+        this._renderer.checkError();
     }
 
     public multiDraw(options: {
@@ -99,6 +101,8 @@ export class GlEncoderSystem implements System
         }
 
         renderer.geometry.multiDraw(multiDrawBuffer);
+
+        this._renderer.checkError();
     }
 
     copier: TFBufferCopier = null;

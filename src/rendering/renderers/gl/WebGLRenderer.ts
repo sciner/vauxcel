@@ -166,4 +166,14 @@ export class WebGLRenderer<T extends ICanvas = HTMLCanvasElement>
 
         super(systemConfig);
     }
+
+    checkError()
+    {
+        const code = this.gl.getError();
+
+        if (code !== 0)
+        {
+            console.warn(`Found gl error on shader bind code=${code}`);
+        }
+    }
 }

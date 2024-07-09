@@ -74,6 +74,7 @@ export function applyStyleParams(
     // 4. set the compare mode
     if (style.compare)
     {
+        gl[glFunctionName](castParam, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
         gl[glFunctionName](castParam, gl.TEXTURE_COMPARE_FUNC, compareModeToGlCompare[style.compare]);
     }
 }

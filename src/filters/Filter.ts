@@ -218,6 +218,7 @@ export class Filter extends Shader
 
         super(options as ShaderWithResources);
 
+        this.blendMode = options.blendMode;
         this.padding = options.padding;
 
         // check if is boolean

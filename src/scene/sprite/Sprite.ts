@@ -53,6 +53,8 @@ export interface SpriteOptions extends ContainerOptions
  */
 export class Sprite extends Container implements View
 {
+    private _width: number;
+    private _height: number;
     /**
      * Helper function that creates a new sprite based on the source you provide.
      * The source can be - frame id, image, video, canvas element, video element, texture
@@ -147,6 +149,16 @@ export class Sprite extends Container implements View
         if (value.dynamic) value.on('update', this.onViewUpdate, this);
 
         this._texture = value;
+
+        if (this._width)
+        {
+            this._setWidth(this._width, this._texture.orig.width);
+        }
+
+        if (this._height)
+        {
+            this._setHeight(this._height, this._texture.orig.height);
+        }
 
         this.onViewUpdate();
     }
@@ -332,6 +344,7 @@ export class Sprite extends Container implements View
     override set width(value: number)
     {
         this._setWidth(value, this._texture.orig.width);
+        this._width = value;
     }
 
     /** The height of the sprite, setting this will actually modify the scale to achieve the value set. */
@@ -343,6 +356,7 @@ export class Sprite extends Container implements View
     override set height(value: number)
     {
         this._setHeight(value, this._texture.orig.height);
+        this._height = value;
     }
 
     /**

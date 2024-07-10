@@ -1,4 +1,5 @@
 import { Matrix } from '../../../maths/matrix/Matrix';
+import { getMaxTexturesPerBatch } from '../../../rendering/batcher/gl/utils/maxRecommendedTextures';
 import {
     compileHighShaderGlProgram,
     compileHighShaderGpuProgram
@@ -12,9 +13,14 @@ import { roundPixelsBit, roundPixelsBitGl } from '../../../rendering/high-shader
 import { getBatchSamplersUniformGroup } from '../../../rendering/renderers/gl/shader/getBatchSamplersUniformGroup';
 import { Shader } from '../../../rendering/renderers/shared/shader/Shader';
 import { UniformGroup } from '../../../rendering/renderers/shared/shader/UniformGroup';
-import { maxRecommendedTextures } from '../../../rendering/renderers/shared/texture/utils/maxRecommendedTextures';
 import { localUniformMSDFBit, localUniformMSDFBitGl } from './shader-bits/localUniformMSDFBit';
 import { mSDFBit, mSDFBitGl } from './shader-bits/mSDFBit';
+
+import type { GlProgram } from '../../../rendering/renderers/gl/shader/GlProgram';
+import type { GpuProgram } from '../../../rendering/renderers/gpu/shader/GpuProgram';
+
+let gpuProgram: GpuProgram;
+let glProgram: GlProgram;
 
 export class SdfShader extends Shader
 {
@@ -27,9 +33,9 @@ export class SdfShader extends Shader
             uRound: { value: 0, type: 'f32' },
         });
 
-        const maxTextures = maxRecommendedTextures();
+        const maxTextures = getMaxTexturesPerBatch();
 
-        const gpuProgram = compileHighShaderGpuProgram({
+        gpuProgram ??= compileHighShaderGpuProgram({
             name: 'sdf-shader',
             bits: [
                 colorBit,
@@ -40,7 +46,7 @@ export class SdfShader extends Shader
             ]
         });
 
-        const glProgram = compileHighShaderGlProgram({
+        glProgram ??= compileHighShaderGlProgram({
             name: 'sdf-shader',
             bits: [
                 colorBitGl,

@@ -27,7 +27,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
 
     private _renderer: Renderer;
     private _gpuBitmapText: Record<number, Graphics> = {};
-    private _sdfShader: SdfShader;
+    // private _sdfShader: SdfShader;
 
     constructor(renderer: Renderer)
     {
@@ -81,6 +81,15 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
 
     private _destroyRenderableByUid(renderableUid: number)
     {
+        const context = this._gpuBitmapText[renderableUid].context;
+
+        if (context.customShader)
+        {
+            BigPool.return(context.customShader as PoolItem);
+
+            context.customShader = null;
+        }
+
         BigPool.return(this._gpuBitmapText[renderableUid] as PoolItem);
         this._gpuBitmapText[renderableUid] = null;
     }
@@ -112,21 +121,14 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
         {
             if (!context.customShader)
             {
-                if (!this._sdfShader)
-                {
-                    this._sdfShader = new SdfShader();
-                }
-
-                context.customShader = this._sdfShader;
+                context.customShader = BigPool.get(SdfShader);
             }
         }
 
         const chars = Array.from(bitmapText.text);
         const style = bitmapText._style;
 
-        let currentY = (style._stroke?.width || 0) / 2;
-
-        currentY += bitmapFont.baseLineOffset;
+        let currentY = bitmapFont.baseLineOffset;
 
         // measure our text...
         const bitmapTextLayout = getBitmapTextLayout(chars, style, bitmapFont);
@@ -136,13 +138,20 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
         const padding = style.padding;
         const scale = bitmapTextLayout.scale;
 
+        let tx = bitmapTextLayout.width;
+        let ty = bitmapTextLayout.height + bitmapTextLayout.offsetY;
+
+        if (style._stroke)
+        {
+            tx += style._stroke.width / scale;
+            ty += style._stroke.width / scale;
+        }
+
         context
-            .translate(
-                (-bitmapText._anchor._x * bitmapTextLayout.width) - padding,
-                (-bitmapText._anchor._y * (bitmapTextLayout.height + bitmapTextLayout.offsetY)) - padding)
+            .translate((-bitmapText._anchor._x * tx) - padding, (-bitmapText._anchor._y * ty) - padding)
             .scale(scale, scale);
 
-        const tint = style._fill.color;
+        const tint = bitmapFont.applyFillAsTint ? style._fill.color : 0xFFFFFF;
 
         for (let i = 0; i < bitmapTextLayout.lines.length; i++)
         {
@@ -176,7 +185,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
 
     public initGpuText(bitmapText: BitmapText)
     {
-        // TODO we could keep a bunch of contexts around and reuse one that hav the same style!
+        // TODO we could keep a bunch of contexts around and reuse one that has the same style!
         const proxyRenderable = BigPool.get(Graphics);
 
         this._gpuBitmapText[bitmapText.uid] = proxyRenderable;
@@ -207,8 +216,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
 
         const fontScale = dynamicFont.baseRenderedFontSize / bitmapText._style.fontSize;
 
-        const resolution = bitmapText.resolution ?? this._renderer.resolution;
-        const distance = worldScale * dynamicFont.distanceField.range * (1 / fontScale) * resolution;
+        const distance = worldScale * dynamicFont.distanceField.range * (1 / fontScale);
 
         context.customShader.resources.localUniforms.uniforms.uDistance = distance;
     }
@@ -221,9 +229,6 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
         }
 
         this._gpuBitmapText = null;
-
-        this._sdfShader?.destroy(true);
-        this._sdfShader = null;
 
         this._renderer = null;
     }

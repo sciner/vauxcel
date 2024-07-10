@@ -5,7 +5,7 @@ import { generateTextureBatchBit } from '../../high-shader/shader-bits/generateT
 import { roundPixelsBit } from '../../high-shader/shader-bits/roundPixelsBit';
 import { Shader } from '../../renderers/shared/shader/Shader';
 import { State } from '../../renderers/shared/state/State';
-import { maxRecommendedTextures } from '../../renderers/shared/texture/utils/maxRecommendedTextures';
+import { getMaxTexturesPerBatch } from '../gl/utils/maxRecommendedTextures';
 import { getTextureBatchBindGroup } from './getTextureBatchBindGroup';
 
 import type { GpuEncoderSystem } from '../../renderers/gpu/GpuEncoderSystem';
@@ -40,7 +40,7 @@ export class GpuBatchAdaptor implements BatcherAdaptor
             name: 'batch',
             bits: [
                 colorBit,
-                generateTextureBatchBit(maxRecommendedTextures()),
+                generateTextureBatchBit(getMaxTexturesPerBatch()),
                 roundPixelsBit,
             ]
         });
@@ -75,7 +75,7 @@ export class GpuBatchAdaptor implements BatcherAdaptor
         const globalUniformsBindGroup = renderer.globalUniforms.bindGroup;
 
         // low level - we need to reset the bind group at location 1 to null
-        // this is because we directly manipulate the bound buffer in the execture function for
+        // this is because we directly manipulate the bound buffer in the execute function for
         // performance reasons.
         // setting it to null ensures that the next bind group we set at location 1 will
         // be the one we want.

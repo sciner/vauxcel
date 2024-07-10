@@ -122,19 +122,26 @@ export class BitmapText extends AbstractText<TextStyle, TextStyleOptions> implem
     protected _updateBounds()
     {
         const bounds = this._bounds;
-        const padding = this._style.padding;
         const anchor = this._anchor;
 
         const bitmapMeasurement = BitmapFontManager.measureText(this.text, this._style);
         const scale = bitmapMeasurement.scale;
         const offset = bitmapMeasurement.offsetY * scale;
 
-        const width = bitmapMeasurement.width * scale;
-        const height = bitmapMeasurement.height * scale;
+        let width = bitmapMeasurement.width * scale;
+        let height = bitmapMeasurement.height * scale;
 
-        bounds.minX = (-anchor._x * width) - padding;
+        const stroke = this._style._stroke;
+
+        if (stroke)
+        {
+            width += stroke.width;
+            height += stroke.width;
+        }
+
+        bounds.minX = (-anchor._x * width);
         bounds.maxX = bounds.minX + width;
-        bounds.minY = (-anchor._y * (height + offset)) - padding;
+        bounds.minY = (-anchor._y * (height + offset));
         bounds.maxY = bounds.minY + height;
     }
 }

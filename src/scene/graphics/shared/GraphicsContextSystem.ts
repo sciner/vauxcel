@@ -1,7 +1,7 @@
 import { ExtensionType } from '../../../extensions/Extensions';
-import { BatchGeometry } from '../../../rendering/batcher/gpu/BatchGeometry';
 import { getTextureBatchBindGroup } from '../../../rendering/batcher/gpu/getTextureBatchBindGroup';
-import { Batcher } from '../../../rendering/batcher/shared/Batcher';
+import { Batch, Batcher } from '../../../rendering/batcher/shared/Batcher';
+import { BatchGeometry } from '../../../rendering/batcher/shared/BatchGeometry';
 import { InstructionSet } from '../../../rendering/renderers/shared/instructions/InstructionSet';
 import { BigPool } from '../../../utils/pool/PoolGroup';
 import { buildContextBatches } from './utils/buildContextBatches';
@@ -45,10 +45,16 @@ export class GraphicsContextRenderData
 {
     public geometry = new BatchGeometry();
     public instructions = new InstructionSet();
+    public batches: Batch[] = [];
 
     public init()
     {
         this.instructions.reset();
+    }
+
+    public cloneBatches()
+    {
+        // takes batches in instructions , swaps with custom copies
     }
 }
 
@@ -259,10 +265,11 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
 
         if (gpuContext.batches)
         {
-            gpuContext.batches.forEach((batch) =>
+            for (const batch of gpuContext.batches)
             {
                 BigPool.return(batch as PoolItem);
-            });
+            }
+            gpuContext.batches.length = 0;
         }
     }
 

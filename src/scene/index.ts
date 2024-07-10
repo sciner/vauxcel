@@ -50,6 +50,7 @@ export * from './graphics/shared/buildCommands/ShapeBuildCommand';
 export * from './graphics/shared/const';
 export * from './graphics/shared/fill/FillGradient';
 export * from './graphics/shared/fill/FillPattern';
+export * from './graphics/shared/FillTypes';
 export * from './graphics/shared/Graphics';
 export * from './graphics/shared/GraphicsContext';
 export * from './graphics/shared/GraphicsContextSystem';

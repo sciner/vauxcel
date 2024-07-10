@@ -4,6 +4,7 @@ import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
 import { BigPool } from '../../utils/pool/PoolGroup';
 import { BatchableSprite } from '../sprite/BatchableSprite';
 
+import type { InstructionSet } from '../../rendering/renderers/shared/instructions/InstructionSet';
 import type { RenderPipe } from '../../rendering/renderers/shared/instructions/RenderPipe';
 import type { Renderer } from '../../rendering/renderers/types';
 import type { HTMLText } from './HTMLText';
@@ -34,6 +35,22 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
     constructor(renderer: Renderer)
     {
         this._renderer = renderer;
+        this._renderer.runners.resolutionChange.add(this);
+    }
+
+    public resolutionChange()
+    {
+        for (const i in this._gpuText)
+        {
+            const gpuText = this._gpuText[i];
+            const text = gpuText.batchableSprite.renderable as HTMLText;
+
+            if (text._autoResolution)
+            {
+                text._resolution = this._renderer.resolution;
+                text.onViewUpdate();
+            }
+        }
     }
 
     public validateRenderable(htmlText: HTMLText): boolean
@@ -60,7 +77,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         return false;
     }
 
-    public addRenderable(htmlText: HTMLText)
+    public addRenderable(htmlText: HTMLText, _instructionSet: InstructionSet)
     {
         const gpuText = this._getGpuText(htmlText);
 
@@ -185,8 +202,8 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         batchableSprite.bounds = { minX: 0, maxX: 1, minY: 0, maxY: 0 };
         batchableSprite.roundPixels = (this._renderer._roundPixels | htmlText._roundPixels) as 0 | 1;
 
+        htmlText._resolution = htmlText._autoResolution ? this._renderer.resolution : htmlText.resolution;
         this._gpuText[htmlText.uid] = gpuTextData;
-
         // TODO perhaps manage this outside this pipe? (a bit like how we update / add)
         htmlText.on('destroyed', () =>
         {

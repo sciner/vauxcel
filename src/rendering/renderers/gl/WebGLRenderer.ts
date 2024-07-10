@@ -153,7 +153,7 @@ export class WebGLRenderer<T extends ICanvas = HTMLCanvasElement>
     implements WebGLSystems
 {
     public gl: GlRenderingContext;
-    checkGlErrors = false
+    checkGlErrors = false;
 
     constructor()
     {

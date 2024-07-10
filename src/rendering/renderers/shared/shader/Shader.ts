@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import { EventEmitter } from '../../../../utils/event_emitter';
+import EventEmitter from 'eventemitter3';
 import { GlProgram } from '../../gl/shader/GlProgram';
 import { BindGroup } from '../../gpu/shader/BindGroup';
 import { GpuProgram } from '../../gpu/shader/GpuProgram';
@@ -34,19 +34,19 @@ interface ShaderBase
     compatibleRenderers?: number
 }
 
-interface GlShaderWith extends ShaderBase
+export interface GlShaderWith extends ShaderBase
 {
     /** The WebGL program used by the WebGL renderer. */
     glProgram: GlProgram
 }
 
-interface GpuShaderWith extends ShaderBase
+export interface GpuShaderWith extends ShaderBase
 {
     /** The WebGPU program used by the WebGPU renderer. */
     gpuProgram: GpuProgram
 }
 
-interface ShaderWithGroupsDescriptor
+export interface ShaderWithGroupsDescriptor
 {
     /** A record of {@link BindGroup}'s used by the shader. */
     groups: ShaderGroups;
@@ -162,8 +162,8 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
     /** A record of the resources used by the shader. */
     public resources: Record<string, any>;
     /**
-     * A record of the uniform groups and resources
-     *
+     * A record of the uniform groups and resources used by the shader.
+     * This is used by WebGL renderer to sync uniform data.
      * @internal
      * @ignore
      */
@@ -262,36 +262,12 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
         }
         else if (resources)
         {
-            if (!gpuProgram)
-            {
-                // build out a dummy bind group..
-                groupMap = {};
-                groups = {
-                    99: new BindGroup(),
-                };
+            groups = {};
+            groupMap = {};
 
-                this._ownedBindGroups.push(groups[99]);
-
-                let bindTick = 0;
-
-                for (const i in resources)
-                {
-                    // Yes i know this is a little strange, but wil line up the shaders neatly
-                    // basically we want to be driven by how webGPU does things.
-                    // so making a fake group will work and not affect gpu as it means no gpu shader was provided..
-                    nameHash[i] = { group: 99, binding: bindTick, name: i };
-
-                    groupMap[99] = groupMap[99] || {};
-                    groupMap[99][bindTick] = i;
-
-                    bindTick++;
-                }
-            }
-            else
+            if (gpuProgram)
             {
                 const groupData = gpuProgram.structsAndGroups.groups;
-
-                groupMap = {};
 
                 groupData.forEach((data) =>
                 {
@@ -302,7 +278,28 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
                 });
             }
 
-            groups = {};
+            let bindTick = 0;
+
+            for (const i in resources)
+            {
+                if (nameHash[i]) continue;
+
+                // build out a dummy bind group..
+                if (!groups[99])
+                {
+                    groups[99] = new BindGroup();
+                    this._ownedBindGroups.push(groups[99]);
+                }
+                // Yes i know this is a little strange, but wil line up the shaders neatly
+                // basically we want to be driven by how webGPU does things.
+                // so making a fake group will work and not affect gpu as it means no gpu shader was provided..
+                nameHash[i] = { group: 99, binding: bindTick, name: i };
+
+                groupMap[99] = groupMap[99] || {};
+                groupMap[99][bindTick] = i;
+
+                bindTick++;
+            }
 
             for (const i in resources)
             {

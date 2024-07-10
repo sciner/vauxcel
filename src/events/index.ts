@@ -1,3 +1,4 @@
+export * from './deprecatedTypes';
 export * from './EventBoundary';
 export * from './EventBoundaryTypes';
 export * from './EventSystem';

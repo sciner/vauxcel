@@ -281,9 +281,9 @@ export class CanvasTextMetrics
             width += style.dropShadow.distance;
         }
 
-        const lineHeight = style.lineHeight || fontProperties.fontSize + strokeWidth;
+        const lineHeight = style.lineHeight || fontProperties.fontSize;
 
-        let height = Math.max(lineHeight, fontProperties.fontSize + (strokeWidth * 2))
+        let height = Math.max(lineHeight, fontProperties.fontSize + (strokeWidth))
             + ((lines.length - 1) * (lineHeight + style.leading));
 
         if (style.dropShadow)
@@ -549,7 +549,7 @@ export class CanvasTextMetrics
     }
 
     /**
-     * Convienience function for logging each line added during the wordWrap method.
+     * Convenience function for logging each line added during the wordWrap method.
      * @param line    - The line of text to add
      * @param newLine - Add new line character to end
      * @returns A formatted line

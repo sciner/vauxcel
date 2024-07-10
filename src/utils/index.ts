@@ -13,6 +13,7 @@ export * from './data/updateQuadBounds';
 export * from './data/ViewableBuffer';
 export * from './earcut';
 export * from './event_emitter';
+export * from './global/globalHooks';
 export * from './logging/deprecation';
 export * from './logging/logDebugTexture';
 export * from './logging/logScene';

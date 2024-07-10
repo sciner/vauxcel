@@ -3,6 +3,7 @@ import { getTextureBatchBindGroup } from '../../../rendering/batcher/gpu/getText
 import { Batch, Batcher } from '../../../rendering/batcher/shared/Batcher';
 import { BatchGeometry } from '../../../rendering/batcher/shared/BatchGeometry';
 import { InstructionSet } from '../../../rendering/renderers/shared/instructions/InstructionSet';
+import { Pool } from '../../../utils/pool/Pool';
 import { BigPool } from '../../../utils/pool/PoolGroup';
 import { buildContextBatches } from './utils/buildContextBatches';
 
@@ -45,17 +46,21 @@ export class GraphicsContextRenderData
 {
     public geometry = new BatchGeometry();
     public instructions = new InstructionSet();
-    public batches: Batch[] = [];
 
-    public init()
+    reset()
     {
-        this.instructions.reset();
+        const sz = this.instructions.instructionSize;
+        const arr = this.instructions.instructions;
+
+        for (let i = 0; i < sz; i++)
+        {
+            GraphicsContextRenderData.batchPool.return(arr[i] as Batch);
+            arr[i] = null;
+        }
+        this.instructions.instructionSize = 0;
     }
 
-    public cloneBatches()
-    {
-        // takes batches in instructions , swaps with custom copies
-    }
+    static batchPool = new Pool(Batch);
 }
 
 /**
@@ -202,7 +207,7 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
             batcher.add(batch);
         }
 
-        batcher.finish(graphicsData.instructions);
+        batcher.finish(graphicsData.instructions, GraphicsContextRenderData.batchPool);
 
         const geometry = graphicsData.geometry;
 

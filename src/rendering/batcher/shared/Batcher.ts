@@ -1,5 +1,6 @@
 import { uid } from '../../../utils/data/uid';
 import { ViewableBuffer } from '../../../utils/data/ViewableBuffer';
+import { Pool } from '../../../utils/pool/Pool';
 import { fastCopy } from '../../renderers/shared/buffer/utils/fastCopy';
 import { type BLEND_MODES } from '../../renderers/shared/state/const';
 import { getAdjustedBlendModeBlend } from '../../renderers/shared/state/getAdjustedBlendModeBlend';
@@ -206,8 +207,9 @@ export class Batcher
      * breaks the batcher. This happens when a batch gets too big,
      * or we need to switch to a different type of rendering (a filter for example)
      * @param instructionSet
+     * @param batchPool
      */
-    public break(instructionSet: InstructionSet, batch_array: Batch[] = null)
+    public break(instructionSet: InstructionSet, batchPool: Pool<Batch> = null)
     {
         // ++BATCH_TICK;
         const elements = this._elements;
@@ -240,7 +242,8 @@ export class Batcher
         let start = this._batchIndexStart;
 
         let action: BatchAction = 'startBatch';
-        let batch = this._batchPool[this._batchPoolIndex++] ||= new Batch();
+
+        let batch = batchPool ? batchPool.get() : (this._batchPool[this._batchPoolIndex++] ||= new Batch());
 
         const maxTextures = this._maxTextures;
 
@@ -292,7 +295,7 @@ export class Batcher
                 textureBatch = this._textureBatchPool[this._textureBatchPoolIndex++] || new BatchTextureArray();
                 textureBatch.clear();
 
-                batch = this._batchPool[this._batchPoolIndex++] || new Batch();
+                batch = batchPool ? batchPool.get() : (this._batchPool[this._batchPoolIndex++] ||= new Batch());
                 ++BATCH_TICK;
             }
 
@@ -352,9 +355,9 @@ export class Batcher
         instructionSet.add(batch);
     }
 
-    public finish(instructionSet: InstructionSet)
+    public finish(instructionSet: InstructionSet, batchPool: Pool<Batch> = null)
     {
-        this.break(instructionSet);
+        this.break(instructionSet, batchPool);
     }
 
     /**

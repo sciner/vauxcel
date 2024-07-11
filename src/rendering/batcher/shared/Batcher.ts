@@ -1,6 +1,5 @@
 import { uid } from '../../../utils/data/uid';
 import { ViewableBuffer } from '../../../utils/data/ViewableBuffer';
-import { Pool } from '../../../utils/pool/Pool';
 import { fastCopy } from '../../renderers/shared/buffer/utils/fastCopy';
 import { type BLEND_MODES } from '../../renderers/shared/state/const';
 import { getAdjustedBlendModeBlend } from '../../renderers/shared/state/getAdjustedBlendModeBlend';
@@ -31,7 +30,7 @@ export class Batch implements Instruction
     // for drawing..
     public start = 0;
     public size = 0;
-    public textures: BatchTextureArray;
+    public textures: BatchTextureArray = new BatchTextureArray();
 
     public blendMode: BLEND_MODES = 'normal';
 
@@ -61,6 +60,19 @@ export class Batch implements Instruction
     }
 }
 
+// inlined pool for SPEEEEEEEEEED :D
+const batchPool: Batch[] = [];
+let batchPoolIndex = 0;
+
+function getBatchFromPool()
+{
+    return batchPoolIndex > 0 ? batchPool[--batchPoolIndex] : new Batch();
+}
+
+function returnBatchToPool(batch: Batch)
+{
+    batchPool[batchPoolIndex++] = batch;
+}
 export interface BatchableObject
 {
     indexStart: number;
@@ -131,10 +143,6 @@ export class Batcher
 
     private _elements: BatchableObject[] = [];
 
-    private readonly _batchPool: Batch[] = [];
-    private _batchPoolIndex = 0;
-    private readonly _textureBatchPool: BatchTextureArray[] = [];
-    private _textureBatchPoolIndex = 0;
     private _batchIndexStart: number;
     private _batchIndexSize: number;
     private readonly _maxTextures: number;
@@ -154,13 +162,17 @@ export class Batcher
 
     public begin()
     {
-        this.batchIndex = 0;
         this.elementSize = 0;
         this.elementStart = 0;
         this.indexSize = 0;
         this.attributeSize = 0;
-        this._batchPoolIndex = 0;
-        this._textureBatchPoolIndex = 0;
+
+        for (let i = 0; i < this.batchIndex; i++)
+        {
+            returnBatchToPool(this.batches[i]);
+        }
+
+        this.batchIndex = 0;
         this._batchIndexStart = 0;
         this._batchIndexSize = 0;
 
@@ -207,19 +219,19 @@ export class Batcher
      * breaks the batcher. This happens when a batch gets too big,
      * or we need to switch to a different type of rendering (a filter for example)
      * @param instructionSet
-     * @param batchPool
      */
-    public break(instructionSet: InstructionSet, batchPool: Pool<Batch> = null)
+    public break(instructionSet: InstructionSet)
     {
         // ++BATCH_TICK;
         const elements = this._elements;
 
-        let textureBatch = this._textureBatchPool[this._textureBatchPoolIndex++] ||= new BatchTextureArray();
-
-        textureBatch.clear();
-
         // length 0??!! (we broke without adding anything)
         if (!elements[this.elementStart]) return;
+
+        let batch = getBatchFromPool();
+        let textureBatch = batch.textures;
+
+        textureBatch.clear();
 
         const firstElement = elements[this.elementStart];
         let blendMode = getAdjustedBlendModeBlend(firstElement.blendMode, firstElement.texture._source);
@@ -242,8 +254,6 @@ export class Batcher
         let start = this._batchIndexStart;
 
         let action: BatchAction = 'startBatch';
-
-        let batch = batchPool ? batchPool.get() : (this._batchPool[this._batchPoolIndex++] ||= new Batch());
 
         const maxTextures = this._maxTextures;
 
@@ -292,10 +302,10 @@ export class Batcher
                 // create a batch...
                 blendMode = adjustedBlendMode;
 
-                textureBatch = this._textureBatchPool[this._textureBatchPoolIndex++] || new BatchTextureArray();
+                batch = getBatchFromPool();
+                textureBatch = batch.textures;
                 textureBatch.clear();
 
-                batch = batchPool ? batchPool.get() : (this._batchPool[this._batchPoolIndex++] ||= new Batch());
                 ++BATCH_TICK;
             }
 
@@ -341,6 +351,7 @@ export class Batcher
     )
     {
         batch.gpuBindGroup = null;
+        batch.bindGroup = null;
         batch.action = action;
 
         batch.batcher = this;
@@ -352,12 +363,14 @@ export class Batcher
 
         ++BATCH_TICK;
 
+        // track for returning later!
+        this.batches[this.batchIndex++] = batch;
         instructionSet.add(batch);
     }
 
-    public finish(instructionSet: InstructionSet, batchPool: Pool<Batch> = null)
+    public finish(instructionSet: InstructionSet)
     {
-        this.break(instructionSet, batchPool);
+        this.break(instructionSet);
     }
 
     /**
@@ -427,7 +440,7 @@ export class Batcher
     {
         for (let i = 0; i < this.batches.length; i++)
         {
-            this.batches[i].destroy();
+            returnBatchToPool(this.batches[i]);
         }
 
         this.batches = null;
@@ -445,4 +458,3 @@ export class Batcher
         this.attributeBuffer = null;
     }
 }
-

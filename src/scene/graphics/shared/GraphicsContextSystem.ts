@@ -1,9 +1,8 @@
 import { ExtensionType } from '../../../extensions/Extensions';
 import { getTextureBatchBindGroup } from '../../../rendering/batcher/gpu/getTextureBatchBindGroup';
-import { Batch, Batcher } from '../../../rendering/batcher/shared/Batcher';
+import { Batcher } from '../../../rendering/batcher/shared/Batcher';
 import { BatchGeometry } from '../../../rendering/batcher/shared/BatchGeometry';
 import { InstructionSet } from '../../../rendering/renderers/shared/instructions/InstructionSet';
-import { Pool } from '../../../utils/pool/Pool';
 import { BigPool } from '../../../utils/pool/PoolGroup';
 import { buildContextBatches } from './utils/buildContextBatches';
 
@@ -28,6 +27,7 @@ export class GpuGraphicsContext
 {
     public isBatchable: boolean;
     public context: GraphicsContext;
+    public batcher: Batcher = new Batcher();
     public batches: BatchableGraphics[] = [];
     public geometryData: GeometryData = {
         vertices: [],
@@ -47,20 +47,10 @@ export class GraphicsContextRenderData
     public geometry = new BatchGeometry();
     public instructions = new InstructionSet();
 
-    reset()
+    public init()
     {
-        const sz = this.instructions.instructionSize;
-        const arr = this.instructions.instructions;
-
-        for (let i = 0; i < sz; i++)
-        {
-            GraphicsContextRenderData.batchPool.return(arr[i] as Batch);
-            arr[i] = null;
-        }
-        this.instructions.instructionSize = 0;
+        this.instructions.reset();
     }
-
-    static batchPool = new Pool(Batch);
 }
 
 /**
@@ -100,7 +90,6 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
 
     // the root context batches, used to either make a batch or geometry
     // all graphics use this as a base
-    private readonly _activeBatchers: Batcher[] = [];
     private _gpuContextHash: Record<number, GpuGraphicsContext> = {};
     // used for non-batchable graphics
     private _graphicsDataContextHash: Record<number, GraphicsContextRenderData> = Object.create(null);
@@ -113,11 +102,6 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
     {
         GraphicsContextSystem.defaultOptions.bezierSmoothness = options?.bezierSmoothness
             ?? GraphicsContextSystem.defaultOptions.bezierSmoothness;
-    }
-
-    protected prerender()
-    {
-        this._returnActiveBatchers();
     }
 
     public getContextRenderData(context: GraphicsContext): GraphicsContextRenderData
@@ -167,21 +151,11 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
         return this._gpuContextHash[context.uid] || this._initContext(context);
     }
 
-    private _returnActiveBatchers()
-    {
-        for (let i = 0; i < this._activeBatchers.length; i++)
-        {
-            BigPool.return(this._activeBatchers[i] as PoolItem);
-        }
-
-        this._activeBatchers.length = 0;
-    }
-
     private _initContextRenderData(context: GraphicsContext): GraphicsContextRenderData
     {
         const graphicsData: GraphicsContextRenderData = BigPool.get(GraphicsContextRenderData);// ();
 
-        const { batches, geometryData } = this._gpuContextHash[context.uid];
+        const { batches, geometryData, batcher } = this._gpuContextHash[context.uid];
 
         const vertexSize = geometryData.vertices.length;
         const indexSize = geometryData.indices.length;
@@ -191,10 +165,7 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
             batches[i].applyTransform = false;
         }
 
-        const batcher = BigPool.get(Batcher);
-
-        this._activeBatchers.push(batcher);
-
+        // TODO we can pool buffers here eventually..
         batcher.ensureAttributeBuffer(vertexSize);
         batcher.ensureIndexBuffer(indexSize);
 
@@ -207,7 +178,7 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
             batcher.add(batch);
         }
 
-        batcher.finish(graphicsData.instructions, GraphicsContextRenderData.batchPool);
+        batcher.finish(graphicsData.instructions);
 
         const geometry = graphicsData.geometry;
 
@@ -270,11 +241,10 @@ export class GraphicsContextSystem implements System<GraphicsContextSystemOption
 
         if (gpuContext.batches)
         {
-            for (const batch of gpuContext.batches)
+            gpuContext.batches.forEach((batch) =>
             {
                 BigPool.return(batch as PoolItem);
-            }
-            gpuContext.batches.length = 0;
+            });
         }
     }
 

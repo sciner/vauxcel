@@ -1,6 +1,6 @@
 {
   "name": "@sciner/pixi",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Ivan Popelyshev + PixiJS Team",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -9,7 +9,8 @@
     "lib",
     "dist",
     "src",
-    "types"
+    "types",
+    "index.mjs"
   ],
   "scripts": {
     "prepare": "husky install",

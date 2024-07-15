@@ -10,8 +10,12 @@ export const gpuUploadBufferImageResource = {
     {
         const data = source.data;
 
-        const total = (source.pixelWidth | 0) * (source.pixelHeight | 0);
+        if (!data)
+        {
+            return
+        }
 
+        const total = (source.pixelWidth | 0) * (source.pixelHeight | 0);
         const bytesPerPixel = data.byteLength / total;
 
         gpu.device.queue.writeTexture(

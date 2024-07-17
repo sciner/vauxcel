@@ -39,6 +39,8 @@ export function extractAttributesFromGpuProgram(
     // Step 1: Find the start of the mainVert function using string methods
     const mainVertStart = source.indexOf(`fn ${entryPoint}`);
 
+    let structureSubString: string = '';
+
     if (mainVertStart !== -1)
     {
         // Step 2: Find the index of the next '->' after the start of the mainVert function
@@ -46,24 +48,47 @@ export function extractAttributesFromGpuProgram(
 
         if (arrowFunctionStart !== -1)
         {
-            const functionArgsSubstring = source.substring(mainVertStart, arrowFunctionStart);
+            structureSubString = source.substring(mainVertStart, arrowFunctionStart);
 
-            // Apply the inputs regex directly to the trimmed string
-            const inputsRegex = /@location\((\d+)\)\s+([a-zA-Z0-9_]+)\s*:\s*([a-zA-Z0-9_<>]+)(?:,|\s|$)/g;
-            let match;
-
-            while ((match = inputsRegex.exec(functionArgsSubstring)) !== null)
+            if (structureSubString.indexOf('@') < 0)
             {
-                const format = WGSL_TO_VERTEX_TYPES[match[3] as VertexFormat] ?? 'float32';
+                let start = structureSubString.lastIndexOf(':');
+                let finish = structureSubString.lastIndexOf(')');
 
-                results[match[2]] = {
-                    location: parseInt(match[1], 10),
-                    format,
-                    stride: getAttributeInfoFromFormat(format).stride,
-                    offset: 0,
-                    instance: false,
-                };
+                if (start > 0 && finish > 0)
+                {
+                    const argStructName = structureSubString.substring(start + 1, finish).trim();
+
+                    start = source.indexOf(`struct ${argStructName}`);
+                    finish = start;
+                    while (finish < source.length && source[finish] !== '}')
+                    {
+                        finish++;
+                    }
+                    if (finish < source.length)
+                    {
+                        // found structure
+                        structureSubString = source.substring(start, finish);
+                    }
+                }
             }
+        }
+
+        // Apply the inputs regex directly to the trimmed string
+        const inputsRegex = /@location\((\d+)\)\s+([a-zA-Z0-9_]+)\s*:\s*([a-zA-Z0-9_<>]+)(?:,|\s|$)/g;
+        let match;
+
+        while ((match = inputsRegex.exec(structureSubString)) !== null)
+        {
+            const format = WGSL_TO_VERTEX_TYPES[match[3] as VertexFormat] ?? 'float32';
+
+            results[match[2]] = {
+                location: parseInt(match[1], 10),
+                format,
+                stride: getAttributeInfoFromFormat(format).stride,
+                offset: 0,
+                instance: false,
+            };
         }
     }
 

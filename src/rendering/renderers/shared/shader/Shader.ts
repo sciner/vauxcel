@@ -222,30 +222,6 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
             resources = {};
         }
 
-        if (Shader.lowerCaseResources)
-        {
-            if (groupMap)
-            {
-                const oldGroup = groupMap;
-
-                groupMap = {};
-                for (const key in oldGroup)
-                {
-                    groupMap[key.toLowerCase()] = oldGroup[key];
-                }
-            }
-            if (resources)
-            {
-                const oldRes = resources;
-
-                resources = {};
-                for (const key in oldRes)
-                {
-                    resources[key.toLowerCase()] = oldRes[key];
-                }
-            }
-        }
-
         if (resources && groups)
         {
             throw new Error('[Shader] Cannot have both resources and groups');
@@ -279,7 +255,7 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
             groupData.forEach((data) =>
             {
                 groupMap[data.group] = groupMap[data.group] || {};
-                groupMap[data.group][data.binding] = data.name;
+                groupMap[data.group][data.binding] = Shader.useGpuGroupType && data.isUniform ? data.type : data.name;
 
                 nameHash[data.name] = data;
             });
@@ -296,7 +272,7 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
                 groupData.forEach((data) =>
                 {
                     groupMap[data.group] = groupMap[data.group] || {};
-                    groupMap[data.group][data.binding] = data.name;
+                    groupMap[data.group][data.binding] = Shader.useGpuGroupType && data.isUniform ? data.type : data.name;
 
                     nameHash[data.name] = data;
                 });
@@ -366,11 +342,6 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
      */
     public addResource(name: string, groupIndex: number, bindIndex: number): void
     {
-        if (Shader.lowerCaseResources)
-        {
-            name = name.toLowerCase();
-        }
-
         this._uniformBindMap[groupIndex] ||= {};
 
         this._uniformBindMap[groupIndex][bindIndex] ||= name;
@@ -471,5 +442,5 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
         });
     }
 
-    static  lowerCaseResources = false
+    static useGpuGroupType = false;
 }

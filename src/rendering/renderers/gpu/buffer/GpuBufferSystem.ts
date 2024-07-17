@@ -79,6 +79,8 @@ export class GpuBufferSystem implements System
             this._managedBuffers.push(buffer);
         }
 
+        buffer.descriptor.mappedAtCreation = !!buffer.data;
+
         const gpuBuffer = this._gpu.device.createBuffer(buffer.descriptor);
 
         buffer._updateID = 0;

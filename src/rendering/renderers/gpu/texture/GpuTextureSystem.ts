@@ -17,16 +17,6 @@ import type { GPU } from '../GpuDeviceSystem';
 import type { WebGPURenderer } from '../WebGPURenderer';
 import type { GpuTextureUploader } from './uploaders/GpuTextureUploader';
 
-export const gpuUploadUnknown = {
-
-    type: 'unknown',
-
-    upload(_source: TextureSource, _gpuTexture: GPUTexture, _gpu: GPU)
-    {
-        // nothing
-    }
-} as GpuTextureUploader<TextureSource>;
-
 /**
  * The system that handles textures for the GPU.
  * @memberof rendering
@@ -50,7 +40,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
     private _textureViewHash: Record<string, GPUTextureView> = Object.create(null);
 
     private readonly _uploads: Record<string, GpuTextureUploader> = {
-        unknown: gpuUploadUnknown,
+        unknown: gpuUploadBufferImageResource,
         image: gpuUploadImageResource,
         buffer: gpuUploadBufferImageResource,
         video: gpuUploadVideoResource,
@@ -161,7 +151,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
         // destroyed!
         if (!gpuTexture) return;
 
-        this.getSourceUploader(source).upload(source, gpuTexture, this._gpu);
+        this.getSourceUploader(source).uploadGpu(source, gpuTexture, this._gpu);
 
         source.markValid();
 
@@ -243,12 +233,14 @@ export class GpuTextureSystem implements System, CanvasGenerator
                 origin: {
                     x: 0,
                     y: 0,
+                    z: 0,
                 },
             }, {
                 texture: gpuTexture,
             }, {
                 width: gpuTexture.width,
                 height: gpuTexture.height,
+                depthOrArrayLayers: gpuTexture.depthOrArrayLayers
             });
 
             renderer.gpu.device.queue.submit([commandEncoder.finish()]);

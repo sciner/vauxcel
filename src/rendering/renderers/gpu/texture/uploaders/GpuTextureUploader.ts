@@ -3,6 +3,6 @@ import type { GPU } from '../../GpuDeviceSystem';
 
 export interface GpuTextureUploader<T extends TextureSource = TextureSource>
 {
-    type: string;
-    upload(source: T, gpuTexture: GPUTexture, gpu: GPU): void;
+    id: string;
+    uploadGpu(source: T, gpuTexture: GPUTexture, gpu: GPU): void;
 }

@@ -4,9 +4,9 @@ import type { GpuTextureUploader } from './GpuTextureUploader';
 
 export const gpuUploadImageResource = {
 
-    type: 'image',
+    id: 'image',
 
-    upload(source: TextureSource, gpuTexture: GPUTexture, gpu: GPU)
+    uploadGpu(source: TextureSource, gpuTexture: GPUTexture, gpu: GPU)
     {
         const resource = source.resource as ImageBitmap | HTMLCanvasElement | OffscreenCanvas;
 

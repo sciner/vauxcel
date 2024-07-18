@@ -4,9 +4,9 @@ import {mapFormatToPixelSize} from "../rendering/renderers/shared/texture/utils/
 
 export const gpuUploadBuffer3DResource = {
 
-    type: '3d',
+    id: '3d',
 
-    upload(source: Buffer3DSource, gpuTexture: GPUTexture, gpu: GPU)
+    uploadGpu(source: Buffer3DSource, gpuTexture: GPUTexture, gpu: GPU)
     {
         const data = source.data;
         const bytesPerPixel = mapFormatToPixelSize[source.format];

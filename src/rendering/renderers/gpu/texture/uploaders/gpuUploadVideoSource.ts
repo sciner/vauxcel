@@ -6,11 +6,11 @@ import type { GpuTextureUploader } from './GpuTextureUploader';
 
 export const gpuUploadVideoResource = {
 
-    type: 'video',
+    id: 'video',
 
-    upload(source: VideoSource, gpuTexture: GPUTexture, gpu: GPU)
+    uploadGpu(source: VideoSource, gpuTexture: GPUTexture, gpu: GPU)
     {
-        gpuUploadImageResource.upload(source, gpuTexture, gpu);
+        gpuUploadImageResource.uploadGpu(source, gpuTexture, gpu);
     }
 } as GpuTextureUploader<VideoSource>;
 

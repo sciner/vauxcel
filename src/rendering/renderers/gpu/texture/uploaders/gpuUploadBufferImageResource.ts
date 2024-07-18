@@ -4,15 +4,15 @@ import type { GpuTextureUploader } from './GpuTextureUploader';
 
 export const gpuUploadBufferImageResource = {
 
-    type: 'image',
+    id: 'buffer',
 
-    upload(source: BufferImageSource, gpuTexture: GPUTexture, gpu: GPU)
+    uploadGpu(source: BufferImageSource, gpuTexture: GPUTexture, gpu: GPU)
     {
         const data = source.data;
 
         if (!data)
         {
-            return
+            return;
         }
 
         const total = (source.pixelWidth | 0) * (source.pixelHeight | 0);
@@ -24,7 +24,7 @@ export const gpuUploadBufferImageResource = {
             {
                 offset: 0,
                 rowsPerImage: source.pixelHeight,
-                bytesPerRow: source.pixelHeight * bytesPerPixel,
+                bytesPerRow: source.pixelWidth * bytesPerPixel,
             },
             {
                 width: source.pixelWidth,

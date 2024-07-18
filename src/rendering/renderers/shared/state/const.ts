@@ -35,6 +35,8 @@ export type BLEND_MODES = 'inherit'
 | 'vivid-light'
 | 'hard-mix'
 | 'negation'
+| 'min'
+| 'max'
 | 'inverse'
 | 'normal-hack'
 | 'normal-npm-hack';

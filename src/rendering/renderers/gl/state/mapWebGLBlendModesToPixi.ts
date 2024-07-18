@@ -28,6 +28,10 @@ export function mapWebGLBlendModesToPixi(gl: GlRenderingContext): Record<BLEND_M
     blendMap.inverse = [gl.ONE_MINUS_DST_COLOR, gl.ONE_MINUS_SRC_COLOR, gl.ZERO, gl.ONE];
 
     blendMap.erase = [gl.ZERO, gl.ONE_MINUS_SRC_ALPHA];
+
+    blendMap.min = [gl.ONE, gl.ONE, gl.ONE, gl.ONE, gl.MIN, gl.MIN];
+    blendMap.max = [gl.ONE, gl.ONE, gl.ONE, gl.ONE, gl.MAX, gl.MAX];
+
     // TODO - implement if requested!
     // composite operations
     // array[BLEND_MODES.SRC_IN] = [gl.DST_ALPHA, gl.ZERO];

@@ -284,6 +284,7 @@ export class PipelineSystem implements System
             keyGen[index++] = attribute.offset;
             keyGen[index++] = attribute.format;
             keyGen[index++] = attribute.stride;
+            keyGen[index++] = attribute.instance;
         }
 
         const stringKey = keyGen.join('');
@@ -304,7 +305,6 @@ export class PipelineSystem implements System
 
         for (let i = 0; i < geometry.buffers.length; i++)
         {
-            const buffer = geometry.buffers[i];
             const bufferEntry: GPUVertexBufferLayout = {
                 arrayStride: 0,
                 stepMode: 'vertex',
@@ -322,17 +322,14 @@ export class PipelineSystem implements System
                     continue;
                 }
 
-                if (attribute.buffer === buffer)
-                {
-                    bufferEntry.arrayStride = attribute.stride;
-                    bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
+                bufferEntry.arrayStride = attribute.stride;
+                bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
 
-                    bufferEntryAttributes.push({
-                        shaderLocation: attribute.location,
-                        offset: attribute.offset,
-                        format: attribute.format,
-                    });
-                }
+                bufferEntryAttributes.push({
+                    shaderLocation: attribute.location,
+                    offset: attribute.offset,
+                    format: attribute.format,
+                });
             }
 
             if (bufferEntryAttributes.length)

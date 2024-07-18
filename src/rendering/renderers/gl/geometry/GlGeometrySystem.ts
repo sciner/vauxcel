@@ -523,6 +523,7 @@ export class GlGeometrySystem implements System
         const glTopology = topologyToGlMap[geometry.topology || topology];
 
         instanceCount ||= geometry.instanceCount;
+        size ||= geometry.getDrawSize();
 
         if (geometry.indexBuffer)
         {
@@ -531,8 +532,9 @@ export class GlGeometrySystem implements System
 
             if (instanceCount > 1)
             {
+                size = size || geometry.indexPerInstance || geometry.indexBuffer.data.length;
                 /* eslint-disable max-len */
-                gl.drawElementsInstanced(glTopology, size || geometry.indexBuffer.data.length, glType, (start || 0) * byteSize, instanceCount);
+                gl.drawElementsInstanced(glTopology, size, glType, (start || 0) * byteSize, instanceCount);
                 /* eslint-enable max-len */
             }
             else
@@ -545,11 +547,11 @@ export class GlGeometrySystem implements System
         else if (instanceCount > 1)
         {
             // TODO need a better way to calculate size..
-            gl.drawArraysInstanced(glTopology, start || 0, size || geometry.getSize(), instanceCount);
+            gl.drawArraysInstanced(glTopology, start || 0, size, instanceCount);
         }
         else
         {
-            gl.drawArrays(glTopology, start || 0, size || geometry.getSize());
+            gl.drawArrays(glTopology, start || 0, size);
         }
 
         return this;
@@ -567,7 +569,7 @@ export class GlGeometrySystem implements System
 
         if (bvbi)
         {
-            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getSize(), instanceCount, baseInstance);
+            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getDrawSize(), instanceCount, baseInstance);
 
             return this;
         }

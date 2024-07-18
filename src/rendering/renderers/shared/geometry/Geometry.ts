@@ -192,7 +192,7 @@ export class Geometry extends EventEmitter<{
         this.buffers = [];
         this.bufferStride = [];
         this.topology = options.topology || 'triangle-list';
-        this.vertexPerInstance = options.vertexPerInstance || 3;
+        this.vertexPerInstance = options.vertexPerInstance || 0;
         this.indexPerInstance = options.indexPerInstance || 0;
         this.strideFloats = options.strideFloats || 0;
 
@@ -253,7 +253,7 @@ export class Geometry extends EventEmitter<{
 
         if (this.vertexBuffer)
         {
-            const vpi = this.instanced ? 1 : this.vertexPerInstance;
+            const vpi = this.instanced ? 1 : (this.vertexPerInstance || 1);
 
             if (this.strideFloats)
             {
@@ -334,6 +334,29 @@ export class Geometry extends EventEmitter<{
         return 0;
     }
 
+    /**
+     * number of vertices/indices for draw command
+     */
+    public getDrawSize(): number
+    {
+        let size = 0;
+
+        if (this.instanced)
+        {
+            size = this.indexPerInstance || this.vertexPerInstance;
+
+            if (size)
+            {
+                return size;
+            }
+        }
+        if (this.indexBuffer)
+        {
+            return this.indexBuffer.data.length;
+        }
+        return this.getSize();
+    }
+
     /** Returns the bounds of the geometry. */
     get bounds(): Bounds
     {
@@ -371,8 +394,8 @@ export class Geometry extends EventEmitter<{
      * in case instance is virtual
      * those are params for multidraw
      */
-    public vertexPerInstance = 1;
-    public indexPerInstance = 1;
+    public vertexPerInstance = 0;
+    public indexPerInstance = 0;
     public strideFloats = 0;
     public stride = 0;
 

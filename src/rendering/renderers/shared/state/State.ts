@@ -11,6 +11,11 @@ const blendModeIds = {
     'normal-npm': 6,
     'add-npm': 7,
     'screen-npm': 8,
+    min: 9,
+    max: 10,
+    inverse: 11,
+    'normal-hack': 12,
+    'normal-npm-hack': 13
 };
 const BLEND = 0;
 const OFFSET = 1;

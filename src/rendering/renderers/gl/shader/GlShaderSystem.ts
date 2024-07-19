@@ -130,7 +130,16 @@ export class GlShaderSystem
 
         if (isBufferResource)
         {
-            bufferSystem.bindBufferRange(buffer, boundLocation, (uniformGroup as BufferResource).offset);
+            const { offset, size } = (uniformGroup as BufferResource);
+
+            if (offset === 0 && size === buffer.data.byteLength)
+            {
+                bufferSystem.bindBufferBase(buffer, boundLocation);
+            }
+            else
+            {
+                bufferSystem.bindBufferRange(buffer, boundLocation, offset);
+            }
         }
         else if (bufferSystem.getLastBindBaseLocation(buffer) !== boundLocation)
         {

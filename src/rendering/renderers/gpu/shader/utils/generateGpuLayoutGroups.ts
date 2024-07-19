@@ -42,13 +42,35 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                 }
             });
         }
+        else if (group.type === 'sampler_comparison')
+        {
+            layout[group.group].push({
+                binding: group.binding,
+                visibility: ShaderStage.FRAGMENT,
+                sampler: {
+                    type: 'comparison'
+                }
+            });
+        }
         else if (group.type === 'texture_2d')
         {
             layout[group.group].push({
                 binding: group.binding,
                 visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
                 texture: {
-                    sampleType: 'float',
+                    sampleType: mapParamToSampleType[group.typeParam],
+                    viewDimension: '2d',
+                    multisampled: false,
+                }
+            });
+        }
+        else if (group.type === 'texture_depth_2d')
+        {
+            layout[group.group].push({
+                binding: group.binding,
+                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                texture: {
+                    sampleType: 'depth',
                     viewDimension: '2d',
                     multisampled: false,
                 }
@@ -72,7 +94,7 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                 binding: group.binding,
                 visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
                 texture: {
-                    sampleType: 'float',
+                    sampleType: mapParamToSampleType[group.typeParam],
                     viewDimension: '2d-array',
                     multisampled: false,
                 }

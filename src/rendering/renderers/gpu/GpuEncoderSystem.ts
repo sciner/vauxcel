@@ -132,8 +132,9 @@ export class GpuEncoderSystem implements System
 
     public setBindGroup(index: number, bindGroup: BindGroup, program: GpuProgram)
     {
-        if (this._boundBindGroup[index] === bindGroup) return;
+        if (this._boundBindGroup[index] === bindGroup && bindGroup._lastLayout === program._layoutKey) return;
         this._boundBindGroup[index] = bindGroup;
+        this._boundBindGroup[index]._lastLayout = program._layoutKey;
 
         bindGroup._touch(this._renderer.textureGC.count);
 

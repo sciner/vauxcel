@@ -54,14 +54,17 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
                 {
                     const resName = shader._uniformBindMap[i][+j];
 
-                    funcFragments.push(`
-                        res_name = s._uniformBindMap[${i}][${j}];
-                        sS.bindUniformBlock(
-                            resources[${j}],
-                            '${resName}',
-                            ${shader.glProgram._uniformBlockData[resName].index}
-                        );
-                    `);
+                    if (resName)
+                    {
+                        funcFragments.push(`
+                            res_name = s._uniformBindMap[${i}][${j}];
+                            sS.bindUniformBlock(
+                                resources[${j}],
+                                '${resName}',
+                                ${shader.glProgram._uniformBlockData[resName].index}
+                            );
+                        `);
+                    }
                 }
                 else
                 {

@@ -106,9 +106,7 @@ export class BindGroupSystem implements System
             {
                 const texture = resource as TextureSource;
 
-                gpuResource = renderer.texture.bind(texture).createView({
-
-                });
+                gpuResource = renderer.texture.getTextureView(texture);
             }
 
             entries.push({

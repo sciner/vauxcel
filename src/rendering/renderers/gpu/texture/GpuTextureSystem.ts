@@ -299,7 +299,7 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
     private _createTextureView(texture: TextureSource)
     {
-        this._textureViewHash[texture.uid] = this.getGpuSource(texture).createView({
+        this._textureViewHash[texture.uid] = this.bind(texture).createView({
             dimension: texture.viewDimension
         });
 

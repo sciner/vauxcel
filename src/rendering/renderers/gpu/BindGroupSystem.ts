@@ -43,14 +43,13 @@ export class BindGroupSystem implements System
 
     public getBindGroup(bindGroup: BindGroup, program: GpuProgram, groupIndex: number): GPUBindGroup
     {
-        bindGroup._updateKey();
-
-        const gpuBindGroup = this._hash[bindGroup._key] || this._createBindGroup(bindGroup, program, groupIndex);
+        const key = bindGroup.getGpuKey(program, groupIndex);
+        const gpuBindGroup = this._hash[key] || this._createBindGroup(bindGroup, program, groupIndex, key);
 
         return gpuBindGroup;
     }
 
-    private _createBindGroup(group: BindGroup, program: GpuProgram, groupIndex: number): GPUBindGroup
+    private _createBindGroup(group: BindGroup, program: GpuProgram, groupIndex: number, key: string): GPUBindGroup
     {
         const device = this._gpu.device;
         const groupLayout = program.layout[groupIndex];
@@ -125,7 +124,7 @@ export class BindGroupSystem implements System
             entries,
         });
 
-        this._hash[group._key] = gpuBindGroup;
+        this._hash[key] = gpuBindGroup;
 
         return gpuBindGroup;
     }

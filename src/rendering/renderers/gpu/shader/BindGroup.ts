@@ -1,4 +1,13 @@
 import type { BindResource } from './BindResource';
+import type { GpuProgram } from './GpuProgram';
+
+class GroupProgPair
+{
+    dirtyId = -1;
+    key = '';
+}
+
+const keyParts: string[] = [];
 
 /**
  * A bind group is a collection of resources that are bound together for use by a shader.
@@ -30,13 +39,11 @@ export class BindGroup
 {
     /** The resources that are bound together for use by a shader. */
     public resources: Record<string, BindResource> = Object.create(null);
-    /**
-     * a key used internally to match it up to a WebGPU Bindgroup
-     * @internal
-     * @ignore
-     */
-    public _key: string;
-    private _dirty = true;
+
+    private _keys = new Map<number, GroupProgPair>();
+    private _updateID = -1;
+
+    _lastLayout = -1;
 
     /**
      * Create a new instance eof the Bind Group.
@@ -52,33 +59,34 @@ export class BindGroup
 
             this.setResource(resource, index++);
         }
-
-        this._updateKey();
     }
 
-    /**
-     * Updates the key if its flagged as dirty. This is used internally to
-     * match this bind group to a WebGPU BindGroup.
-     * @internal
-     * @ignore
-     */
-    public _updateKey(): void
+    public getGpuKey(prog: GpuProgram, group: number)
     {
-        if (!this._dirty) return;
+        let rec = this._keys.get(prog._layoutKey);
 
-        this._dirty = false;
-
-        const keyParts = [];
-        let index = 0;
-
-        // TODO - lets use big ints instead of strings...
-        for (const i in this.resources)
+        if (!rec)
         {
-            // TODO make this consistent...
-            keyParts[index++] = this.resources[i]._resourceId;
+            rec = new GroupProgPair();
+            this._keys.set(prog._layoutKey, rec);
         }
 
-        this._key = keyParts.join('|');
+        if (rec.dirtyId === this._updateID)
+        {
+            return rec.key;
+        }
+
+        const layout = prog.gpuLayout[group];
+
+        for (let i = 0; i < layout.length; i++)
+        {
+            keyParts.push(this.resources[layout[i].binding]._resourceId.toString());
+        }
+        rec.key = keyParts.join('|');
+        keyParts.length = 0;
+        rec.dirtyId = this._updateID;
+
+        return rec.key;
     }
 
     /**
@@ -102,7 +110,7 @@ export class BindGroup
         resource.on?.('change', this.onResourceChange, this);
 
         this.resources[index] = resource;
-        this._dirty = true;
+        this._updateID++;
     }
 
     /**
@@ -149,7 +157,7 @@ export class BindGroup
 
     protected onResourceChange(resource: BindResource)
     {
-        this._dirty = true;
+        this._updateID++;
 
         // check if a resource has been destroyed, if it has then we need to destroy this bind group
         // using this bind group with a destroyed resource will cause the renderer to explode :)
@@ -165,10 +173,6 @@ export class BindGroup
                     resources[i] = null;
                 }
             }
-        }
-        else
-        {
-            this._updateKey();
         }
     }
 }

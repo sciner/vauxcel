@@ -316,5 +316,11 @@ export class Buffer extends EventEmitter<{
 
     glData: GlBuffer = null;
     refCount = 0;
+    gpuData: GPUBuffer = null;
+
+    isAllocated()
+    {
+        return !!(this.glData || this.gpuData);
+    }
 }
 

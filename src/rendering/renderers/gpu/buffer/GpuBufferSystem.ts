@@ -93,7 +93,7 @@ export class GpuBufferSystem implements System
             gpuBuffer.unmap();
         }
 
-        this._gpuBuffers[buffer.uid] = gpuBuffer;
+        this._gpuBuffers[buffer.uid] = buffer.gpuData = gpuBuffer;
 
         return gpuBuffer;
     }
@@ -104,7 +104,7 @@ export class GpuBufferSystem implements System
 
         gpuBuffer.destroy();
         buffer._updateID = 0;
-        this._gpuBuffers[buffer.uid] = this.createGPUBuffer(buffer);
+        this._gpuBuffers[buffer.uid] = buffer.gpuData = this.createGPUBuffer(buffer);
     }
 
     /**
@@ -132,6 +132,7 @@ export class GpuBufferSystem implements System
         const gpuBuffer = this._gpuBuffers[buffer.uid];
 
         gpuBuffer.destroy();
+        buffer.gpuData = null;
 
         buffer.off('update', this.updateBuffer, this);
         buffer.off('change', this.onBufferChange, this);

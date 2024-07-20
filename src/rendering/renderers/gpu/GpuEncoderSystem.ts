@@ -250,7 +250,7 @@ export class GpuEncoderSystem implements System
                     this.renderPassEncoder.drawIndexed(
                         counts[i],
                         instanceCounts[i],
-                        offsets[i],
+                        offsets[i] / 4,
                         0,
                         baseInstances[i]
                     );
@@ -275,8 +275,8 @@ export class GpuEncoderSystem implements System
             {
                 this.renderPassEncoder.drawIndexed(
                     counts[i],
-                    0,
-                    offsets[i],
+                    1,
+                    offsets[i] / 4,
                 );
             }
         }
@@ -286,7 +286,7 @@ export class GpuEncoderSystem implements System
             {
                 this.renderPassEncoder.draw(
                     counts[i],
-                    0,
+                    1,
                     offsets[i],
                 );
             }

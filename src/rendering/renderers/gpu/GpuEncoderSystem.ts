@@ -387,7 +387,7 @@ export class GpuEncoderSystem implements System
     }
 
     multiCopyBuffer(src: Buffer, target: Buffer,
-        strideBytes: number, copies: Array<BufferCopyOperation>, copyCount?: number): void
+        strideBytes: number, copies: Array<BufferCopyOperation>, copyCount: number = copies.length): void
     {
         const srcBuf = this._renderer.buffer.updateBuffer(src);
         const targetBuf = this._renderer.buffer.updateBuffer(target);

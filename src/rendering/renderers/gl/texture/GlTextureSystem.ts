@@ -534,6 +534,25 @@ export class GlTextureSystem implements System, CanvasGenerator
             pixels
         );
 
+        const len = 4 * width;
+        const w1 = new Uint8Array(len);
+        const w2 = new Uint8Array(len);
+
+        // flip Y!
+        if (renderTarget.isRoot)
+        {
+            for (let y = 0; y < height >> 1; y++)
+            {
+                const row1 = pixels.subarray(y * len, (y + 1) * len);
+                const row2 = pixels.subarray((height - y - 1) * len, (height - y) * len);
+
+                w1.set(row1);
+                w2.set(row2);
+                row1.set(w2, 0);
+                row2.set(w1, 0);
+            }
+        }
+
         // if (texture.source.premultiplyAlpha > 0)
         // TODO - premultiplied alpha does not exist right now, need to add that back in!
         // eslint-disable-next-line no-constant-condition

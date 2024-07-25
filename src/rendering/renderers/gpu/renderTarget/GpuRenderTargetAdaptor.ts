@@ -85,7 +85,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
 
     public finishRenderPass()
     {
-        this._renderer.encoder.endRenderPass();
+        this._renderer.encoder.endCurrentPass();
     }
 
     /**

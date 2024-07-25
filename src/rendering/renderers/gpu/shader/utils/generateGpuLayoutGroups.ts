@@ -13,9 +13,27 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
 {
     const layout: ProgramPipelineLayoutDescription = [];
 
+    let compute_flag = ShaderStage.VERTEX | ShaderStage.FRAGMENT;
+
     for (let i = 0; i < groups.length; i++)
     {
         const group = groups[i];
+
+        if (group.writable)
+        {
+            compute_flag = ShaderStage.COMPUTE;
+        }
+    }
+
+    for (let i = 0; i < groups.length; i++)
+    {
+        const group = groups[i];
+        let sampleType = mapParamToSampleType[group.typeParam];
+
+        if (compute_flag === ShaderStage.COMPUTE && sampleType === 'float')
+        {
+            sampleType = 'unfilterable-float';
+        }
 
         if (!layout[group.group])
         {
@@ -26,9 +44,19 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.VERTEX | ShaderStage.FRAGMENT,
+                visibility: compute_flag,
                 buffer: {
                     type: 'uniform'
+                }
+            });
+        }
+        else if (group.isStorage)
+        {
+            layout[group.group].push({
+                binding: group.binding,
+                visibility: compute_flag,
+                buffer: {
+                    type: group.writable ? 'storage' : 'read-only-storage'
                 }
             });
         }
@@ -56,9 +84,9 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                visibility: compute_flag,
                 texture: {
-                    sampleType: mapParamToSampleType[group.typeParam],
+                    sampleType: sampleType,
                     viewDimension: '2d',
                     multisampled: false,
                 }
@@ -68,7 +96,7 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                visibility: compute_flag,
                 texture: {
                     sampleType: 'depth',
                     viewDimension: '2d',
@@ -80,9 +108,9 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                visibility: compute_flag,
                 texture: {
-                    sampleType: mapParamToSampleType[group.typeParam],
+                    sampleType: sampleType,
                     viewDimension: '3d',
                     multisampled: false,
                 }
@@ -92,9 +120,9 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT | ShaderStage.VERTEX,
+                visibility: compute_flag,
                 texture: {
-                    sampleType: mapParamToSampleType[group.typeParam],
+                    sampleType: sampleType,
                     viewDimension: '2d-array',
                     multisampled: false,
                 }

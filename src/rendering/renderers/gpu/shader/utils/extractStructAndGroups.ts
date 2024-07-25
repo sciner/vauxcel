@@ -5,6 +5,8 @@ export interface StructsAndGroups
         binding: number;
         name: string;
         isUniform: boolean;
+        isStorage: boolean;
+        writable: boolean;
         type: string;
         typeParam: string;
     }[];
@@ -21,20 +23,28 @@ export function extractStructAndGroups(wgsl: string): StructsAndGroups
     const groupPattern = /@group\((\d+)\)/;
     const bindingPattern = /@binding\((\d+)\)/;
     const namePattern = /var(<[^>]+>)? (\w+)/;
-    const typePattern = /:\s*(\w+)(<(\w+)>)?/;
+    const typePattern = /:\s*(\w+)(<(\w+)(,\s*(\w+))?>)?/;
     const structPattern = /struct\s+(\w+)\s*{([^}]+)}/g;
     const structMemberPattern = /(\w+)\s*:\s*([\w\<\>]+)/g;
     const structName = /struct\s+(\w+)/;
 
     // Find the @group and @binding annotations
-    const groups = wgsl.match(linePattern)?.map((item) => ({
-        group: parseInt(item.match(groupPattern)[1], 10),
-        binding: parseInt(item.match(bindingPattern)[1], 10),
-        name: item.match(namePattern)[2],
-        isUniform: item.match(namePattern)[1] === '<uniform>',
-        type: item.match(typePattern)[1],
-        typeParam: item.match(typePattern)[3],
-    }));
+    const groups = wgsl.match(linePattern)?.map((item) =>
+    {
+        const name = item.match(namePattern);
+        const type = item.match(typePattern);
+
+        return {
+            group: parseInt(item.match(groupPattern)[1], 10),
+            binding: parseInt(item.match(bindingPattern)[1], 10),
+            name: name[2],
+            isUniform: name[1] === '<uniform>',
+            isStorage: name[1]?.startsWith('<storage'),
+            writable: item.indexOf('read_write') >= 0,
+            type: type[1],
+            typeParam: type[3],
+        };
+    });
 
     if (!groups)
     {

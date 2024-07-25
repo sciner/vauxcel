@@ -32,6 +32,7 @@ export class GpuEncoderSystem implements System
 
     public commandEncoder: GPUCommandEncoder;
     public renderPassEncoder: GPURenderPassEncoder;
+    public computePassEncoder: GPUComputePassEncoder;
     public commandFinished: Promise<void>;
 
     private _resolveCommandFinished: (value: void) => void;
@@ -41,6 +42,7 @@ export class GpuEncoderSystem implements System
     private _boundVertexBuffer: Record<number, Buffer> = Object.create(null);
     private _boundIndexBuffer: Buffer;
     private _boundPipeline: GPURenderPipeline;
+    private _boundCompute = -1;
 
     private readonly _renderer: WebGPURenderer;
 
@@ -63,21 +65,43 @@ export class GpuEncoderSystem implements System
 
     public beginRenderPass(gpuRenderTarget: GpuRenderTarget)
     {
-        this.endRenderPass();
+        this.endCurrentPass();
 
         this._clearCache();
 
         this.renderPassEncoder = this.commandEncoder.beginRenderPass(gpuRenderTarget.descriptor);
     }
 
-    public endRenderPass()
+    public beginComputePass()
+    {
+        this.endCurrentPass();
+
+        this._clearCache();
+
+        this.computePassEncoder = this.commandEncoder.beginComputePass();
+    }
+
+    public ensureComputePass()
+    {
+        if (!this.computePassEncoder)
+        {
+            this.beginComputePass();
+        }
+    }
+
+    public endCurrentPass()
     {
         if (this.renderPassEncoder)
         {
             this.renderPassEncoder.end();
         }
+        if (this.computePassEncoder)
+        {
+            this.computePassEncoder.end();
+        }
 
         this.renderPassEncoder = null;
+        this.computePassEncoder = null;
     }
 
     public setViewport(viewport: Rectangle): void
@@ -143,7 +167,7 @@ export class GpuEncoderSystem implements System
         const gpuBindGroup = this._renderer.bindGroup.getBindGroup(bindGroup, program, index);
 
         // mark each item as having been used..
-        this.renderPassEncoder.setBindGroup(index, gpuBindGroup);
+        (this.renderPassEncoder || this.computePassEncoder).setBindGroup(index, gpuBindGroup);
     }
 
     public setGeometry(geometry: Geometry)
@@ -221,6 +245,37 @@ export class GpuEncoderSystem implements System
         else
         {
             this.renderPassEncoder.draw(size, instanceCount || geometry.instanceCount, start || 0);
+        }
+    }
+
+    public compute(options: {
+        shader: Shader,
+        x: number,
+        y?: number,
+        z?: number,
+        skipSync?: boolean,
+        endPass?: boolean
+    })
+    {
+        const { shader, skipSync, x, y, z } = options;
+        const { gpuProgram } = shader;
+
+        this.ensureComputePass();
+
+        if (this._boundCompute !== gpuProgram._layoutKey)
+        {
+            this._boundCompute = gpuProgram._layoutKey;
+
+            this.computePassEncoder.setPipeline(this._renderer.pipeline.getComputePipeline(gpuProgram));
+        }
+
+        this._setShaderBindGroups(shader, skipSync);
+
+        this.computePassEncoder.dispatchWorkgroups(x, y, z);
+
+        if (options.endPass)
+        {
+            this.endCurrentPass();
         }
     }
 
@@ -364,6 +419,7 @@ export class GpuEncoderSystem implements System
 
         this._boundIndexBuffer = null;
         this._boundPipeline = null;
+        this._boundCompute = -1;
     }
 
     public destroy()
@@ -374,6 +430,7 @@ export class GpuEncoderSystem implements System
         this._boundVertexBuffer = null;
         this._boundIndexBuffer = null;
         this._boundPipeline = null;
+        this._boundCompute = -1;
     }
 
     protected contextChange(gpu: GPU): void

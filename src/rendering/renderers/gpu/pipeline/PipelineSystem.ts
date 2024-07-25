@@ -61,6 +61,8 @@ function getGlobalStateKey(
 
 type PipeHash = Record<number, GPURenderPipeline>;
 
+type ComputeHash = Record<number, GPUComputePipeline>;
+
 /**
  * A system that creates and manages the GPU pipelines.
  *
@@ -93,6 +95,7 @@ export class PipelineSystem implements System
     private _bufferLayoutsCache: Record<number, GPUVertexBufferLayout[]> = Object.create(null);
 
     private _pipeCache: PipeHash = Object.create(null);
+    private _computeCache: ComputeHash = Object.create(null);
     private readonly _pipeStateCaches: Record<number, PipeHash> = Object.create(null);
 
     private _gpu: GPU;
@@ -248,6 +251,40 @@ export class PipelineSystem implements System
         }
 
         const pipeline = device.createRenderPipeline(descriptor);
+
+        return pipeline;
+    }
+
+    public getComputePipeline(
+        program: GpuProgram,
+    ): GPUComputePipeline
+    {
+        const key = program._layoutKey;
+
+        if (this._computeCache[key]) return this._computeCache[key];
+
+        this._computeCache[key] = this._createComputePipeline(program);
+
+        return this._computeCache[key];
+    }
+
+    private _createComputePipeline(program: GpuProgram): GPUComputePipeline
+    {
+        const device = this._gpu.device;
+
+        const layout = this._renderer.shader.getProgramData(program).pipeline;
+
+        const descriptor: GPUComputePipelineDescriptor = {
+            compute: {
+                module: this._getModule(program.vertex.source),
+                entryPoint: program.vertex.entryPoint,
+            },
+            layout,
+            // depthStencil,
+            label: `PIXI Compute Pipeline`,
+        };
+
+        const pipeline = device.createComputePipeline(descriptor);
 
         return pipeline;
     }

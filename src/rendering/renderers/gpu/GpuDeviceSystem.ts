@@ -76,6 +76,10 @@ export class GpuDeviceSystem implements System<GpuContextOptions>
     private _renderer: WebGPURenderer;
     private _initPromise: Promise<void>;
 
+    limits = {
+        maxBufferSize: 0,
+        maxStorageBufferBindingSize: 0
+    };
     /**
      * @param {WebGPURenderer} renderer - The renderer this System works for.
      */
@@ -124,14 +128,20 @@ export class GpuDeviceSystem implements System<GpuContextOptions>
         });
 
         const requiredFeatures = [
-            'texture-compression-bc',
-            'texture-compression-astc',
-            'texture-compression-etc2',
+            // 'texture-compression-bc',
+            // 'texture-compression-astc',
+            // 'texture-compression-etc2',
         ].filter((feature) => adapter.features.has(feature)) as GPUFeatureName[];
+
+        for (const key in this.limits)
+        {
+            (this.limits as any)[key] = (adapter.limits as any)[key];
+        }
 
         // TODO and one of these!
         const device = await adapter.requestDevice({
-            requiredFeatures
+            requiredFeatures,
+            requiredLimits: this.limits
         });
 
         return { adapter, device };

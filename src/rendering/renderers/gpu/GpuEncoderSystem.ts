@@ -224,10 +224,11 @@ export class GpuEncoderSystem implements System
         size?: number;
         start?: number;
         instanceCount?: number;
+        baseInstance?: number;
         skipSync?: boolean;
     })
     {
-        const { geometry, shader, state, topology, start, instanceCount, skipSync } = options;
+        const { geometry, shader, state, topology, start, instanceCount, skipSync, baseInstance } = options;
         const size = options.size || geometry.getDrawSize();
 
         this.setPipelineFromGeometryProgramAndState(geometry, shader.gpuProgram, state, topology);
@@ -239,12 +240,14 @@ export class GpuEncoderSystem implements System
             this.renderPassEncoder.drawIndexed(
                 size,
                 instanceCount || geometry.instanceCount,
-                start || 0
+                start || 0,
+                0,
+                baseInstance || 0
             );
         }
         else
         {
-            this.renderPassEncoder.draw(size, instanceCount || geometry.instanceCount, start || 0);
+            this.renderPassEncoder.draw(size, instanceCount || geometry.instanceCount, start || 0, baseInstance || 0);
         }
     }
 

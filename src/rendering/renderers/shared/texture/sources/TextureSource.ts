@@ -76,6 +76,7 @@ export interface TextureSourceOptions<T extends Record<string, any> = any> exten
 
     glMutableSize?: boolean;
     copyOnResize?: boolean;
+    gpuStorage?: boolean;
 }
 
 /**
@@ -113,7 +114,8 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
         antialias: false,
         autoGarbageCollect: false,
         glMutableSize: false,
-        copyOnResize: false
+        gpuStorage: false,
+        copyOnResize: false,
     };
 
     /** unique id for this Texture source */
@@ -284,6 +286,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
 
         this.glMutableSize = options.glMutableSize;
         this.copyOnResize = options.copyOnResize;
+        this.gpuStorage = options.gpuStorage;
 
         this.style = new TextureStyle(definedProps(options));
 
@@ -607,6 +610,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     _glLastBindLocation: number = -1;
     _glTexture: GlTexture = null;
     glMutableSize: boolean;
+    gpuStorage: boolean;
     copyOnResize: boolean;
     glUploader?: GLTextureUploader = undefined;
     gpuUploader?: GpuTextureUploader = undefined;
@@ -614,6 +618,6 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
 
     isHdr()
     {
-        return this.format === 'rgba16float'
+        return this.format === 'rgba16float';
     }
 }

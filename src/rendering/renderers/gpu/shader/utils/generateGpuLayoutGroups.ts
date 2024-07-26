@@ -1,5 +1,6 @@
 import { ShaderStage } from '../../../shared/shader/const';
 
+import type { TEXTURE_FORMATS } from '../../../shared/texture/const.js';
 import type { ProgramPipelineLayoutDescription } from '../GpuProgram';
 import type { StructsAndGroups } from './extractStructAndGroups';
 
@@ -14,6 +15,21 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
     const layout: ProgramPipelineLayoutDescription = [];
 
     let compute_flag = ShaderStage.VERTEX | ShaderStage.FRAGMENT;
+    let type: string = '';
+
+    function spliceType(delim: string): boolean
+    {
+        const splice_ind = type.indexOf(delim);
+
+        if (splice_ind >= 0)
+        {
+            type = type.substring(0, splice_ind) + type.substring(splice_ind + delim.length, type.length);
+
+            return true;
+        }
+
+        return false;
+    }
 
     for (let i = 0; i < groups.length; i++)
     {
@@ -28,12 +44,6 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
     for (let i = 0; i < groups.length; i++)
     {
         const group = groups[i];
-        let sampleType = mapParamToSampleType[group.typeParam];
-
-        if (compute_flag === ShaderStage.COMPUTE && sampleType === 'float')
-        {
-            sampleType = 'unfilterable-float';
-        }
 
         if (!layout[group.group])
         {
@@ -49,8 +59,9 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                     type: 'uniform'
                 }
             });
+            continue;
         }
-        else if (group.isStorage)
+        if (group.isStorage)
         {
             layout[group.group].push({
                 binding: group.binding,
@@ -59,8 +70,11 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                     type: group.writable ? 'storage' : 'read-only-storage'
                 }
             });
+            continue;
         }
-        else if (group.type === 'sampler')
+
+        type = group.type;
+        if (type === 'sampler')
         {
             layout[group.group].push({
                 binding: group.binding,
@@ -69,8 +83,9 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                     type: 'filtering'
                 }
             });
+            continue;
         }
-        else if (group.type === 'sampler_comparison')
+        if (type === 'sampler_comparison')
         {
             layout[group.group].push({
                 binding: group.binding,
@@ -79,55 +94,52 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                     type: 'comparison'
                 }
             });
+            continue;
         }
-        else if (group.type === 'texture_2d')
+
+        if (!type.startsWith('texture'))
+        {
+            continue;
+        }
+
+        // eslint-disable-next-line no-nested-ternary,max-len
+        const viewDimension: GPUTextureViewDimension = (type.endsWith('_3d') ? '3d' : (type.endsWith('2d_array') ? '2d-array' : '2d'));
+
+        if (spliceType('_storage'))
         {
             layout[group.group].push({
                 binding: group.binding,
                 visibility: compute_flag,
-                texture: {
-                    sampleType: sampleType,
-                    viewDimension: '2d',
-                    multisampled: false,
+                storageTexture: {
+                    format: group.typeParam as TEXTURE_FORMATS,
+                    viewDimension,
+                    access: group.writable ? 'read-write' : 'read-only',
                 }
             });
+            continue;
         }
-        else if (group.type === 'texture_depth_2d')
+
+        let sampleType = mapParamToSampleType[group.typeParam];
+
+        if (spliceType('_depth'))
         {
-            layout[group.group].push({
-                binding: group.binding,
-                visibility: compute_flag,
-                texture: {
-                    sampleType: 'depth',
-                    viewDimension: '2d',
-                    multisampled: false,
-                }
-            });
+            sampleType = 'depth';
         }
-        else if (group.type === 'texture_3d')
+
+        if (compute_flag === ShaderStage.COMPUTE && sampleType === 'float')
         {
-            layout[group.group].push({
-                binding: group.binding,
-                visibility: compute_flag,
-                texture: {
-                    sampleType: sampleType,
-                    viewDimension: '3d',
-                    multisampled: false,
-                }
-            });
+            sampleType = 'unfilterable-float';
         }
-        else if (group.type === 'texture_2d_array')
-        {
-            layout[group.group].push({
-                binding: group.binding,
-                visibility: compute_flag,
-                texture: {
-                    sampleType: sampleType,
-                    viewDimension: '2d-array',
-                    multisampled: false,
-                }
-            });
-        }
+
+        layout[group.group].push({
+            binding: group.binding,
+            visibility: compute_flag,
+            texture: {
+                sampleType,
+                viewDimension,
+                multisampled: false,
+            }
+        });
     }
 
     return layout;

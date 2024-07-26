@@ -74,8 +74,15 @@ export class GpuTextureSystem implements System, CanvasGenerator
 
         if (source.uploadMethodId !== 'compressed')
         {
-            usage |= GPUTextureUsage.RENDER_ATTACHMENT;
             usage |= GPUTextureUsage.COPY_SRC;
+            if (source.gpuStorage)
+            {
+                usage |= GPUTextureUsage.STORAGE_BINDING;
+            }
+            else
+            {
+                usage |= GPUTextureUsage.RENDER_ATTACHMENT;
+            }
         }
 
         const blockData = { blockBytes: 4, blockWidth: 1, blockHeight: 1 };

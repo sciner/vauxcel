@@ -131,6 +131,7 @@ export class GpuDeviceSystem implements System<GpuContextOptions>
             // 'texture-compression-bc',
             // 'texture-compression-astc',
             // 'texture-compression-etc2',
+            'timestamp-query'
         ].filter((feature) => adapter.features.has(feature)) as GPUFeatureName[];
 
         for (const key in this.limits)

@@ -72,13 +72,13 @@ export class GpuEncoderSystem implements System
         this.renderPassEncoder = this.commandEncoder.beginRenderPass(gpuRenderTarget.descriptor);
     }
 
-    public beginComputePass()
+    public beginComputePass(timestampWrites?: GPUComputePassTimestampWrites)
     {
         this.endCurrentPass();
 
         this._clearCache();
 
-        this.computePassEncoder = this.commandEncoder.beginComputePass();
+        this.computePassEncoder = this.commandEncoder.beginComputePass(timestampWrites ? { timestampWrites } : undefined);
     }
 
     public ensureComputePass()
@@ -257,7 +257,7 @@ export class GpuEncoderSystem implements System
         y?: number,
         z?: number,
         skipSync?: boolean,
-        endPass?: boolean
+        endPass?: boolean,
     })
     {
         const { shader, skipSync, x, y, z } = options;

@@ -77,11 +77,20 @@ export class BindGroup
         }
 
         const layout = prog.gpuLayout[group];
+        let hasStorage = false;
 
         for (let i = 0; i < layout.length; i++)
         {
-            keyParts.push(this.resources[layout[i].binding]._resourceId.toString());
+            const bgle = layout[i];
+
+            keyParts.push(this.resources[bgle.binding]._resourceId.toString());
+
+            if (bgle.storageTexture || (bgle.buffer && bgle.buffer.type !== 'uniform'))
+            {
+                hasStorage = true;
+            }
         }
+        if (hasStorage) keyParts.push(`~${prog._layoutKey}`);
         rec.key = keyParts.join('|');
         keyParts.length = 0;
         rec.dirtyId = this._updateID;

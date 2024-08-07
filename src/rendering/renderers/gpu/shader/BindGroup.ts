@@ -120,6 +120,7 @@ export class BindGroup
 
         this.resources[index] = resource;
         this._updateID++;
+        this._lastLayout = -1;
     }
 
     /**

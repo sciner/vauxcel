@@ -207,6 +207,7 @@ export class PipelineSystem implements System
         const cullMode = stateSystem.getCullMode(state);
 
         blendModes[0].writeMask = this._stencilMode === STENCIL_MODES.RENDERING_MASK_ADD ? 0 : this._colorMask;
+        blendModes[0].format = this._renderer.renderTarget.renderTarget.format;
 
         const layout = this._renderer.shader.getProgramData(program).pipeline;
 

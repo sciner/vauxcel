@@ -5,6 +5,7 @@ import { TextureSource } from '../texture/sources/TextureSource';
 import { Texture } from '../texture/Texture';
 
 import type { BindableTexture } from '../texture/Texture';
+import type {TEXTURE_FORMATS} from "../texture/const";
 
 /**
  * Options for creating a render target.
@@ -30,6 +31,7 @@ export interface RenderTargetOptions
     antialias?: boolean;
     /** is this a root element, true if this is gl context owners render target */
     isRoot?: boolean;
+    format?: TEXTURE_FORMATS
 }
 
 /**
@@ -60,7 +62,8 @@ export class RenderTarget
         /** should this render target be antialiased? */
         antialias: false, // save on perf by default!
         /** is this a root element, true if this is gl context owners render target */
-        isRoot: false
+        isRoot: false,
+        format: 'bgra8unorm',
     };
 
     public uid = uid('renderTarget');
@@ -76,6 +79,7 @@ export class RenderTarget
     public stencil: boolean;
     /** if true, will ensure a depth buffer is added. For WebGPU, this will automatically create a depthStencilTexture */
     public depth: boolean;
+    public format: TEXTURE_FORMATS;
 
     public dirtyId = 0;
     public isRoot = false;
@@ -106,17 +110,21 @@ export class RenderTarget
                     height: descriptor.height,
                     resolution: descriptor.resolution,
                     antialias: descriptor.antialias,
+                    format: descriptor.format
                 })
                 );
             }
+            this.format = descriptor.format;
         }
         else
         {
             this.colorTextures = [...descriptor.colorTextures.map((texture) => texture.source)];
+            this.format = this.colorTextures[0].format;
 
             const colorSource = this.colorTexture.source;
 
             this.resize(colorSource.width, colorSource.height, colorSource._resolution);
+
         }
 
         // the first color texture drives the size of all others..

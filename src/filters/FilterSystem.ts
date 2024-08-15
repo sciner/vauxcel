@@ -114,7 +114,7 @@ export class FilterSystem implements System
         uGlobalFrame: { value: new Float32Array(4), type: 'vec4<f32>' },
         uOutputTexture: { value: new Float32Array(4), type: 'vec4<f32>' },
         uFrameSize: { value: new Float32Array(4), type: 'vec4<f32>' },
-        uShift: { value: new Float32Array(4), type: 'vec4<f32>' },
+        // uShift: { value: new Float32Array(4), type: 'vec4<f32>' },
         uOutputSize: { value: new Float32Array(4), type: 'vec4<f32>' },
     });
 
@@ -496,7 +496,7 @@ export class FilterSystem implements System
         const globalFrame = uniforms.uGlobalFrame;
         const outputTexture = uniforms.uOutputTexture;
         const frameSize = uniforms.uFrameSize;
-        const shift = uniforms.uShift;
+        // const shift = uniforms.uShift;
         const outputSize = uniforms.uOutputSize;
 
         // are we rendering back to the original surface?
@@ -519,8 +519,8 @@ export class FilterSystem implements System
                 }
             }
 
-            outputFrame[0] = shift[2] = bounds.minX - offset.x;
-            outputFrame[1] = shift[3] = bounds.minY - offset.y;
+            outputFrame[0] = bounds.minX - offset.x; // = shift[2]
+            outputFrame[1] = bounds.minY - offset.y; // = shift[3]
         }
         else
         {

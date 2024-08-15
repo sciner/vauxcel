@@ -120,6 +120,10 @@ export class BindGroup
 
         this.resources[index] = resource;
         this._updateID++;
+        /**
+         * it is not clear, whether we need this thing,
+         * maybe it iss better to have "bind_group changed two times inside one render pass"
+         */
         this._lastLayout = -1;
     }
 

@@ -51,11 +51,13 @@ function getGlobalStateKey(
     multiSampleCount: number,
     colorMask: number,
     renderTarget: number,
+    hdr: number
 ): number
 {
-    return (colorMask << 6) // Allocate the 4 bits for colorMask at the top
-         | (stencilStateId << 3) // Next 3 bits for stencilStateId
-         | (renderTarget << 1) // 2 bits for renderTarget
+    return (colorMask << 7) // Allocate the 4 bits for colorMask at the top
+         | (stencilStateId << 4) // Next 3 bits for stencilStateId
+         | (renderTarget << 2) // 2 bits for renderTarget
+         | (hdr << 1) // 1 bits for hdr
          | multiSampleCount; // And 1 bit for multiSampleCount at the least significant position
 }
 
@@ -104,7 +106,8 @@ export class PipelineSystem implements System
     private _stencilMode: STENCIL_MODES;
     private _colorMask = 0b1111;
     private _multisampleCount = 1;
-    private _depthStencilAttachment: 0 | 1;
+    private _depthStencilAttachment: number = 0;
+    private _hdr: 0 | 1;
 
     constructor(renderer: WebGPURenderer)
     {
@@ -131,7 +134,11 @@ export class PipelineSystem implements System
     public setRenderTarget(renderTarget: GpuRenderTarget)
     {
         this._multisampleCount = renderTarget.msaaSamples;
-        this._depthStencilAttachment = renderTarget.descriptor.depthStencilAttachment ? 1 : 0;
+
+        this._depthStencilAttachment = renderTarget.descriptor.depthStencilAttachment ? (
+            1 | (renderTarget.descriptor.depthStencilAttachment.stencilLoadOp ? 2 : 0)
+        ) : 0;
+        this._hdr = renderTarget.hdr;
 
         this._updatePipeHash();
     }
@@ -207,7 +214,7 @@ export class PipelineSystem implements System
         const cullMode = stateSystem.getCullMode(state);
 
         blendModes[0].writeMask = this._stencilMode === STENCIL_MODES.RENDERING_MASK_ADD ? 0 : this._colorMask;
-        blendModes[0].format = this._renderer.renderTarget.renderTarget.format;
+        blendModes[0].format = this._hdr ? 'rgba16float' : 'bgra8unorm';
 
         const layout = this._renderer.shader.getProgramData(program).pipeline;
 
@@ -243,7 +250,7 @@ export class PipelineSystem implements System
             // mask states..
             descriptor.depthStencil = {
                 ...this._stencilState,
-                format: 'depth24plus-stencil8',
+                format: this._depthStencilAttachment === 1 ? 'depth32float' : 'depth24plus-stencil8',
                 depthWriteEnabled: state.depthTest && stateSystem.depthCompare !== 'equal',
                 depthCompare: state.depthTest ? stateSystem.depthCompare : 'always',
                 depthBias: state._depthBiasValue,
@@ -358,8 +365,8 @@ export class PipelineSystem implements System
                 if (attribute.buffer_index !== i)
                 {
                     continue;
-                }
 
+                }
                 bufferEntry.arrayStride = attribute.stride;
                 bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
 
@@ -387,7 +394,8 @@ export class PipelineSystem implements System
             this._stencilMode,
             this._multisampleCount,
             this._colorMask,
-            this._depthStencilAttachment
+            this._depthStencilAttachment,
+            this._hdr
         );
 
         if (!this._pipeStateCaches[key])

@@ -184,6 +184,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
 
         if (depthTexture)
         {
+            const hasStencil = depthTexture?.format === 'depth24plus-stencil8';
             const stencilLoadOp = (clear & CLEAR.STENCIL ? 'clear' : 'load') as GPULoadOp;
             const depthLoadOp = (clear & CLEAR.DEPTH ? 'clear' : 'load') as GPULoadOp;
 
@@ -191,8 +192,8 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
                 view: this._renderer.texture
                     .getGpuSource(depthTexture.source)
                     .createView(),
-                stencilStoreOp: 'store',
-                stencilLoadOp,
+                stencilStoreOp: hasStencil ? 'store' : undefined,
+                stencilLoadOp: hasStencil ? stencilLoadOp : undefined,
                 depthClearValue: 1.0,
                 depthLoadOp,
                 depthStoreOp: 'store',
@@ -278,6 +279,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
                 gpuRenderTarget.contexts[i] = context;
             }
 
+            gpuRenderTarget.hdr = colorTexture.format === 'rgba16float' ? 1 : 0;
             gpuRenderTarget.msaa = colorTexture.source.antialias;
 
             if (colorTexture.source.antialias)

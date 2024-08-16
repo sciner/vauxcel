@@ -13,5 +13,6 @@ export class GpuRenderTarget
     public msaaSamples = 1;
     public width: number;
     public height: number;
+    public hdr: 0 | 1;
     public descriptor: GPURenderPassDescriptor;
 }

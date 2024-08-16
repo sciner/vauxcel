@@ -22,7 +22,7 @@ const topologyStringToId = {
     'triangle-strip': 4,
 };
 
-// geometryLayouts = 256; // 8 bits // 256 states // value 0-255;
+// geometryLayouts = 128 // 7 bits // 128 states // value 0-127;
 // shaderKeys = 256; // 8 bits // 256 states // value 0-255;
 // state = 64; // 6 bits // 64 states // value 0-63;
 // blendMode = 32; // 5 bits // 32 states // value 0-31;
@@ -35,9 +35,9 @@ function getGraphicsStateKey(
     topology: number,
 ): number
 {
-    return (geometryLayout << 24) // Allocate the 8 bits for geometryLayouts at the top
-         | (shaderKey << 16) // Next 8 bits for shaderKeys
-         | (state << 10) // 6 bits for state
+    return (geometryLayout << 25) // Allocate the 8 bits for geometryLayouts at the top
+         | (shaderKey << 17) // Next 8 bits for shaderKeys
+         | (state << 10) // 7 bits for state
          | (blendMode << 5) // 5 bits for blendMode
          | topology; // And 3 bits for topology at the least significant position
 }

@@ -22,24 +22,31 @@ const topologyStringToId = {
     'triangle-strip': 4,
 };
 
+function getProgKey(
+    geometryLayout: number,
+    shaderKey: number,
+    topology: number,
+): number
+{
+    return (geometryLayout << 13) // Allocate the 8 bits for geometryLayouts at the top
+        | (shaderKey << 3) // Next 8 bits for shaderKeys
+        | topology; // And 3 bits for topology at the least significant position
+}
+
 // geometryLayouts = 128 // 7 bits // 128 states // value 0-127;
 // shaderKeys = 256; // 8 bits // 256 states // value 0-255;
 // state = 64; // 6 bits // 64 states // value 0-63;
 // blendMode = 32; // 5 bits // 32 states // value 0-31;
 // topology = 8; // 3 bits // 8 states // value 0-7;
 function getGraphicsStateKey(
-    geometryLayout: number,
-    shaderKey: number,
+    customId: number,
     state: number,
     blendMode: number,
-    topology: number,
 ): number
 {
-    return (geometryLayout << 25) // Allocate the 8 bits for geometryLayouts at the top
-         | (shaderKey << 17) // Next 8 bits for shaderKeys
-         | (state << 10) // 7 bits for state
-         | (blendMode << 5) // 5 bits for blendMode
-         | topology; // And 3 bits for topology at the least significant position
+    return (customId << 12) // Allocate the 8 bits for geometryLayouts at the top
+         | (state << 5) // 7 bits for state
+         | blendMode; // 5 bits for blendMode
 }
 
 // colorMask = 16;// 4 bits // 16 states // value 0-15;
@@ -47,6 +54,7 @@ function getGraphicsStateKey(
 // renderTarget = 1; // 2 bit // 3 states // value 0-3; // none, stencil, depth, depth-stencil
 // multiSampleCount = 1; // 1 bit // 2 states // value 0-1;
 function getGlobalStateKey(
+    depthCompareKey: number,
     stencilStateId: number,
     multiSampleCount: number,
     colorMask: number,
@@ -54,7 +62,17 @@ function getGlobalStateKey(
     hdr: number
 ): number
 {
-    return (colorMask << 7) // Allocate the 4 bits for colorMask at the top
+    if ((renderTarget & 1) === 0)
+    {
+        depthCompareKey = 0;
+    }
+    if ((renderTarget & 2) === 0)
+    {
+        stencilStateId = 0;
+    }
+
+    return (depthCompareKey << 11)
+         | (colorMask << 7) // Allocate the 4 bits for colorMask at the top
          | (stencilStateId << 4) // Next 3 bits for stencilStateId
          | (renderTarget << 2) // 2 bits for renderTarget
          | (hdr << 1) // 1 bits for hdr
@@ -98,11 +116,14 @@ export class PipelineSystem implements System
 
     private _pipeCache: PipeHash = Object.create(null);
     private _computeCache: ComputeHash = Object.create(null);
-    private readonly _pipeStateCaches: Record<number, PipeHash> = Object.create(null);
+    private _prevProgKey: number = -1;
+    private _pipeRT: Record<number, PipeHash> = Object.create(null);
+    private readonly _pipeStateCaches: Record<number, Record<number, PipeHash>> = Object.create(null);
 
     private _gpu: GPU;
     private _stencilState: StencilState;
 
+    private _depthCompareKey: number = 0;
     private _stencilMode: STENCIL_MODES;
     private _colorMask = 0b1111;
     private _multisampleCount = 1;
@@ -152,6 +173,15 @@ export class PipelineSystem implements System
         this._updatePipeHash();
     }
 
+    public setDepthCompareKey(depthCompareKey: number): void
+    {
+        if (this._depthCompareKey === depthCompareKey) return;
+
+        this._depthCompareKey = depthCompareKey;
+
+        this._updatePipeHash();
+    }
+
     public setStencilMode(stencilMode: STENCIL_MODES): void
     {
         if (this._stencilMode === stencilMode) return;
@@ -186,14 +216,28 @@ export class PipelineSystem implements System
 
         topology = topology || geometry.topology;
 
+        const progKey = getProgKey(
+            geometry._layoutKey,
+            program._layoutKey,
+            topologyStringToId[topology]
+        );
+
+        if (this._prevProgKey !== progKey)
+        {
+            this._prevProgKey = progKey;
+            this._pipeCache = this._pipeRT[progKey];
+            if (!this._pipeCache)
+            {
+                this._pipeCache = this._pipeRT[progKey] = Object.create(null);
+            }
+        }
+
         // now we have set the Ids - the key is different...
         // eslint-disable-next-line max-len
         const key = getGraphicsStateKey(
-            geometry._layoutKey,
-            program._layoutKey,
+            state.customId,
             state.data,
             state._blendModeId,
-            topologyStringToId[topology],
         );
 
         if (this._pipeCache[key]) return this._pipeCache[key];
@@ -391,6 +435,7 @@ export class PipelineSystem implements System
     private _updatePipeHash(): void
     {
         const key = getGlobalStateKey(
+            this._depthCompareKey,
             this._stencilMode,
             this._multisampleCount,
             this._colorMask,
@@ -403,7 +448,7 @@ export class PipelineSystem implements System
             this._pipeStateCaches[key] = Object.create(null);
         }
 
-        this._pipeCache = this._pipeStateCaches[key];
+        this._pipeRT = this._pipeStateCaches[key];
     }
 
     public destroy(): void

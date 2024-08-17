@@ -40,11 +40,13 @@ function getProgKey(
 // topology = 8; // 3 bits // 8 states // value 0-7;
 function getGraphicsStateKey(
     customId: number,
+    depthCompareKey: number,
     state: number,
     blendMode: number,
 ): number
 {
-    return (customId << 12) // Allocate the 8 bits for geometryLayouts at the top
+    return (customId << 15) // Allocate the 8 bits for geometryLayouts at the top
+         | (depthCompareKey << 12) // 3 bits for depth compare
          | (state << 5) // 7 bits for state
          | blendMode; // 5 bits for blendMode
 }
@@ -54,7 +56,6 @@ function getGraphicsStateKey(
 // renderTarget = 1; // 2 bit // 3 states // value 0-3; // none, stencil, depth, depth-stencil
 // multiSampleCount = 1; // 1 bit // 2 states // value 0-1;
 function getGlobalStateKey(
-    depthCompareKey: number,
     stencilStateId: number,
     multiSampleCount: number,
     colorMask: number,
@@ -64,15 +65,10 @@ function getGlobalStateKey(
 {
     if ((renderTarget & 1) === 0)
     {
-        depthCompareKey = 0;
-    }
-    if ((renderTarget & 2) === 0)
-    {
         stencilStateId = 0;
     }
 
-    return (depthCompareKey << 11)
-         | (colorMask << 7) // Allocate the 4 bits for colorMask at the top
+    return (colorMask << 7) // Allocate the 4 bits for colorMask at the top
          | (stencilStateId << 4) // Next 3 bits for stencilStateId
          | (renderTarget << 2) // 2 bits for renderTarget
          | (hdr << 1) // 1 bits for hdr
@@ -117,6 +113,7 @@ export class PipelineSystem implements System
     private _pipeCache: PipeHash = Object.create(null);
     private _computeCache: ComputeHash = Object.create(null);
     private _prevProgKey: number = -1;
+    private _prevPipeKey: number = -1;
     private _pipeRT: Record<number, PipeHash> = Object.create(null);
     private readonly _pipeStateCaches: Record<number, Record<number, PipeHash>> = Object.create(null);
 
@@ -175,11 +172,7 @@ export class PipelineSystem implements System
 
     public setDepthCompareKey(depthCompareKey: number): void
     {
-        if (this._depthCompareKey === depthCompareKey) return;
-
         this._depthCompareKey = depthCompareKey;
-
-        this._updatePipeHash();
     }
 
     public setStencilMode(stencilMode: STENCIL_MODES): void
@@ -232,9 +225,12 @@ export class PipelineSystem implements System
             }
         }
 
+        const depthCompareKey = (this._depthStencilAttachment & 1) ? this._depthCompareKey : 0;
+
         // now we have set the Ids - the key is different...
         // eslint-disable-next-line max-len
         const key = getGraphicsStateKey(
+            depthCompareKey,
             state.customId,
             state.data,
             state._blendModeId,
@@ -409,7 +405,6 @@ export class PipelineSystem implements System
                 if (attribute.buffer_index !== i)
                 {
                     continue;
-
                 }
                 bufferEntry.arrayStride = attribute.stride;
                 bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
@@ -435,13 +430,19 @@ export class PipelineSystem implements System
     private _updatePipeHash(): void
     {
         const key = getGlobalStateKey(
-            this._depthCompareKey,
             this._stencilMode,
             this._multisampleCount,
             this._colorMask,
             this._depthStencilAttachment,
             this._hdr
         );
+
+        if (this._prevPipeKey === key)
+        {
+            return;
+        }
+        this._prevPipeKey = key;
+        this._prevProgKey = -1;
 
         if (!this._pipeStateCaches[key])
         {

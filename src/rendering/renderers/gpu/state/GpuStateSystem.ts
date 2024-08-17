@@ -1,10 +1,11 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { State } from '../../shared/state/State';
-import { GpuBlendModesToPixi } from './GpuBlendModesToPixi';
+import {GpuBlendModesToPixi, GpuCompareToPixi} from './GpuBlendModesToPixi';
 
 import type { BLEND_MODES, CULL_MODES } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GPU } from '../GpuDeviceSystem';
+import type {WebGPURenderer} from "../WebGPURenderer";
 
 /**
  * System plugin to the renderer to manage WebGL state machines.
@@ -45,10 +46,13 @@ export class GpuStateSystem implements System
 
     _swapWinding = false;
 
-    depthCompare: GPUCompareFunction = 'less-equal';
+    _depthCompare: GPUCompareFunction = 'less-equal';
 
-    constructor()
+    _renderer: WebGPURenderer
+
+    constructor(renderer: WebGPURenderer)
     {
+        this._renderer = renderer;
         this.defaultState = new State();
         this.defaultState.blend = true;
     }
@@ -93,6 +97,22 @@ export class GpuStateSystem implements System
         }
 
         return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
+    }
+
+    set depthCompare(value: GPUCompareFunction)
+    {
+        if (this._depthCompare === value)
+        {
+            return;
+        }
+        this._depthCompare = value;
+
+        this._renderer.pipeline.setDepthCompareKey(GpuCompareToPixi[value]);
+    }
+
+    get depthCompare()
+    {
+        return this._depthCompare;
     }
 
     public destroy(): void

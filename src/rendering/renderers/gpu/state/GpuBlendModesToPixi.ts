@@ -316,3 +316,14 @@ GpuBlendModesToPixi.inverse = {
 //         operation: 'add',
 //     },
 // };
+
+export const GpuCompareToPixi: Record<GPUCompareFunction, number> = {
+    always: 0,
+    "less-equal": 1,
+    equal: 2,
+    "greater-equal": 3,
+    "not-equal": 4,
+    greater: 5,
+    less: 6,
+    never: 7
+};

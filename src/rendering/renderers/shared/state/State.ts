@@ -39,12 +39,11 @@ export class State
      * at all the individual settings.
      */
     public data: number;
-    public customId: number;
+    public customId: number = 0;
     public _blendModeId: number;
     private _blendMode: BLEND_MODES;
     _depthBiasSlopeScale: number;
     _depthBiasValue: number;
-    customGpuKey: string = ''
 
     constructor()
     {

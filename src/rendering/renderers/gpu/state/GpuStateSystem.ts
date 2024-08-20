@@ -48,7 +48,7 @@ export class GpuStateSystem implements System
 
     _depthCompare: GPUCompareFunction = 'less-equal';
 
-    _renderer: WebGPURenderer
+    _renderer: WebGPURenderer;
 
     constructor(renderer: WebGPURenderer)
     {

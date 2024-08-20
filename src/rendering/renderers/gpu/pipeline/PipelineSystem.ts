@@ -230,8 +230,8 @@ export class PipelineSystem implements System
         // now we have set the Ids - the key is different...
         // eslint-disable-next-line max-len
         const key = getGraphicsStateKey(
-            depthCompareKey,
             state.customId,
+            depthCompareKey,
             state.data,
             state._blendModeId,
         );
@@ -291,7 +291,7 @@ export class PipelineSystem implements System
             descriptor.depthStencil = {
                 ...this._stencilState,
                 format: this._depthStencilAttachment === 1 ? 'depth32float' : 'depth24plus-stencil8',
-                depthWriteEnabled: state.depthTest && stateSystem.depthCompare !== 'equal',
+                depthWriteEnabled: state.depthMask && stateSystem.depthCompare !== 'equal',
                 depthCompare: state.depthTest ? stateSystem.depthCompare : 'always',
                 depthBias: state._depthBiasValue,
                 depthBiasSlopeScale: state._depthBiasSlopeScale,

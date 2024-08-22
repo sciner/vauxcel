@@ -76,6 +76,8 @@ export class GpuEncoderSystem implements System
     {
         this.endCurrentPass();
 
+        this._renderer.renderTarget.unbind();
+
         this._clearCache();
 
         this.computePassEncoder = this.commandEncoder.beginComputePass(timestampWrites ? { timestampWrites } : undefined);

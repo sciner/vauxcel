@@ -544,4 +544,12 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
         return this._gpuRenderTargetHash[renderTarget.uid]
         || (this._gpuRenderTargetHash[renderTarget.uid] = this.adaptor.initGpuRenderTarget(renderTarget));
     }
+
+    /**
+     * clear renderTarget in case renderPass ended  after something
+     */
+    public unbind()
+    {
+        this.renderTarget = null;
+    }
 }

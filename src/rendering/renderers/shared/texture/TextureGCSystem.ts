@@ -1,4 +1,4 @@
-import { extensions, ExtensionType } from '../../../../extensions/Extensions';
+import { ExtensionType } from '../../../../extensions/Extensions';
 
 import type { Renderer } from '../../types';
 import type { System } from '../system/System';
@@ -24,7 +24,7 @@ export interface TextureGCSystemOptions
      * @default 60 * 60
      * @memberof rendering.SharedRendererOptions
      */
-    textureGCAMaxIdle: number;
+    textureGCMaxIdle: number;
     /**
      * Frames between two garbage collections.
      * @default 600
@@ -59,7 +59,7 @@ export class TextureGCSystem implements System<TextureGCSystemOptions>
          * The maximum idle frames before a texture is destroyed by garbage collection.
          * @default 60 * 60
          */
-        textureGCAMaxIdle: 60 * 60,
+        textureGCMaxIdle: 60 * 60,
         /**
          * Frames between two garbage collections.
          * @default 600
@@ -112,7 +112,7 @@ export class TextureGCSystem implements System<TextureGCSystemOptions>
         options = { ...TextureGCSystem.defaultOptions, ...options };
 
         this.checkCountMax = options.textureGCCheckCountMax;
-        this.maxIdle = options.textureGCAMaxIdle;
+        this.maxIdle = options.textureGCMaxIdle;
         this.active = options.textureGCActive;
     }
 
@@ -170,5 +170,3 @@ export class TextureGCSystem implements System<TextureGCSystemOptions>
         this._renderer = null as any as Renderer;
     }
 }
-
-extensions.add(TextureGCSystem);

@@ -28,7 +28,7 @@ export class ImageSource extends TextureSource<ImageResource>
             const canvas = DOMAdapter.get().createCanvas(options.resource.width, options.resource.height);
             const context = canvas.getContext('2d');
 
-            context.drawImage(options.resource, 0, 0);
+            context.drawImage(options.resource, 0, 0, options.resource.width, options.resource.height);
             options.resource = canvas;
 
             // #if _DEBUG
@@ -44,6 +44,7 @@ export class ImageSource extends TextureSource<ImageResource>
     public static test(resource: any): resource is ImageResource
     {
         return (globalThis.HTMLImageElement && resource instanceof HTMLImageElement)
-        || (typeof ImageBitmap !== 'undefined' && resource instanceof ImageBitmap);
+        || (typeof ImageBitmap !== 'undefined' && resource instanceof ImageBitmap)
+        || (globalThis.VideoFrame && resource instanceof VideoFrame);
     }
 }

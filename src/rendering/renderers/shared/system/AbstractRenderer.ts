@@ -132,7 +132,7 @@ type Runners = {[key in DefaultRunners]: SystemRunner} & {
 /* eslint-enable max-len */
 export class AbstractRenderer<
     PIPES, OPTIONS extends SharedRendererOptions, CANVAS extends ICanvas = HTMLCanvasElement
-> extends EventEmitter<{resize: [number, number]}>
+> extends EventEmitter<{resize: [screenWidth: number, screenHeight: number, resolution: number]}>
 {
     /** The default options for the renderer. */
     public static defaultOptions = {
@@ -313,8 +313,14 @@ export class AbstractRenderer<
      */
     public resize(desiredScreenWidth: number, desiredScreenHeight: number, resolution?: number): void
     {
+        const previousResolution = this.view.resolution;
+
         this.view.resize(desiredScreenWidth, desiredScreenHeight, resolution);
-        this.emit('resize', this.view.screen.width, this.view.screen.height);
+        this.emit('resize', this.view.screen.width, this.view.screen.height, this.view.resolution);
+        if (resolution !== undefined && resolution !== previousResolution)
+        {
+            this.runners.resolutionChange.emit(resolution);
+        }
     }
 
     public clear(options: ClearOptions = {}): void

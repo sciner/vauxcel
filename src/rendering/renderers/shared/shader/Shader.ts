@@ -255,7 +255,7 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
             groupData.forEach((data) =>
             {
                 groupMap[data.group] = groupMap[data.group] || {};
-                groupMap[data.group][data.binding] = Shader.useGpuGroupType && data.isUniform ? data.type : data.name;
+                groupMap[data.group][data.binding] = data.name;
 
                 nameHash[data.name] = data;
             });
@@ -272,7 +272,7 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
                 groupData.forEach((data) =>
                 {
                     groupMap[data.group] = groupMap[data.group] || {};
-                    groupMap[data.group][data.binding] = Shader.useGpuGroupType && data.isUniform ? data.type : data.name;
+                    groupMap[data.group][data.binding] = data.name;
 
                     nameHash[data.name] = data;
                 });
@@ -441,6 +441,4 @@ export class Shader extends EventEmitter<{'destroy': Shader}>
             ...rest
         });
     }
-
-    static useGpuGroupType = false;
 }

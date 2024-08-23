@@ -39,7 +39,7 @@ export class GlBufferSystem implements System
     private _gpuBuffers: {[key: number]: GlBuffer} = Object.create(null);
 
     /** Cache keeping track of the base bound buffer bases */
-    readonly _boundBufferBases: {[key: number]: Buffer} = Object.create(null);
+    private readonly _boundBufferBases: {[key: number]: Buffer} = Object.create(null);
 
     private _renderer: WebGLRenderer;
 

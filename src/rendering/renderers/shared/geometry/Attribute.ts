@@ -37,6 +37,7 @@ export class Attribute
     offset: number | undefined;
     /** is this an instanced buffer? (defaults to false) */
     instance: boolean;
+    divisor?: number;
 
     constructor(attr: IAttribute)
     {
@@ -46,6 +47,7 @@ export class Attribute
         this.offset = attr.offset;
         this.instance = attr.instance;
         this.location = attr.location || undefined;
+        this.divisor = attr.divisor || undefined;
     }
 }
 

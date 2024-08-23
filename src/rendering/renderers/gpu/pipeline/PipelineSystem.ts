@@ -109,6 +109,7 @@ export class PipelineSystem implements System
 
     private _moduleCache: Record<string, GPUShaderModule> = Object.create(null);
     private _bufferLayoutsCache: Record<number, GPUVertexBufferLayout[]> = Object.create(null);
+    private readonly _bindingNamesCache: Record<string, Record<string, string>> = Object.create(null);
 
     private _pipeCache: PipeHash = Object.create(null);
     private _computeCache: ComputeHash = Object.create(null);
@@ -365,7 +366,6 @@ export class PipelineSystem implements System
         {
             const attribute = geometry.attributes[attributeKeys[i]];
 
-            keyGen[index++] = attribute.location;
             keyGen[index++] = attribute.offset;
             keyGen[index++] = attribute.format;
             keyGen[index++] = attribute.stride;
@@ -379,16 +379,79 @@ export class PipelineSystem implements System
         return geometry._layoutKey;
     }
 
-    private _createVertexBufferLayouts(geometry: Geometry): GPUVertexBufferLayout[]
+    private _generateAttributeLocationsKey(program: GpuProgram): number
     {
-        if (this._bufferLayoutsCache[geometry._layoutKey])
+        const keyGen = [];
+        let index = 0;
+        // generate a key..
+
+        const attributeKeys = Object.keys(program.attributeData).sort();
+
+        for (let i = 0; i < attributeKeys.length; i++)
         {
-            return this._bufferLayoutsCache[geometry._layoutKey];
+            const attribute = program.attributeData[attributeKeys[i]];
+
+            keyGen[index++] = attribute.location;
+        }
+
+        const stringKey = keyGen.join('|');
+
+        program._attributeLocationsKey = createIdFromString(stringKey, 'programAttributes');
+
+        return program._attributeLocationsKey;
+    }
+
+    /**
+     * Returns a hash of buffer names mapped to bind locations.
+     * This is used to bind the correct buffer to the correct location in the shader.
+     * @param geometry - The geometry where to get the buffer names
+     * @param program - The program where to get the buffer names
+     * @returns An object of buffer names mapped to the bind location.
+     */
+    public getBufferNamesToBind(geometry: Geometry, program: GpuProgram): Record<string, string>
+    {
+        const key = (geometry._layoutKey << 16) | program._attributeLocationsKey;
+
+        if (this._bindingNamesCache[key]) return this._bindingNamesCache[key];
+
+        const data = this._createVertexBufferLayouts(geometry, program);
+
+        // now map the data to the buffers..
+        const bufferNamesToBind: Record<string, string> = Object.create(null);
+
+        const attributeData = program.attributeData;
+
+        for (let i = 0; i < data.length; i++)
+        {
+            for (const j in attributeData)
+            {
+                if (attributeData[j].location === i)
+                {
+                    bufferNamesToBind[i] = j;
+                    break;
+                }
+            }
+        }
+
+        this._bindingNamesCache[key] = bufferNamesToBind;
+
+        return bufferNamesToBind;
+    }
+
+    private _createVertexBufferLayouts(geometry: Geometry, program: GpuProgram): GPUVertexBufferLayout[]
+    {
+        if (!program._attributeLocationsKey) this._generateAttributeLocationsKey(program);
+
+        const key = (geometry._layoutKey << 16) | program._attributeLocationsKey;
+
+        if (this._bufferLayoutsCache[key])
+        {
+            return this._bufferLayoutsCache[key];
         }
 
         const vertexBuffersLayout: GPUVertexBufferLayout[] = [];
 
-        for (let i = 0; i < geometry.buffers.length; i++)
+        geometry.buffers.forEach((buffer) =>
         {
             const bufferEntry: GPUVertexBufferLayout = {
                 arrayStride: 0,
@@ -398,31 +461,38 @@ export class PipelineSystem implements System
 
             const bufferEntryAttributes = bufferEntry.attributes as GPUVertexAttribute[];
 
-            for (const j in geometry.attributes)
+            for (const i in program.attributeData)
             {
-                const attribute = geometry.attributes[j];
+                const attribute = geometry.attributes[i];
 
-                if (attribute.buffer_index !== i)
+                if ((attribute.divisor ?? 1) !== 1)
                 {
-                    continue;
+                    // TODO: Maybe emulate divisor with storage_buffers/float_textures?
+                    // For now just issue a warning
+                    warn(`Attribute ${i} has an invalid divisor value of '${attribute.divisor}'. `
+                        + 'WebGPU only supports a divisor value of 1');
                 }
-                bufferEntry.arrayStride = attribute.stride;
-                bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
 
-                bufferEntryAttributes.push({
-                    shaderLocation: attribute.location,
-                    offset: attribute.offset,
-                    format: attribute.format,
-                });
+                if (attribute.buffer === buffer)
+                {
+                    bufferEntry.arrayStride = attribute.stride;
+                    bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
+
+                    bufferEntryAttributes.push({
+                        shaderLocation: program.attributeData[i].location,
+                        offset: attribute.offset,
+                        format: attribute.format,
+                    });
+                }
             }
 
             if (bufferEntryAttributes.length)
             {
                 vertexBuffersLayout.push(bufferEntry);
             }
-        }
+        });
 
-        this._bufferLayoutsCache[geometry._layoutKey] = vertexBuffersLayout;
+        this._bufferLayoutsCache[key] = vertexBuffersLayout;
 
         return vertexBuffersLayout;
     }

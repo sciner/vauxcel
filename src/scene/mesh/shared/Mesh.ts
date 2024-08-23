@@ -131,7 +131,7 @@ export class Mesh<
             }
         }
 
-        const { geometry, shader, texture, roundPixels, state, ...rest } = options;
+        const { geometry, shader, texture, roundPixels, state, drawSize, ...rest } = options;
 
         super({
             label: 'Mesh',

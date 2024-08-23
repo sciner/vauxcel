@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import EventEmitter from 'eventemitter3';
+import { EventEmitter } from '../../../../utils/event_emitter';
 import { GlProgram } from '../../gl/shader/GlProgram';
 import { BindGroup } from '../../gpu/shader/BindGroup';
 import { GpuProgram } from '../../gpu/shader/GpuProgram';

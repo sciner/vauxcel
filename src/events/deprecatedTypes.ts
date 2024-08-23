@@ -1,4 +1,4 @@
-import type EventEmitter from 'eventemitter3';
+import type { EventEmitter } from '../utils/event_emitter';
 import type { EventMode, FederatedOptions } from './FederatedEventTarget';
 
 /**

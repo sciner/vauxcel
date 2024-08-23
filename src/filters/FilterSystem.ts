@@ -195,16 +195,15 @@ export class FilterSystem implements System
         }
         // get GLOBAL bounds of the item we are going to apply the filter to
 
-        const colorTextureSource = renderer.renderTarget.rootRenderTarget.colorTexture.source;
+        const colorTextureSource = renderer.renderTarget.renderTarget.colorTexture.source;
 
         // next we get the settings for the filter
         // we need to find the LOWEST resolution for the filter list
-        let resolution = colorTextureSource._resolution;
-
+        let resolution = Infinity;
         // Padding is additive to add padding to our padding
         let padding = 0;
-        // if this is true for any filter, it should be true
-        let antialias = colorTextureSource.antialias;
+        // if this is true for all filter, it should be true, and otherwise false
+        let antialias = true;
         // true if any filter requires the previous render target
         let blendRequired = false;
         // true if any filter in the list is enabled
@@ -218,19 +217,17 @@ export class FilterSystem implements System
         {
             const filter = filters[i];
 
-            resolution = Math.min(resolution, filter.resolution);
+            resolution = Math.min(resolution, filter.resolution === 'inherit'
+                ? colorTextureSource._resolution : filter.resolution);
             padding += filter.padding;
 
-            if (filter.antialias !== 'inherit')
+            if (filter.antialias === 'off')
             {
-                if (filter.antialias === 'on')
-                {
-                    antialias = true;
-                }
-                else
-                {
-                    antialias = false;
-                }
+                antialias = false;
+            }
+            else if (filter.antialias === 'inherit')
+            {
+                antialias &&= colorTextureSource.antialias;
             }
             if (filter.hdr)
             {
@@ -258,7 +255,6 @@ export class FilterSystem implements System
 
             enabled = filter.enabled || enabled;
             blendRequired = blendRequired || filter.blendRequired;
-            autoFit = autoFit && filter.autoFit;
         }
 
         // if no filters are enabled lets skip!
@@ -273,13 +269,16 @@ export class FilterSystem implements System
 
         if (autoFit)
         {
-            // here we constrain the bounds to the viewport we will render too
-            // this should not take into account the x, y offset of the viewport - as this is
-            // handled by the viewport on the gpu.
-            // need to factor in resolutions also..
-            bounds.scale(resolution)
-                .fitBounds(0, viewPort.width, 0, viewPort.height)
-                .scale(1 / resolution);
+	        // here we constrain the bounds to the viewport we will render too
+	        // this should not take into account the x, y offset of the viewport - as this is
+	        // handled by the viewport on the gpu.
+	        // need to factor in resolutions also..
+	        bounds
+	            .scale(resolution)
+	            .fitBounds(0, viewPort.width, 0, viewPort.height)
+	            .ceil()
+	            .scale(1 / resolution)
+	            .pad(padding | 0);
         }
 
         // skip if the bounds are negative or zero as this means they are

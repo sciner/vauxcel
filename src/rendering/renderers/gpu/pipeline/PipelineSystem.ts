@@ -1,4 +1,5 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
+import { warn } from '../../../../utils/logging/warn';
 import { ensureAttributes } from '../../gl/shader/program/ensureAttributes';
 import { STENCIL_MODES } from '../../shared/state/const';
 import { createIdFromString } from '../../shared/utils/createIdFromString';
@@ -248,7 +249,7 @@ export class PipelineSystem implements System
     {
         const device = this._gpu.device;
 
-        const buffers = this._createVertexBufferLayouts(geometry);
+        const buffers = this._createVertexBufferLayouts(geometry, program);
 
         const stateSystem = this._renderer.state;
         const blendModes = stateSystem.getColorTargets(state);

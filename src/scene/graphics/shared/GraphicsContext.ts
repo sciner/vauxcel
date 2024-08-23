@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+import EventEmitter from 'eventemitter3';
 import { Color, type ColorSource } from '../../../color/Color';
 import { Matrix } from '../../../maths/matrix/Matrix';
 import { Point } from '../../../maths/point/Point';
@@ -106,7 +107,8 @@ export class GraphicsContext extends EventEmitter<{
         fill: null,
     };
 
-    public uid = uid('graphicsContext');
+    /** unique id for this graphics context */
+    public readonly uid: number = uid('graphicsContext');
     public dirty = true;
     public batchMode: BatchMode = 'auto';
     public instructions: GraphicsInstructions[] = [];

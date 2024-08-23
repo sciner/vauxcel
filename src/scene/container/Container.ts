@@ -141,8 +141,6 @@ export interface ContainerOptions<C extends ContainerChild = ContainerChild> ext
     skew?: PointData;
     /** @see scene.Container#visible */
     visible?: boolean;
-    /** @see scene.Container#culled */
-    culled?: boolean;
     /** @see scene.Container#x */
     x?: number;
     /** @see scene.Container#y */
@@ -356,8 +354,8 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
         Object.defineProperties(Container.prototype, Object.getOwnPropertyDescriptors(source));
     }
 
-    /** @private */
-    public uid: number = uid('renderable');
+    /** unique id for this container */
+    public readonly uid: number = uid('renderable');
 
     /** @private */
     public _updateFlags = 0b1111;
@@ -380,6 +378,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     // same as above, but for the renderable
     /** @private */
     public didViewUpdate = false;
+
     // how deep is the container relative to its render group..
     // unless the element is the root render group - it will be relative to its parent
     /** @private */
@@ -539,7 +538,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      * This property holds three bits: culled, visible, renderable
      * the third bit represents culling (0 = culled, 1 = not culled) 0b100
      * the second bit represents visibility (0 = not visible, 1 = visible) 0b010
-     * the first bit represents renderable (0 = renderable, 1 = not renderable) 0b001
+     * the first bit represents renderable (0 = not renderable, 1 = renderable) 0b001
      * @internal
      * @ignore
      */
@@ -550,7 +549,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      */
     public globalDisplayStatus = 0b111; // 0b11 | 0b10 | 0b01 | 0b00
 
-    public renderPipeId: string;
+    public readonly renderPipeId: string;
 
     /**
      * An optional bounds area for this container. Setting this rectangle will stop the renderer
@@ -562,17 +561,34 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     public boundsArea: Rectangle;
 
     /**
-     * A value that increments each time the container is modified
-     * the first 12 bits represent the container changes (eg transform, alpha, visible etc)
-     * the second 12 bits represent:
-     *      - for view changes (eg texture swap, geometry change etc)
-     *      - containers changes (eg children added, removed etc)
-     *
-     *  view          container
-     * [000000000000][00000000000]
+     * A value that increments each time the containe is modified
+     * eg children added, removed etc
      * @ignore
      */
-    public _didChangeId = 0;
+    public _didContainerChangeTick = 0;
+    /**
+     * A value that increments each time the container view is modified
+     * eg texture swap, geometry change etc
+     * @ignore
+     */
+    public _didViewChangeTick = 0;
+
+    /**
+     * We now use the _didContainerChangeTick and _didViewChangeTick to track changes
+     * @deprecated since 8.2.6
+     * @ignore
+     */
+    set _didChangeId(value: number)
+    {
+        this._didViewChangeTick = (value >> 12) & 0xFFF; // Extract the upper 12 bits
+        this._didContainerChangeTick = value & 0xFFF; // Extract the lower 12 bits
+    }
+
+    get _didChangeId(): number
+    {
+        return (this._didContainerChangeTick & 0xfff) | ((this._didViewChangeTick & 0xfff) << 12);
+    }
+
     /**
      * property that tracks if the container transform has changed
      * @ignore
@@ -583,6 +599,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     {
         super();
 
+        this.effects = [];
         assignWithIgnore(this, options, {
             children: true,
             parent: true,
@@ -590,7 +607,6 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
         });
 
         options.children?.forEach((child) => this.addChild(child));
-        this.effects = [];
         options.parent?.addChild(this);
     }
 
@@ -664,7 +680,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
         this.emit('childAdded', child, this, this.children.length - 1);
         child.emit('added', this);
 
-        this._didChangeId += 1 << 12;
+        this._didViewChangeTick++;
 
         if (child._zIndex !== 0)
         {
@@ -699,7 +715,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 
         if (index > -1)
         {
-            this._didChangeId += 1 << 12;
+            this._didViewChangeTick++;
 
             this.children.splice(index, 1);
 
@@ -733,7 +749,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
             }
         }
 
-        this._didChangeId++;
+        this._didContainerChangeTick++;
 
         if (this.didChange) return;
         this.didChange = true;
@@ -1053,29 +1069,19 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     public setSize(value: number | Optional<Size, 'height'>, height?: number)
     {
         const size = this.getLocalBounds();
-        let convertedWidth: number;
-        let convertedHeight: number;
 
-        if (typeof value !== 'object')
+        if (typeof value === 'object')
         {
-            convertedWidth = value;
-            convertedHeight = height ?? value;
+            height = value.height ?? value.width;
+            value = value.width;
         }
         else
         {
-            convertedWidth = value.width;
-            convertedHeight = value.height ?? value.width;
+            height ??= value;
         }
 
-        if (convertedWidth !== undefined)
-        {
-            this._setWidth(convertedWidth, size.width);
-        }
-
-        if (convertedHeight !== undefined)
-        {
-            this._setHeight(convertedHeight, size.height);
-        }
+        value !== undefined && this._setWidth(value, size.width);
+        height !== undefined && this._setHeight(height, size.height);
     }
 
     /** Called when the skew or the rotation changes. */
@@ -1138,7 +1144,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     /** Updates the local transform. */
     public updateLocalTransform(): void
     {
-        const localTransformChangeId = this._didChangeId & 0xFFF;
+        const localTransformChangeId = this._didContainerChangeTick;
 
         if (this._didLocalTransformChangeId === localTransformChangeId) return;
 
@@ -1249,9 +1255,9 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 
     set visible(value: boolean)
     {
-        const valueNumber = value ? 1 : 0;
+        const valueNumber = value ? 0b010 : 0;
 
-        if ((this.localDisplayStatus & 0b010) >> 1 === valueNumber) return;
+        if ((this.localDisplayStatus & 0b010) === valueNumber) return;
 
         if (this.parentRenderGroup)
         {
@@ -1274,9 +1280,9 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     /** @ignore */
     set culled(value: boolean)
     {
-        const valueNumber = value ? 1 : 0;
+        const valueNumber = value ? 0 : 0b100;
 
-        if ((this.localDisplayStatus & 0b100) >> 2 === valueNumber) return;
+        if ((this.localDisplayStatus & 0b100) === valueNumber) return;
 
         if (this.parentRenderGroup)
         {
@@ -1297,7 +1303,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 
     set renderable(value: boolean)
     {
-        const valueNumber = value ? 1 : 0;
+        const valueNumber = value ? 0b001 : 0;
 
         if ((this.localDisplayStatus & 0b001) === valueNumber) return;
 

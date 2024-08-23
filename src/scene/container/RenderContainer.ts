@@ -66,6 +66,9 @@ export class RenderContainer extends Container implements View, Instruction
     public roundPixels: boolean;
     public _roundPixels: 0 | 1;
 
+    public _lastUsed = 0;
+    public _lastInstructionTick = -1;
+
     /**
      * The local bounds of the sprite.
      * @type {rendering.Bounds}
@@ -83,7 +86,7 @@ export class RenderContainer extends Container implements View, Instruction
     public addBounds: (bounds: Bounds) => void;
 
     public canBundle = false;
-    public renderPipeId = 'customRender';
+    public readonly renderPipeId: string = 'customRender';
 
     /**
      * @param options - The options for the container.

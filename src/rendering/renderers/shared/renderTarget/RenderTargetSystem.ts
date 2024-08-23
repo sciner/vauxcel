@@ -408,7 +408,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
         }
 
         return this._renderSurfaceToRenderTargetHash.get(renderSurface)
-        ?? this._initRenderTarget(renderSurface);
+            ?? this._initRenderTarget(renderSurface);
     }
 
     /**
@@ -524,6 +524,8 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
             {
                 renderTarget.destroy();
 
+                this._renderSurfaceToRenderTargetHash.delete(renderSurface);
+
                 const gpuRenderTarget = this._gpuRenderTargetHash[renderTarget.uid];
 
                 if (gpuRenderTarget)
@@ -542,7 +544,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     public getGpuRenderTarget(renderTarget: RenderTarget)
     {
         return this._gpuRenderTargetHash[renderTarget.uid]
-        || (this._gpuRenderTargetHash[renderTarget.uid] = this.adaptor.initGpuRenderTarget(renderTarget));
+            || (this._gpuRenderTargetHash[renderTarget.uid] = this.adaptor.initGpuRenderTarget(renderTarget));
     }
 
     /**

@@ -110,7 +110,7 @@ export class PipelineSystem implements System
 
     private _moduleCache: Record<string, GPUShaderModule> = Object.create(null);
     private _bufferLayoutsCache: Record<number, GPUVertexBufferLayout[]> = Object.create(null);
-    private readonly _bindingNamesCache: Record<string, Record<string, string>> = Object.create(null);
+    private readonly _bindingNamesCache: Record<string, number[]> = Object.create(null);
 
     private _pipeCache: PipeHash = Object.create(null);
     private _computeCache: ComputeHash = Object.create(null);
@@ -371,6 +371,7 @@ export class PipelineSystem implements System
             keyGen[index++] = attribute.format;
             keyGen[index++] = attribute.stride;
             keyGen[index++] = attribute.instance;
+            keyGen[index++] = attribute.buffer_index;
         }
 
         const stringKey = keyGen.join('');
@@ -409,34 +410,15 @@ export class PipelineSystem implements System
      * @param program - The program where to get the buffer names
      * @returns An object of buffer names mapped to the bind location.
      */
-    public getBufferNamesToBind(geometry: Geometry, program: GpuProgram): Record<string, string>
+    public getBufferNamesToBind(geometry: Geometry, program: GpuProgram): number[]
     {
         const key = (geometry._layoutKey << 16) | program._attributeLocationsKey;
 
         if (this._bindingNamesCache[key]) return this._bindingNamesCache[key];
 
-        const data = this._createVertexBufferLayouts(geometry, program);
+        this._createVertexBufferLayouts(geometry, program);
 
-        // now map the data to the buffers..
-        const bufferNamesToBind: Record<string, string> = Object.create(null);
-
-        const attributeData = program.attributeData;
-
-        for (let i = 0; i < data.length; i++)
-        {
-            for (const j in attributeData)
-            {
-                if (attributeData[j].location === i)
-                {
-                    bufferNamesToBind[i] = j;
-                    break;
-                }
-            }
-        }
-
-        this._bindingNamesCache[key] = bufferNamesToBind;
-
-        return bufferNamesToBind;
+        return this._bindingNamesCache[key];
     }
 
     private _createVertexBufferLayouts(geometry: Geometry, program: GpuProgram): GPUVertexBufferLayout[]
@@ -451,8 +433,9 @@ export class PipelineSystem implements System
         }
 
         const vertexBuffersLayout: GPUVertexBufferLayout[] = [];
+        const buffer_indices = [];
 
-        geometry.buffers.forEach((buffer) =>
+        for (let i = 0; i < geometry.buffers.length; i++)
         {
             const bufferEntry: GPUVertexBufferLayout = {
                 arrayStride: 0,
@@ -462,9 +445,21 @@ export class PipelineSystem implements System
 
             const bufferEntryAttributes = bufferEntry.attributes as GPUVertexAttribute[];
 
-            for (const i in program.attributeData)
+            for (const j in geometry.attributes)
             {
-                const attribute = geometry.attributes[i];
+                const attribute = geometry.attributes[j];
+
+                if (attribute.buffer_index !== i)
+                {
+                    continue;
+                }
+
+                const attrData = program.attributeData[j];
+
+                if (!attrData)
+                {
+                    continue;
+                }
 
                 if ((attribute.divisor ?? 1) !== 1)
                 {
@@ -474,26 +469,26 @@ export class PipelineSystem implements System
                         + 'WebGPU only supports a divisor value of 1');
                 }
 
-                if (attribute.buffer === buffer)
-                {
-                    bufferEntry.arrayStride = attribute.stride;
-                    bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
+                bufferEntry.arrayStride = attribute.stride;
+                bufferEntry.stepMode = attribute.instance ? 'instance' : 'vertex';
 
-                    bufferEntryAttributes.push({
-                        shaderLocation: program.attributeData[i].location,
-                        offset: attribute.offset,
-                        format: attribute.format,
-                    });
-                }
+                bufferEntryAttributes.push({
+                    shaderLocation: attrData.location,
+                    offset: attribute.offset,
+                    format: attribute.format,
+                });
             }
 
             if (bufferEntryAttributes.length)
             {
                 vertexBuffersLayout.push(bufferEntry);
+                buffer_indices.push(i);
             }
-        });
+        }
 
         this._bufferLayoutsCache[key] = vertexBuffersLayout;
+
+        this._bindingNamesCache[key] = buffer_indices;
 
         return vertexBuffersLayout;
     }

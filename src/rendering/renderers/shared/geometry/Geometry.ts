@@ -206,6 +206,7 @@ export class Geometry extends EventEmitter<{
         this.instanced = false;
         for (const i in options.attributes)
         {
+            // eslint-disable-next-line max-len
             this.attributes[i] = new Attribute(ensureIsAttribute(options.attributes[i], this.vertexBuffer, options.instanced));
         }
 

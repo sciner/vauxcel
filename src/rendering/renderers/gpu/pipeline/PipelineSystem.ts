@@ -1,6 +1,5 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { warn } from '../../../../utils/logging/warn';
-import { ensureAttributes } from '../../gl/shader/program/ensureAttributes';
 import { STENCIL_MODES } from '../../shared/state/const';
 import { createIdFromString } from '../../shared/utils/createIdFromString';
 import { GpuStencilModesToPixi } from '../state/GpuStencilModesToPixi';
@@ -201,13 +200,7 @@ export class PipelineSystem implements System
         topology?: Topology,
     ): GPURenderPipeline
     {
-        if (!geometry._layoutKey)
-        {
-            ensureAttributes(geometry, program.attributeData);
-
-            // prepare the geometry for the pipeline
-            this._generateBufferKey(geometry);
-        }
+        this.ensureGeometryLayoutKey(geometry);
 
         topology = topology || geometry.topology;
 
@@ -403,6 +396,27 @@ export class PipelineSystem implements System
         return program._attributeLocationsKey;
     }
 
+    public ensureGeometryLayoutKey(geometry: Geometry): number
+    {
+        if (geometry._layoutKey)
+        {
+            return geometry._layoutKey;
+        }
+        if (geometry.proto?._layoutKey)
+        {
+            geometry._layoutKey = geometry.proto._layoutKey;
+        }
+
+        // prepare the geometry for the pipeline
+        this._generateBufferKey(geometry);
+        if (geometry.proto)
+        {
+            geometry.proto._layoutKey = geometry._layoutKey;
+        }
+
+        return geometry._layoutKey;
+    }
+
     /**
      * Returns a hash of buffer names mapped to bind locations.
      * This is used to bind the correct buffer to the correct location in the shader.
@@ -412,6 +426,10 @@ export class PipelineSystem implements System
      */
     public getBufferNamesToBind(geometry: Geometry, program: GpuProgram): number[]
     {
+        this.ensureGeometryLayoutKey(geometry);
+
+        if (!program._attributeLocationsKey) this._generateAttributeLocationsKey(program);
+
         const key = (geometry._layoutKey << 16) | program._attributeLocationsKey;
 
         if (this._bindingNamesCache[key]) return this._bindingNamesCache[key];
@@ -483,6 +501,14 @@ export class PipelineSystem implements System
             {
                 vertexBuffersLayout.push(bufferEntry);
                 buffer_indices.push(i);
+            }
+        }
+        for (const j in program.attributeData)
+        {
+            if (!geometry.attributes[j])
+            {
+                // eslint-disable-next-line max-len
+                warn(`Attribute ${j} is not present in the shader, but is present in the geometry. Unable to infer attribute details.`);
             }
         }
 

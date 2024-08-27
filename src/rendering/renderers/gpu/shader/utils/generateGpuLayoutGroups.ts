@@ -113,7 +113,7 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
                 storageTexture: {
                     format: group.typeParam as TEXTURE_FORMATS,
                     viewDimension,
-                    access: group.writable ? 'read-write' : 'read-only',
+                    access: group.writable ? (group.accessMode === 'write' ? 'write-only' : 'read-write') : 'read-only',
                 }
             });
             continue;

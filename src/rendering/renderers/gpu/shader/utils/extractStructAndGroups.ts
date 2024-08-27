@@ -9,6 +9,7 @@ export interface StructsAndGroups
         writable: boolean;
         type: string;
         typeParam: string;
+        accessMode: string;
     }[];
     structs: {
         name: string;
@@ -40,9 +41,10 @@ export function extractStructAndGroups(wgsl: string): StructsAndGroups
             name: name[2],
             isUniform: name[1] === '<uniform>',
             isStorage: name[1]?.startsWith('<storage'),
-            writable: item.indexOf('read_write') >= 0,
+            writable: item.indexOf('write') >= 0,
             type: type[1],
             typeParam: type[3],
+            accessMode: type[5],
         };
     });
 

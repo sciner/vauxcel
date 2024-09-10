@@ -245,9 +245,9 @@ export class GpuTextureSystem implements System, CanvasGenerator
             }, {
                 texture: gpuTexture,
             }, {
-                width: gpuTexture.width,
-                height: gpuTexture.height,
-                depthOrArrayLayers: gpuTexture.depthOrArrayLayers
+                width: oldTexture.width,
+                height: oldTexture.height,
+                depthOrArrayLayers: oldTexture.depthOrArrayLayers
             });
 
             renderer.gpu.device.queue.submit([commandEncoder.finish()]);

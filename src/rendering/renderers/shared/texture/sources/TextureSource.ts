@@ -238,6 +238,8 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
      */
     public _sourceOrigin: string;
 
+    public canResizeForResource = true;
+
     /**
      * @param options - options for creating a new TextureSource
      */
@@ -404,7 +406,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     public update()
     {
         // update resource...
-        if (this.resource)
+        if (this.resource && this.canResizeForResource)
         {
             const resolution = this._resolution;
 

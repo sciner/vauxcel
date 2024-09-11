@@ -151,7 +151,7 @@ export class HTMLTextSystem implements System
 
         if (this._createCanvas)
         {
-            this._renderer.texture.initSource(texture.source);
+            this._renderer.texture.bind(texture.source);
         }
 
         BigPool.return(htmlTextData as PoolItem);

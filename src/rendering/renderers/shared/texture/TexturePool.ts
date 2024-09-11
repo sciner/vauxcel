@@ -93,6 +93,8 @@ export class TexturePoolClass
 
         const textureSource = new TextureSource(options);
 
+        textureSource.canResizeForResource = false;
+
         return new Texture({
             source: textureSource,
             label: `texturePool_${count++}`,

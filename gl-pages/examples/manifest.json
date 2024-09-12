@@ -36,5 +36,23 @@
                 "entry": "pass-trail.js"
             }
         ]
+    },
+    {
+        "id": "graphics",
+        "title": "Graphics",
+        "items": [
+            {
+                "title": "Simple",
+                "entry": "simple.js"
+            },
+            {
+                "title": "Advanced",
+                "entry": "advanced.js"
+            },
+            {
+                "title": "Dynamic",
+                "entry": "dynamic.js"
+            }
+        ]
     }
 ]

@@ -19,7 +19,7 @@ export class BufferImageSource extends TextureSource<TypedArray | ArrayBuffer>
 
     constructor(options: BufferSourceOptions)
     {
-        const buffer = options.resource || new Float32Array(options.width * options.height * 4);
+        const buffer = options.data || new Float32Array(options.width * options.height * 4);
         let format = options.format;
 
         if (!format)

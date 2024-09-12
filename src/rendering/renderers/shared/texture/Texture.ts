@@ -412,7 +412,7 @@ Texture.EMPTY.destroy = NOOP;
 
 Texture.WHITE = new Texture({
     source: new BufferImageSource({
-        resource: new Uint8Array([255, 255, 255, 255]),
+        data: new Uint8Array([255, 255, 255, 255]),
         width: 1,
         height: 1,
         alphaMode: 'premultiply-alpha-on-upload',

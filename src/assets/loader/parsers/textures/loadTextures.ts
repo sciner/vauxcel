@@ -107,7 +107,7 @@ export const loadTextures: LoaderParser<Texture, TextureSourceOptions, LoadTextu
     },
 
     config: {
-        preferWorkers: true,
+        preferWorkers: false,
         preferCreateImageBitmap: true,
         crossOrigin: 'anonymous',
     },

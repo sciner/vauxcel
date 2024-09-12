@@ -41,11 +41,11 @@ export class CanvasTextSystem implements System
         name: 'canvasText',
     } as const;
 
-    private _activeTextures: Record<string, {
+    private _activeTextures: Map<string, {
         canvasAndContext: CanvasAndContext,
         texture: Texture,
         usageCount: number,
-    }> = {};
+    }> = new Map();
 
     private readonly _renderer: Renderer;
 
@@ -148,32 +148,32 @@ export class CanvasTextSystem implements System
         text._resolution = text._autoResolution ? this._renderer.resolution : text.resolution;
         const textKey = text._getKey();
 
-        if (this._activeTextures[textKey])
+        if (this._activeTextures.get(textKey))
         {
             this._increaseReferenceCount(textKey);
 
-            return this._activeTextures[textKey].texture;
+            return this._activeTextures.get(textKey).texture;
         }
 
         const { texture, canvasAndContext } = this.createTextureAndCanvas(text);
 
-        this._activeTextures[textKey] = {
+        this._activeTextures.set(textKey, {
             canvasAndContext,
             texture,
             usageCount: 1,
-        };
+        });
 
         return texture;
     }
 
     private _increaseReferenceCount(textKey: string)
     {
-        this._activeTextures[textKey].usageCount++;
+        this._activeTextures.get(textKey).usageCount++;
     }
 
     public decreaseReferenceCount(textKey: string)
     {
-        const activeTexture = this._activeTextures[textKey];
+        const activeTexture = this._activeTextures.get(textKey);
 
         activeTexture.usageCount--;
 
@@ -188,13 +188,13 @@ export class CanvasTextSystem implements System
             source.uploadMethodId = 'unknown';
             source.alphaMode = 'no-premultiply-alpha';
 
-            this._activeTextures[textKey] = null;
+            this._activeTextures.delete(textKey);
         }
     }
 
     public getReferenceCount(textKey: string)
     {
-        return this._activeTextures[textKey].usageCount;
+        return this._activeTextures.get(textKey).usageCount;
     }
 
     /**

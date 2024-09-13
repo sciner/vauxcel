@@ -78,6 +78,10 @@ export class GpuTextureSystem implements System, CanvasGenerator
             if (source.gpuStorage)
             {
                 usage |= GPUTextureUsage.STORAGE_BINDING;
+                if (source.gpuRenderAttachment)
+                {
+                    usage |= GPUTextureUsage.RENDER_ATTACHMENT;
+                }
             }
             else
             {

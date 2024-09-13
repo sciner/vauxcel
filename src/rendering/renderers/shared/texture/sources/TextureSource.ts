@@ -613,6 +613,7 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     _glTexture: GlTexture = null;
     glMutableSize: boolean;
     gpuStorage: boolean;
+    gpuRenderAttachment: boolean;
     copyOnResize: boolean;
     glUploader?: GLTextureUploader = undefined;
     gpuUploader?: GpuTextureUploader = undefined;

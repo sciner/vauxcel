@@ -2,6 +2,7 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { warn } from '../../../../utils/logging/warn';
 import { STENCIL_MODES } from '../../shared/state/const';
 import { createIdFromString } from '../../shared/utils/createIdFromString';
+import { HDR_FORMATS } from '../renderTarget/GpuRenderTarget';
 import { GpuStencilModesToPixi } from '../state/GpuStencilModesToPixi';
 
 import type { Topology } from '../../shared/geometry/const';
@@ -68,10 +69,10 @@ function getGlobalStateKey(
         stencilStateId = 0;
     }
 
-    return (colorMask << 7) // Allocate the 4 bits for colorMask at the top
-         | (stencilStateId << 4) // Next 3 bits for stencilStateId
-         | (renderTarget << 2) // 2 bits for renderTarget
-         | (hdr << 1) // 1 bits for hdr
+    return (colorMask << 8) // Allocate the 4 bits for colorMask at the top
+         | (stencilStateId << 5) // Next 3 bits for stencilStateId
+         | (renderTarget << 3) // 2 bits for renderTarget
+         | (hdr << 1) // 2 bits for hdr
          | multiSampleCount; // And 1 bit for multiSampleCount at the least significant position
 }
 
@@ -126,7 +127,7 @@ export class PipelineSystem implements System
     private _colorMask = 0b1111;
     private _multisampleCount = 1;
     private _depthStencilAttachment: number = 0;
-    private _hdr: 0 | 1;
+    private _hdr: 0 | 1 | 2;
 
     constructor(renderer: WebGPURenderer)
     {
@@ -249,7 +250,7 @@ export class PipelineSystem implements System
         const cullMode = stateSystem.getCullMode(state);
 
         blendModes[0].writeMask = this._stencilMode === STENCIL_MODES.RENDERING_MASK_ADD ? 0 : this._colorMask;
-        blendModes[0].format = this._hdr ? 'rgba16float' : 'bgra8unorm';
+        blendModes[0].format = HDR_FORMATS[this._hdr];
 
         const layout = this._renderer.shader.getProgramData(program).pipeline;
 

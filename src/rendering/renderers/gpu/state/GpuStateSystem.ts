@@ -68,7 +68,8 @@ export class GpuStateSystem implements System
      */
     public getColorTargets(state: State): GPUColorTargetState[]
     {
-        const blend = GpuBlendModesToPixi[state.blendMode] || GpuBlendModesToPixi.normal;
+        const blend = state.blendMode === 'none' ? undefined
+            : (GpuBlendModesToPixi[state.blendMode] || GpuBlendModesToPixi.normal);
 
         return [
             {

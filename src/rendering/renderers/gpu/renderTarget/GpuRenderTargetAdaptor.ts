@@ -1,7 +1,7 @@
 import { CLEAR } from '../../gl/const';
 import { CanvasSource } from '../../shared/texture/sources/CanvasSource';
 import { TextureSource } from '../../shared/texture/sources/TextureSource';
-import { GpuRenderTarget } from './GpuRenderTarget';
+import { GpuRenderTarget, HDR_FORMATS } from './GpuRenderTarget';
 
 import type { RgbaArray } from '../../../../color/Color';
 import type { Rectangle } from '../../../../maths/shapes/Rectangle';
@@ -279,7 +279,14 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
                 gpuRenderTarget.contexts[i] = context;
             }
 
-            gpuRenderTarget.hdr = colorTexture.format === 'rgba16float' ? 1 : 0;
+            if (colorTexture.format === HDR_FORMATS[2])
+            {
+                gpuRenderTarget.hdr = 2;
+            }
+            if (colorTexture.format === HDR_FORMATS[1])
+            {
+                gpuRenderTarget.hdr = 1;
+            }
             gpuRenderTarget.msaa = colorTexture.source.antialias;
 
             if (colorTexture.source.antialias)

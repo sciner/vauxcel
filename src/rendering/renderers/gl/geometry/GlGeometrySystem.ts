@@ -645,15 +645,25 @@ export class GlGeometrySystem implements System
                 const byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
                 const glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
 
-                multiDraw.multiDrawElementsWEBGL(
-                    gl_draw_mode,
-                    counts, 0,
-                    glType,
-                    offsets, 0,
-                    count,
-                );
+                if (multiDraw)
+                {
+                    multiDraw.multiDrawElementsWEBGL(
+                        gl_draw_mode,
+                        counts, 0,
+                        glType,
+                        offsets, 0,
+                        count,
+                    );
+                }
+                else
+                {
+                    for (let i = 0; i < count; i++)
+                    {
+                        gl.drawElements(gl_draw_mode, counts[i], glType, offsets[i]);
+                    }
+                }
             }
-            else
+            else if (multiDraw)
             {
                 multiDraw.multiDrawArraysWEBGL(
                     gl_draw_mode,
@@ -661,6 +671,13 @@ export class GlGeometrySystem implements System
                     counts, 0,
                     count,
                 );
+            }
+            else
+            {
+                for (let i = 0; i < count; i++)
+                {
+                    gl.drawArrays(gl_draw_mode, offsets[i], counts[i]);
+                }
             }
 
             return;

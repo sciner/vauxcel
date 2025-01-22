@@ -7,6 +7,7 @@ import { BatchableGraphics } from './BatchableGraphics';
 import type { InstructionSet } from '../../../rendering/renderers/shared/instructions/InstructionSet';
 import type { BatchPipe, RenderPipe } from '../../../rendering/renderers/shared/instructions/RenderPipe';
 import type { Shader } from '../../../rendering/renderers/shared/shader/Shader';
+import type { RenderableGCSystem } from '../../../rendering/renderers/shared/texture/RenderableGCSystem';
 import type { PoolItem } from '../../../utils/pool/Pool';
 import type { Container } from '../../container/Container';
 import type { Graphics } from './Graphics';
@@ -22,6 +23,7 @@ export interface GraphicsAdaptor
 export interface GraphicsSystem
 {
     graphicsContext: GraphicsContextSystem;
+    renderableGC: RenderableGCSystem;
     renderPipes: {
         batch: BatchPipe
     }
@@ -54,6 +56,8 @@ export class GraphicsPipe implements RenderPipe<Graphics>
 
         this._adaptor = adaptor;
         this._adaptor.init();
+
+        this.renderer.renderableGC.addManagedHash(this, '_graphicsBatchesHash');
     }
 
     public validateRenderable(graphics: Graphics): boolean
@@ -82,16 +86,14 @@ export class GraphicsPipe implements RenderPipe<Graphics>
         // need to get batches here.. as we need to know if we can batch or not..
         // this also overrides the current batches..
 
-        if (graphics._didGraphicsUpdate)
+        if (graphics.didViewUpdate)
         {
-            graphics._didGraphicsUpdate = false;
-
             this._rebuild(graphics);
         }
 
         if (gpuContext.isBatchable)
         {
-            this._addToBatcher(graphics);
+            this._addToBatcher(graphics, instructionSet);
         }
         else
         {
@@ -110,7 +112,7 @@ export class GraphicsPipe implements RenderPipe<Graphics>
             {
                 const batch = batches[i];
 
-                batch.batcher.updateElement(batch);
+                batch._batcher.updateElement(batch);
             }
         }
     }
@@ -176,7 +178,7 @@ export class GraphicsPipe implements RenderPipe<Graphics>
         graphics.batched = gpuContext.isBatchable;
     }
 
-    private _addToBatcher(graphics: Graphics)
+    private _addToBatcher(graphics: Graphics, instructionSet: InstructionSet)
     {
         const batchPipe = this.renderer.renderPipes.batch;
 
@@ -186,7 +188,7 @@ export class GraphicsPipe implements RenderPipe<Graphics>
         {
             const batch = batches[i];
 
-            batchPipe.addToBatch(batch);
+            batchPipe.addToBatch(batch, instructionSet);
         }
     }
 
@@ -205,7 +207,6 @@ export class GraphicsPipe implements RenderPipe<Graphics>
 
         const batches = gpuContext.batches.map((batch) =>
         {
-            // TODO pool this!!
             const batchClone = BigPool.get(BatchableGraphics);
 
             batch.copyTo(batchClone);

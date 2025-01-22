@@ -4,7 +4,6 @@ import { uid } from '../../../../../utils/data/uid';
 import { EventEmitter } from '../../../../../utils/event_emitter';
 import { TextureStyle } from '../TextureStyle';
 
-import type { GlTexture } from "../../../gl/texture/GlTexture.js";
 import type { GLTextureUploader } from "../../../gl/texture/uploaders/GLTextureUploader";
 import type { BindResource } from '../../../gpu/shader/BindResource';
 import type { GpuTextureUploader } from "../../../gpu/texture/uploaders/GpuTextureUploader";
@@ -496,9 +495,9 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
      */
     public resize(width?: number, height?: number, resolution?: number): boolean
     {
-        resolution = resolution || this._resolution;
-        width = width || this.width;
-        height = height || this.height;
+        resolution ||= this._resolution;
+        width ||= this.width;
+        height ||= this.height;
 
         // make sure we work with rounded pixels
         const newPixelWidth = Math.round(width * resolution);
@@ -610,7 +609,6 @@ export class TextureSource<T extends Record<string, any> = any> extends EventEmi
     }
 
     _glLastBindLocation: number = -1;
-    _glTexture: GlTexture = null;
     glMutableSize: boolean;
     gpuStorage: boolean;
     gpuRenderAttachment: boolean;

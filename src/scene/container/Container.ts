@@ -7,9 +7,14 @@ import { uid } from '../../utils/data/uid';
 import { EventEmitter } from '../../utils/event_emitter.js';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
 import { BigPool } from '../../utils/pool/PoolGroup';
+import type { IRenderLayer } from '../layers/RenderLayer';
+import { cacheAsTextureMixin } from './container-mixins/cacheAsTextureMixin';
 import { childrenHelperMixin } from './container-mixins/childrenHelperMixin';
+import { collectRenderablesMixin } from './container-mixins/collectRenderablesMixin';
 import { effectsMixin } from './container-mixins/effectsMixin';
 import { findMixin } from './container-mixins/findMixin';
+import { getFastGlobalBoundsMixin } from './container-mixins/getFastGlobalBoundsMixin';
+import { bgr2rgb, getGlobalMixin } from './container-mixins/getGlobalMixin';
 import { measureMixin } from './container-mixins/measureMixin';
 import { onRenderMixin } from './container-mixins/onRenderMixin';
 import { sortMixin } from './container-mixins/sortMixin';
@@ -75,7 +80,6 @@ type AnyEvent = {
     //
     // Side note, we disable @typescript-eslint/ban-types since {}&string is the only syntax that works.
     // Nor of the Record/unknown/never alternatives work.
-    // eslint-disable-next-line @typescript-eslint/ban-types
     [K: ({} & string) | ({} & symbol)]: any;
 };
 
@@ -401,6 +405,13 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
     /** @private */
     public isSimple = true;
 
+    /**
+     * The RenderLayer this container belongs to, if any.
+     * If it belongs to a RenderLayer, it will be rendered from the RenderLayer's position in the scene.
+     * @readonly
+     */
+    public parentRenderLayer: IRenderLayer;
+
     // / /////////////Transform related props//////////////
 
     // used by the transform system to check if a container needs to be updated that frame
@@ -573,6 +584,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      */
     public _didViewChangeTick = 0;
 
+    public layerParentId: string;// = 'default';
     /**
      * We now use the _didContainerChangeTick and _didViewChangeTick to track changes
      * @deprecated since 8.2.6
@@ -617,7 +629,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      * @param {...Container} children - The Container(s) to add to the container
      * @returns {Container} - The first child that was added.
      */
-    public addChild<U extends C[]>(...children: U): U[0]
+    public addChild<U extends(C | IRenderLayer)[]>(...children: U): U[0]
     {
         // #if _DEBUG
         if (!this.allowChildren)
@@ -637,16 +649,18 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
             return children[0];
         }
 
-        const child = children[0];
+        const child = children[0] as C;
+
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
 
         if (child.parent === this)
         {
             this.children.splice(this.children.indexOf(child), 1);
             this.children.push(child);
 
-            if (this.parentRenderGroup)
+            if (renderGroup)
             {
-                this.parentRenderGroup.structureDidChange = true;
+                renderGroup.structureDidChange = true;
             }
 
             return child;
@@ -665,12 +679,9 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
         child.parent = this;
 
         child.didChange = true;
-        child.didViewUpdate = false;
 
         // TODO - OPtimise this? could check what the parent has set?
         child._updateFlags = 0b1111;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
 
         if (renderGroup)
         {
@@ -695,7 +706,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      * @param {...Container} children - The Container(s) to remove
      * @returns {Container} The first child that was removed.
      */
-    public removeChild<U extends C[]>(...children: U): U[0]
+    public removeChild<U extends(C | IRenderLayer)[]>(...children: U): U[0]
     {
         // if there is only one argument we can bypass looping through the them
         if (children.length > 1)
@@ -709,7 +720,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
             return children[0];
         }
 
-        const child = children[0];
+        const child = children[0] as C;
 
         const index = this.children.indexOf(child);
 
@@ -726,6 +737,11 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
             else if (this.parentRenderGroup)
             {
                 this.parentRenderGroup.removeChild(child);
+            }
+
+            if (child.parentRenderLayer)
+            {
+                child.parentRenderLayer.detach(child);
             }
 
             child.parent = null;
@@ -851,8 +867,6 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 
         return this._worldTransform;
     }
-
-    // / ////// transform related stuff
 
     /**
      * The position of the container on the x axis relative to the local coordinates of the parent.
@@ -1213,10 +1227,8 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
      */
     get tint(): number
     {
-        const bgr = this.localColor;
         // convert bgr to rgb..
-
-        return ((bgr & 0xFF) << 16) + (bgr & 0xFF00) + ((bgr >> 16) & 0xFF);
+        return bgr2rgb(this.localColor);
     }
 
     // / //////////////// blend related stuff
@@ -1344,7 +1356,15 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
         this.destroyed = true;
 
         // remove children is faster than removeChild..
-        const oldChildren = this.removeChildren(0, this.children.length);
+
+        let oldChildren: ContainerChild[];
+
+        // we add this check as calling removeChildren on particle container will throw an error
+        // As we know it does cannot have any children, check before calling the function.
+        if (this.children.length)
+        {
+            oldChildren = this.removeChildren(0, this.children.length);
+        }
 
         this.removeFromParent();
         this.parent = null;
@@ -1362,7 +1382,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 
         const destroyChildren = typeof options === 'boolean' ? options : options?.children;
 
-        if (destroyChildren)
+        if (destroyChildren && oldChildren)
         {
             for (let i = 0; i < oldChildren.length; ++i)
             {
@@ -1376,6 +1396,7 @@ export class Container<C extends ContainerChild = ContainerChild> extends EventE
 }
 
 Container.mixin(childrenHelperMixin);
+Container.mixin(getFastGlobalBoundsMixin);
 Container.mixin(toLocalGlobalMixin);
 Container.mixin(onRenderMixin);
 Container.mixin(measureMixin);
@@ -1383,3 +1404,6 @@ Container.mixin(effectsMixin);
 Container.mixin(findMixin);
 Container.mixin(sortMixin);
 Container.mixin(cullingMixin);
+Container.mixin(cacheAsTextureMixin);
+Container.mixin(getGlobalMixin);
+Container.mixin(collectRenderablesMixin);

@@ -358,6 +358,39 @@ export class Geometry extends EventEmitter<{
         return this.getSize();
     }
 
+    /**
+     * Adds an attribute to the geometry.
+     * @param name - The name of the attribute to add.
+     * @param attributeOption - The attribute option to add.
+     */
+//    public addAttribute(name: string, attributeOption: AttributeOption): void
+//    {
+//        const attribute = ensureIsAttribute(attributeOption);
+//
+//        const bufferIndex = this.buffers.indexOf(attribute.buffer);
+//
+//        if (bufferIndex === -1)
+//        {
+//            this.buffers.push(attribute.buffer);
+//
+//            // two events here - one for a resize (new buffer change)
+//            // and one for an update (existing buffer change)
+//            attribute.buffer.on('update', this.onBufferUpdate, this);
+//            attribute.buffer.on('change', this.onBufferUpdate, this);
+//        }
+//        this.attributes[name] = attribute;
+//    }
+//
+    /**
+     * Adds an index buffer to the geometry.
+     * @param indexBuffer - The index buffer to add. Can be a Buffer, TypedArray, or an array of numbers.
+     */
+//    public addIndex(indexBuffer: Buffer | TypedArray | number[]): void
+//    {
+//        this.indexBuffer = ensureIsBuffer(indexBuffer, true);
+//        this.buffers.push(this.indexBuffer);
+//    }
+
     /** Returns the bounds of the geometry. */
     get bounds(): Bounds
     {

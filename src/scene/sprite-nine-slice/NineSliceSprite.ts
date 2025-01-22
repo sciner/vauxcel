@@ -1,11 +1,10 @@
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
-import { ViewContainer } from '../view/View';
+import { ViewContainer } from '../view/ViewContainer';
 import { NineSliceGeometry } from './NineSliceGeometry';
 
 import type { Size } from '../../maths/misc/Size';
 import type { View } from '../../rendering/renderers/shared/view/View';
-import type { Bounds, BoundsData } from '../container/bounds/Bounds';
 import type { ContainerOptions } from '../container/Container';
 import type { Optional } from '../container/container-mixins/measureMixin';
 import type { DestroyOptions } from '../container/destroyTypes';
@@ -91,8 +90,6 @@ export class NineSliceSprite extends ViewContainer implements View
     private _width: number;
     private _height: number;
 
-    public _didSpriteUpdate = true;
-
     /**
      * @param {scene.NineSliceSpriteOptions|Texture} options - Options to use
      * @param options.texture - The texture to use on the NineSliceSprite.
@@ -143,11 +140,8 @@ export class NineSliceSprite extends ViewContainer implements View
         this.roundPixels = roundPixels ?? false;
     }
 
-    /** The local bounds of the view. */
-    public get bounds(): BoundsData
-    {
-        return this._bounds;
-    }
+    /** @private */
+    protected override updateBounds(): void { /* empty */ }
 
     /** The width of the NineSliceSprite, setting this will actually modify the vertices and UV's of this plane. */
     override get width(): number
@@ -289,34 +283,6 @@ export class NineSliceSprite extends ViewContainer implements View
     get originalHeight()
     {
         return this._texture.height;
-    }
-
-    protected onViewUpdate()
-    {
-        this._didViewChangeTick++;
-
-        this._didSpriteUpdate = true;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
-    }
-
-    /**
-     * Adds the bounds of this object to the bounds object.
-     * @param bounds - The output bounds object.
-     */
-    public addBounds(bounds: Bounds)
-    {
-        const _bounds = this.bounds;
-
-        bounds.addFrame(_bounds.minX, _bounds.minY, _bounds.maxX, _bounds.maxY);
     }
 
     /**

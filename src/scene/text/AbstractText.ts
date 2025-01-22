@@ -1,15 +1,14 @@
 import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
-import { ViewContainer } from '../view/View';
+import { ViewContainer } from '../view/ViewContainer';
 
 import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { View } from '../../rendering/renderers/shared/view/View';
-import type { Bounds } from '../container/bounds/Bounds';
 import type { ContainerOptions } from '../container/Container';
 import type { Optional } from '../container/container-mixins/measureMixin';
 import type { DestroyOptions } from '../container/destroyTypes';
-import type { HTMLTextStyle, HTMLTextStyleOptions } from '../text-html/HtmlTextStyle';
+import type { HTMLTextStyle, HTMLTextStyleOptions } from '../text-html/HTMLTextStyle';
 import type { TextStyle, TextStyleOptions } from './TextStyle';
 
 /**
@@ -215,7 +214,7 @@ export abstract class AbstractText<
      */
     set style(style: TEXT_STYLE | Partial<TEXT_STYLE> | TEXT_STYLE_OPTIONS)
     {
-        style = style || {};
+        style ||= {};
 
         this._style?.off('update', this.onViewUpdate, this);
 
@@ -230,21 +229,6 @@ export abstract class AbstractText<
 
         this._style.on('update', this.onViewUpdate, this);
         this.onViewUpdate();
-    }
-
-    /**
-     * The local bounds of the Text.
-     * @type {rendering.Bounds}
-     */
-    get bounds()
-    {
-        if (this._boundsDirty)
-        {
-            this._updateBounds();
-            this._boundsDirty = false;
-        }
-
-        return this._bounds;
     }
 
     /** The width of the sprite, setting this will actually modify the scale to achieve the value set. */
@@ -307,22 +291,6 @@ export abstract class AbstractText<
     }
 
     /**
-     * Adds the bounds of this text to the bounds object.
-     * @param bounds - The output bounds object.
-     */
-    public addBounds(bounds: Bounds)
-    {
-        const _bounds = this.bounds;
-
-        bounds.addFrame(
-            _bounds.minX,
-            _bounds.minY,
-            _bounds.maxX,
-            _bounds.maxY,
-        );
-    }
-
-    /**
      * Checks if the text contains the given point.
      * @param point - The point to check
      */
@@ -344,31 +312,16 @@ export abstract class AbstractText<
         return false;
     }
 
-    public onViewUpdate()
+    public override onViewUpdate()
     {
-        this._didViewChangeTick++;
-
-        this._boundsDirty = true;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        this._didTextUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
+        if (!this.didViewUpdate) this._didTextUpdate = true;
+        super.onViewUpdate();
     }
 
     public _getKey(): string
     {
         return `${this.text}:${this._style.styleKey}:${this._resolution}`;
     }
-
-    protected abstract _updateBounds(): void;
 
     /**
      * Destroys this text renderable and optionally its style texture.

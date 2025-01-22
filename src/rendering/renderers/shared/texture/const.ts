@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
-
 import { deprecation, v8_0_0 } from '../../../../utils/logging/deprecation';
 
 /**
@@ -27,7 +25,6 @@ export type ALPHA_MODES =
  * @property {number} HIGH - Try 8 samples
  */
 export enum MSAA_QUALITY
-    // eslint-disable-next-line @typescript-eslint/indent
 {
     NONE = 0,
     LOW = 2,
@@ -36,8 +33,6 @@ export enum MSAA_QUALITY
 }
 
 export type TEXTURE_FORMATS =
-    // eslint-disable-next-line @typescript-eslint/indent
-
     // 8-bit formats
     'r8unorm' |
     'r8snorm' |
@@ -190,7 +185,6 @@ export type COMPARE_FUNCTION =
     | 'always';
 
 export enum SAMPLER_TYPES
-// eslint-disable-next-line @typescript-eslint/indent
 {
     /**
      * @default 0

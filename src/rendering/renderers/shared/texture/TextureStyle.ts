@@ -266,6 +266,4 @@ export class TextureStyle extends EventEmitter<{
     {
         this.gpu_updateID = this.updateID;
     }
-
-    _glSampler: WebGLSampler = null;
 }

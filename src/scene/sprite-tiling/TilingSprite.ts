@@ -2,14 +2,14 @@ import { Cache } from '../../assets/cache/Cache';
 import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
+import { warn } from '../../utils/logging/warn';
 import { Transform } from '../../utils/misc/Transform';
-import { ViewContainer } from '../view/View';
+import { ViewContainer } from '../view/ViewContainer';
 
 import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { Instruction } from '../../rendering/renderers/shared/instructions/Instruction';
 import type { View } from '../../rendering/renderers/shared/view/View';
-import type { Bounds } from '../container/bounds/Bounds';
 import type { ContainerOptions } from '../container/Container';
 import type { Optional } from '../container/container-mixins/measureMixin';
 import type { DestroyOptions } from '../container/destroyTypes';
@@ -128,19 +128,48 @@ export class TilingSprite extends ViewContainer implements View, Instruction
         tileScale: { x: 1, y: 1 },
         /** The rotation of the image that is being tiled. */
         tileRotation: 0,
-        /** TODO */
+        /**
+         * Flags whether the tiling pattern should originate from the origin instead of the top-left corner in
+         * local space.
+         *
+         * This will make the texture coordinates assigned to each vertex dependent on the value of the anchor. Without
+         * this, the top-left corner always gets the (0, 0) texture coordinate.
+         * @default false
+         */
         applyAnchorToTexture: false,
     };
 
     public override readonly renderPipeId: string = 'tilingSprite';
     public readonly batched = true;
 
+    /**
+     * Flags whether the tiling pattern should originate from the origin instead of the top-left corner in
+     * local space.
+     *
+     * This will make the texture coordinates assigned to each vertex dependent on the value of the anchor. Without
+     * this, the top-left corner always gets the (0, 0) texture coordinate.
+     * @default false
+     */
+    public applyAnchorToTexture: boolean;
+    /**
+     * @see {@link scene.TilingSpriteOptions.applyAnchorToTexture}
+     * @deprecated since 8.0.0
+     */
+    public get uvRespectAnchor(): boolean
+    {
+        warn('uvRespectAnchor is deprecated, please use applyAnchorToTexture instead');
+
+        return this.applyAnchorToTexture;
+    }
+    public set uvRespectAnchor(value: boolean)
+    {
+        warn('uvRespectAnchor is deprecated, please use applyAnchorToTexture instead');
+        this.applyAnchorToTexture = value;
+    }
     public _anchor: ObservablePoint;
 
     public _tileTransform: Transform;
     public _texture: Texture;
-    public _applyAnchorToTexture: boolean;
-    public _didTilingSpriteUpdate: boolean;
 
     private _width: number;
     private _height: number;
@@ -202,7 +231,7 @@ export class TilingSprite extends ViewContainer implements View, Instruction
             },
         );
 
-        this._applyAnchorToTexture = applyAnchorToTexture;
+        this.applyAnchorToTexture = applyAnchorToTexture;
 
         this.texture = texture;
         this._width = width ?? texture.width;
@@ -304,21 +333,6 @@ export class TilingSprite extends ViewContainer implements View, Instruction
         return this._tileTransform;
     }
 
-    /**
-     * The local bounds of the sprite.
-     * @type {rendering.Bounds}
-     */
-    get bounds()
-    {
-        if (this._boundsDirty)
-        {
-            this._updateBounds();
-            this._boundsDirty = false;
-        }
-
-        return this._bounds;
-    }
-
     set texture(value: Texture)
     {
         value ||= Texture.EMPTY;
@@ -400,7 +414,10 @@ export class TilingSprite extends ViewContainer implements View, Instruction
         return out;
     }
 
-    protected override _updateBounds()
+    /**
+     * @private
+     */
+    protected override updateBounds()
     {
         const bounds = this._bounds;
 
@@ -414,22 +431,6 @@ export class TilingSprite extends ViewContainer implements View, Instruction
 
         bounds.maxY = -anchor._y * height;
         bounds.minY = bounds.maxY + height;
-    }
-
-    /**
-     * Adds the bounds of this object to the bounds object.
-     * @param bounds - The output bounds object.
-     */
-    public addBounds(bounds: Bounds)
-    {
-        const _bounds = this.bounds;
-
-        bounds.addFrame(
-            _bounds.minX,
-            _bounds.minY,
-            _bounds.maxX,
-            _bounds.maxY,
-        );
     }
 
     /**
@@ -451,24 +452,6 @@ export class TilingSprite extends ViewContainer implements View, Instruction
         }
 
         return false;
-    }
-
-    public onViewUpdate()
-    {
-        this._boundsDirty = true;
-        this._didTilingSpriteUpdate = true;
-
-        this._didViewChangeTick++;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
     }
 
     /**

@@ -81,6 +81,9 @@ export class GlTextureSystem implements System, CanvasGenerator
 
     private readonly _renderer: WebGLRenderer;
 
+    private _glTextures: Record<number, GlTexture> = Object.create(null);
+    private _glSamplers: Record<string, WebGLSampler> = Object.create(null);
+
     _boundTextures: TextureSource[] = [];
     private _activeTextureLocation = -1;
 
@@ -104,6 +107,8 @@ export class GlTextureSystem implements System, CanvasGenerator
     constructor(renderer: WebGLRenderer)
     {
         this._renderer = renderer;
+        this._renderer.renderableGC.addManagedHash(this, '_glTextures');
+        this._renderer.renderableGC.addManagedHash(this, '_glSamplers');
     }
 
     protected contextChange(gl: GlRenderingContext): void
@@ -118,6 +123,8 @@ export class GlTextureSystem implements System, CanvasGenerator
             this._mapFormatToFormat = mapFormatToGlFormat(gl);
         }
 
+        this._glTextures = Object.create(null);
+        this._glSamplers = Object.create(null);
         this._boundSamplers = Object.create(null);
 
         for (let i = 0; i < 16; i++)
@@ -235,7 +242,7 @@ export class GlTextureSystem implements System, CanvasGenerator
     private _initSourceInner(source: TextureSource): GlTexture
     {
         const gl = this._renderer.gl;
-        const glTexture = source._glTexture = new GlTexture(gl.createTexture());
+        const glTexture = new GlTexture(gl.createTexture());
 
         glTexture.type = this._mapFormatToType[source.format];
         glTexture.internalFormat = this._mapFormatToInternalFormat[source.format];
@@ -254,6 +261,8 @@ export class GlTextureSystem implements System, CanvasGenerator
 
             source.mipLevelCount = Math.floor(Math.log2(biggestDimension)) + 1;
         }
+
+        this._glTextures[source.uid] = glTexture;
 
         return glTexture;
     }
@@ -356,12 +365,13 @@ export class GlTextureSystem implements System, CanvasGenerator
 
     protected onSourceUnload(source: TextureSource): void
     {
-        const glTexture = source._glTexture;
+        const glTexture = this._glTextures[source.uid];
 
         if (!glTexture) return;
 
+        delete this._glTextures[source.uid];
+
         this.unbind(source);
-        source._glTexture = null;
 
         this._gl.deleteTexture(glTexture.texture);
     }
@@ -373,7 +383,7 @@ export class GlTextureSystem implements System, CanvasGenerator
 
     protected onSourceResize(source: TextureSource): void
     {
-        const old_tex = source._glTexture;
+        const old_tex = this._glTextures[source.uid];
         const uploader = this.getSourceUploader(source);
 
         if (source.glMutableSize || !old_tex || !uploader.storage)
@@ -387,7 +397,8 @@ export class GlTextureSystem implements System, CanvasGenerator
 
         const gl = this._renderer.gl;
 
-        source._glTexture = null;
+        // this will be rewritten with new texture
+        this._glTextures[source.uid] = null;
 
         if (!source.copyOnResize)
         {
@@ -442,7 +453,9 @@ export class GlTextureSystem implements System, CanvasGenerator
     {
         const gl = this._gl;
 
-        const glSampler = style._glSampler = this._gl.createSampler();
+        const glSampler = this._gl.createSampler();
+
+        this._glSamplers[style._resourceId] = glSampler;
 
         applyStyleParams(
             style,
@@ -455,22 +468,36 @@ export class GlTextureSystem implements System, CanvasGenerator
             true,
         );
 
-        return style._glSampler;
+        return this._glSamplers[style._resourceId];
     }
 
     private _getGlSampler(sampler: TextureStyle): WebGLSampler
     {
-        return sampler._glSampler || this._initSampler(sampler);
+        return this._glSamplers[sampler._resourceId] || this._initSampler(sampler);
     }
 
     public getGlSource(source: TextureSource): GlTexture
     {
-        return source._glTexture || this._initSource(source, this.getSourceUploader(source));
+        return this._glTextures[source.uid] || this._initSource(source, this.getSourceUploader(source));
     }
 
     public getSourceUploader(source: TextureSource): GLTextureUploader
     {
         return source.glUploader || this._uploads[source.uploadMethodId];
+    }
+
+    public getGlTexForDepth(depthTexture: TextureSource)
+    {
+        const tex = this._renderer.texture._glTextures[depthTexture.uid];
+
+        if (tex)
+        {
+            return tex;
+        }
+        this._renderer.texture.bind(depthTexture, 0);
+        this._renderer.texture.bind(null, 0);
+
+        return this._renderer.texture._glTextures[depthTexture.uid];
     }
 
     public generateCanvas(texture: Texture | TextureSource): ICanvas
@@ -576,6 +603,13 @@ export class GlTextureSystem implements System, CanvasGenerator
         (this.managedTextures as null) = null;
 
         (this._renderer as null) = null;
+    }
+
+    public resetState(): void
+    {
+        this._activeTextureLocation = -1;
+        this._boundTextures.fill(Texture.EMPTY.source);
+        this._boundSamplers = Object.create(null);
     }
 }
 

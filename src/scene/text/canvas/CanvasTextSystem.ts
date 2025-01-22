@@ -41,11 +41,11 @@ export class CanvasTextSystem implements System
         name: 'canvasText',
     } as const;
 
-    private _activeTextures: Map<string, {
+    private _activeTextures: Record<string, {
         canvasAndContext: CanvasAndContext,
         texture: Texture,
         usageCount: number,
-    }> = new Map();
+    }> = {};
 
     private readonly _renderer: Renderer;
 
@@ -85,7 +85,9 @@ export class CanvasTextSystem implements System
     {
         if (typeof options === 'string')
         {
+            // #if _DEBUG
             deprecation('8.0.0', 'CanvasTextSystem.getTexture: Use object TextOptions instead of separate arguments');
+            // #endif
 
             options = {
                 text: options,
@@ -148,32 +150,32 @@ export class CanvasTextSystem implements System
         text._resolution = text._autoResolution ? this._renderer.resolution : text.resolution;
         const textKey = text._getKey();
 
-        if (this._activeTextures.get(textKey))
+        if (this._activeTextures[textKey])
         {
             this._increaseReferenceCount(textKey);
 
-            return this._activeTextures.get(textKey).texture;
+            return this._activeTextures[textKey].texture;
         }
 
         const { texture, canvasAndContext } = this.createTextureAndCanvas(text);
 
-        this._activeTextures.set(textKey, {
+        this._activeTextures[textKey] = {
             canvasAndContext,
             texture,
             usageCount: 1,
-        });
+        };
 
         return texture;
     }
 
     private _increaseReferenceCount(textKey: string)
     {
-        this._activeTextures.get(textKey).usageCount++;
+        this._activeTextures[textKey].usageCount++;
     }
 
     public decreaseReferenceCount(textKey: string)
     {
-        const activeTexture = this._activeTextures.get(textKey);
+        const activeTexture = this._activeTextures[textKey];
 
         activeTexture.usageCount--;
 
@@ -188,13 +190,13 @@ export class CanvasTextSystem implements System
             source.uploadMethodId = 'unknown';
             source.alphaMode = 'no-premultiply-alpha';
 
-            this._activeTextures.delete(textKey);
+            this._activeTextures[textKey] = null;
         }
     }
 
     public getReferenceCount(textKey: string)
     {
-        return this._activeTextures.get(textKey).usageCount;
+        return this._activeTextures[textKey].usageCount;
     }
 
     /**
@@ -224,12 +226,8 @@ export class CanvasTextSystem implements System
         const height = canvas.height;
 
         context.resetTransform();
-
         context.scale(resolution, resolution);
-
-        const padding = style.padding * 2;
-
-        context.clearRect(0, 0, measured.width + 4 + padding, measured.height + 4 + padding);
+        context.textBaseline = style.textBaseline;
 
         // set stroke styles..
 
@@ -298,7 +296,6 @@ export class CanvasTextSystem implements System
             }
             else
             {
-                context.globalAlpha = style._fill?.alpha ?? 1;
                 context.fillStyle = style._fill ? getCanvasFillStyle(style._fill, context) : null;
 
                 if (style._stroke?.width)

@@ -9,6 +9,8 @@ export * from './batcher/shared/Batcher';
 export * from './batcher/shared/BatcherPipe';
 export * from './batcher/shared/BatchGeometry';
 export * from './batcher/shared/BatchTextureArray';
+export * from './batcher/shared/DefaultBatcher';
+export * from './batcher/shared/DefaultShader';
 export * from './high-shader/compileHighShaderToProgram';
 export * from './high-shader/compiler/compileHighShader';
 export * from './high-shader/compiler/types';

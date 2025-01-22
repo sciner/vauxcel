@@ -9,7 +9,6 @@ import { Texture } from '../rendering/renderers/shared/texture/Texture';
 import { TexturePool } from '../rendering/renderers/shared/texture/TexturePool';
 import { type Renderer, RendererType } from '../rendering/renderers/types';
 import { Bounds } from '../scene/container/bounds/Bounds';
-import { getFastGlobalBounds } from '../scene/container/bounds/getFastGlobalBounds';
 import { getGlobalRenderableBounds } from '../scene/container/bounds/getRenderableBounds';
 import { warn } from '../utils/logging/warn';
 
@@ -177,7 +176,7 @@ export class FilterSystem implements System
             getGlobalRenderableBounds(instruction.renderables, bounds);
         }
         // if a filterArea is provided, we save our selves some measuring and just use that area supplied
-        else if (filterEffect.filterArea)
+        else if (instruction.filterEffect.filterArea)
         {
             bounds.clear();
 
@@ -191,8 +190,25 @@ export class FilterSystem implements System
         // measuring.
         else
         {
-            getFastGlobalBounds(instruction.container, bounds);
+            // we want to factor render layers to get the real visual bounds of this container.
+            // so the last param is true..
+            instruction.container.getFastGlobalBounds(true, bounds);
         }
+
+        if (instruction.container)
+        {
+            // When a container is cached as a texture, its filters need to be applied relative to its
+            // cached parent's coordinate space rather than world space. This transform adjustment ensures
+            // filters are applied in the correct coordinate system.
+            const renderGroup = instruction.container.renderGroup || instruction.container.parentRenderGroup;
+            const filterFrameTransform = renderGroup.cacheToLocalTransform;
+
+            if (filterFrameTransform)
+            {
+                bounds.applyMatrix(filterFrameTransform);
+            }
+        }
+
         // get GLOBAL bounds of the item we are going to apply the filter to
 
         const colorTextureSource = renderer.renderTarget.renderTarget.colorTexture.source;
@@ -208,8 +224,9 @@ export class FilterSystem implements System
         let blendRequired = false;
         // true if any filter in the list is enabled
         let enabled = false;
+        // false if any filter in the list has false
+        let clipToViewport = true;
 
-        let autoFit = false;
 
         let hdr = false;
 
@@ -233,6 +250,10 @@ export class FilterSystem implements System
             {
                 hdr = true;
             }
+            if (!filter.clipToViewport)
+            {
+                clipToViewport = false;
+            }
 
             const isCompatible = !!(filter.compatibleRenderers & renderer.type);
 
@@ -254,7 +275,7 @@ export class FilterSystem implements System
             }
 
             enabled = filter.enabled || enabled;
-            blendRequired = blendRequired || filter.blendRequired;
+            blendRequired ||= filter.blendRequired;
         }
 
         // if no filters are enabled lets skip!
@@ -265,21 +286,24 @@ export class FilterSystem implements System
             return;
         }
 
-        const viewPort = renderer.renderTarget.rootViewPort;
-
-        if (autoFit)
+        // here we constrain the bounds to the viewport we will render too
+        // this should not take into account the x, y offset of the viewport - as this is
+        // handled by the viewport on the gpu.
+        if (clipToViewport)
         {
-	        // here we constrain the bounds to the viewport we will render too
-	        // this should not take into account the x, y offset of the viewport - as this is
-	        // handled by the viewport on the gpu.
-	        // need to factor in resolutions also..
-	        bounds
-	            .scale(resolution)
-	            .fitBounds(0, viewPort.width, 0, viewPort.height)
-	            .ceil()
-	            .scale(1 / resolution)
-	            .pad(padding | 0);
+            const viewPort = renderer.renderTarget.rootViewPort;
+
+            const rootResolution = renderer.renderTarget.renderTarget.resolution;
+
+            bounds.fitBounds(0, viewPort.width / rootResolution, 0, viewPort.height / rootResolution);
         }
+
+        // round the bounds to the nearest pixel
+        bounds
+            .scale(resolution)
+            .ceil()
+            .scale(1 / resolution)
+            .pad(padding | 0);
 
         // skip if the bounds are negative or zero as this means they are
         // not visible on the screen
@@ -360,7 +384,6 @@ export class FilterSystem implements System
         // get a BufferResource from the uniformBatch.
         // this will batch the shader uniform data and give us a buffer resource we can
         // set on our globalUniform Bind Group
-        // eslint-disable-next-line max-len
 
         // update the resources on the bind group...
         this._globalFilterBindGroup.setResource(inputTexture.source.style, 2);
@@ -659,6 +682,14 @@ export class FilterSystem implements System
         );
 
         const worldTransform = sprite.worldTransform.copyTo(Matrix.shared);
+
+        const renderGroup = sprite.renderGroup || sprite.parentRenderGroup;
+
+        if (renderGroup && renderGroup.cacheToLocalTransform)
+        {
+            // get the matrix relative to the render group..
+            worldTransform.prepend(renderGroup.cacheToLocalTransform);
+        }
 
         worldTransform.invert();
         mappedMatrix.prepend(worldTransform);

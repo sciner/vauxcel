@@ -34,7 +34,6 @@ export interface MeshAdaptor
     destroy(): void;
 }
 
-// eslint-disable-next-line max-len
 export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
 {
     /** @ignore */
@@ -70,6 +69,9 @@ export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
         this._adaptor = adaptor;
 
         this._adaptor.init();
+
+        renderer.renderableGC.addManagedHash(this, '_gpuBatchableMeshHash');
+        renderer.renderableGC.addManagedHash(this, '_meshDataHash');
     }
 
     public validateRenderable(mesh: Mesh): boolean
@@ -102,15 +104,10 @@ export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
 
             const batchableMesh = this._getBatchableMesh(mesh);
 
-            const texture = mesh.texture;
-
-            if (batchableMesh.texture._source !== texture._source)
-            {
-                if (batchableMesh.texture._source !== texture._source)
-                {
-                    return !batchableMesh.batcher.checkAndUpdateTexture(batchableMesh, texture);
-                }
-            }
+            return !batchableMesh._batcher.checkAndUpdateTexture(
+                batchableMesh,
+                mesh.texture
+            );
         }
 
         return false;
@@ -129,7 +126,7 @@ export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
             gpuBatchableMesh.texture = mesh._texture;
             gpuBatchableMesh.geometry = mesh._geometry;
 
-            batcher.addToBatch(gpuBatchableMesh);
+            batcher.addToBatch(gpuBatchableMesh, instructionSet);
         }
         else
         {
@@ -148,7 +145,7 @@ export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
             gpuBatchableMesh.texture = mesh._texture;
             gpuBatchableMesh.geometry = mesh._geometry;
 
-            gpuBatchableMesh.batcher.updateElement(gpuBatchableMesh);
+            gpuBatchableMesh._batcher.updateElement(gpuBatchableMesh);
         }
     }
 
@@ -216,13 +213,12 @@ export class MeshPipe implements RenderPipe<Mesh>, InstructionPipe<Mesh>
         // TODO - make this batchable graphics??
         const gpuMesh: BatchableMesh = BigPool.get(BatchableMesh);
 
-        gpuMesh.mesh = mesh;
+        gpuMesh.renderable = mesh;
         gpuMesh.texture = mesh._texture;
+        gpuMesh.transform = mesh.groupTransform;
         gpuMesh.roundPixels = (this.renderer._roundPixels | mesh._roundPixels) as 0 | 1;
 
         this._gpuBatchableMeshHash[mesh.uid] = gpuMesh;
-
-        gpuMesh.mesh = mesh;
 
         return gpuMesh;
     }

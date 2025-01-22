@@ -3,7 +3,7 @@ import { Geometry } from '../../../rendering/renderers/shared/geometry/Geometry'
 import { State } from '../../../rendering/renderers/shared/state/State';
 import { Texture } from '../../../rendering/renderers/shared/texture/Texture';
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
-import { ViewContainer } from '../../view/View';
+import { ViewContainer } from '../../view/ViewContainer';
 import { MeshGeometry } from './MeshGeometry';
 
 import type { PointData } from '../../../maths/point/PointData';
@@ -12,7 +12,6 @@ import type { MultiDrawBuffer } from "../../../rendering/renderers/shared/geomet
 import type { Instruction } from '../../../rendering/renderers/shared/instructions/Instruction';
 import type { Shader } from '../../../rendering/renderers/shared/shader/Shader';
 import type { View } from '../../../rendering/renderers/shared/view/View';
-import type { Bounds } from '../../container/bounds/Bounds';
 import type { ContainerOptions } from '../../container/Container';
 import type { DestroyOptions } from '../../container/destroyTypes';
 
@@ -255,12 +254,12 @@ export class Mesh<
     }
 
     /**
-     * Adds the bounds of this object to the bounds object.
-     * @param bounds - The output bounds object.
+     * Update local bounds of the mesh.
+     * @private
      */
-    public addBounds(bounds: Bounds)
+    protected updateBounds()
     {
-        bounds.addBounds(this.geometry.bounds);
+        this._bounds = this._geometry.bounds;
     }
 
     /**
@@ -328,22 +327,6 @@ export class Mesh<
         }
 
         return false;
-    }
-
-    /** @ignore */
-    public onViewUpdate()
-    {
-        this._didViewChangeTick++;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
     }
 
     /**

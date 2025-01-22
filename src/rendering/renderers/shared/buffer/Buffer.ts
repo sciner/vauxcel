@@ -2,8 +2,8 @@ import { uid } from '../../../../utils/data/uid';
 import { EventEmitter } from '../../../../utils/event_emitter';
 import { BufferUsage } from './const';
 
-import type { GlBuffer } from '../../gl/buffer/GlBuffer';
 import type { BindResource } from '../../gpu/shader/BindResource';
+import type { GlBuffer } from '../../gl/buffer/GlBuffer';
 
 /** All the various typed arrays that exist in js */
 // eslint-disable-next-line max-len
@@ -163,9 +163,6 @@ export class Buffer extends EventEmitter<{
 
     public glStatic: boolean;
 
-    public _lastBindBaseLocation: number = -1;
-    public _lastBindCallId: number = -1;
-
     /**
      * Creates a new Buffer with the given options
      * @param options - the options for the buffer
@@ -260,6 +257,7 @@ export class Buffer extends EventEmitter<{
         const oldData = this._data;
 
         this._data = value;
+        this._dataInt32 = null;
 
         // Event handling
         if (!oldData || oldData.length !== value.length)

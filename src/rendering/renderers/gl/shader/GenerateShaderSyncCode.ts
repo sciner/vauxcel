@@ -52,7 +52,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
             {
                 if (resource.ubo)
                 {
-                    const resName = shader._uniformBindMap[i][+j];
+                    const resName = shader._uniformBindMap[i][Number(j)];
 
                     if (resName)
                     {
@@ -75,7 +75,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
             }
             else if (resource instanceof BufferResource)
             {
-                const resName = shader._uniformBindMap[i][+j];
+                const resName = shader._uniformBindMap[i][Number(j)];
 
                 funcFragments.push(`
                     sS.bindUniformBlock(

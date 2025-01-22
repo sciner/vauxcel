@@ -25,7 +25,7 @@ const vertexGPUTemplate = /* wgsl */`
         var uv = aUV;
 
         {{start}}
-
+        
         vColor = vec4<f32>(1., 1., 1., 1.);
 
         {{main}}
@@ -47,21 +47,25 @@ const vertexGPUTemplate = /* wgsl */`
 const fragmentGPUTemplate = /* wgsl */`
     @in vUV : vec2<f32>;
     @in vColor : vec4<f32>;
-
+   
     {{header}}
 
     @fragment
     fn main(
         {{in}}
       ) -> @location(0) vec4<f32> {
-
+        
         {{start}}
 
         var outColor:vec4<f32>;
-
+      
         {{main}}
+        
+        var finalColor:vec4<f32> = outColor * vColor;
 
-        return outColor * vColor;
+        {{end}}
+
+        return finalColor;
       };
 `;
 
@@ -84,15 +88,15 @@ const vertexGlTemplate = /* glsl */`
           );
         vec2 position = aPosition;
         vec2 uv = aUV;
-
+        
         {{start}}
-
+        
         vColor = vec4(1.);
-
+        
         {{main}}
-
+        
         vUV = uv;
-
+        
         mat3 modelViewProjectionMatrix = uProjectionMatrix * worldTransformMatrix * modelMatrix;
 
         gl_Position = vec4((modelViewProjectionMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);
@@ -104,7 +108,7 @@ const vertexGlTemplate = /* glsl */`
 `;
 
 const fragmentGlTemplate = /* glsl */`
-
+   
     in vec4 vColor;
     in vec2 vUV;
 
@@ -113,14 +117,16 @@ const fragmentGlTemplate = /* glsl */`
     {{header}}
 
     void main(void) {
-
+        
         {{start}}
 
         vec4 outColor;
-
+      
         {{main}}
-
+        
         finalColor = outColor * vColor;
+        
+        {{end}}
     }
 `;
 

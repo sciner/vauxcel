@@ -1,13 +1,14 @@
 import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
-import { ViewContainer } from '../view/View';
+import { deprecation } from '../../utils/logging/deprecation';
+import { ViewContainer } from '../view/ViewContainer';
 
 import { TextureAsync } from "../../assets/TextureAsync";
 import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { TextureSourceLike } from '../../rendering/renderers/shared/texture/Texture';
-import type { Bounds, BoundsData } from '../container/bounds/Bounds';
+import type { BoundsData } from '../container/bounds/Bounds';
 import type { ContainerOptions } from '../container/Container';
 import type { Optional } from '../container/container-mixins/measureMixin';
 import type { DestroyOptions } from '../container/destroyTypes';
@@ -76,10 +77,8 @@ export class Sprite extends ViewContainer
 
     // sprite specific..
     public _texture: Texture;
-    public _didSpriteUpdate = false;
 
-    private readonly _sourceBounds: BoundsData = { minX: 0, maxX: 1, minY: 0, maxY: 0 };
-    private _sourceBoundsDirty = true;
+    private readonly _visualBounds: BoundsData = { minX: 0, maxX: 1, minY: 0, maxY: 0 };
 
     private _width: number;
     private _height: number;
@@ -166,102 +165,43 @@ export class Sprite extends ViewContainer
     }
 
     /**
-     * The local bounds of the sprite.
-     * @type {rendering.Bounds}
-     */
-    get bounds()
-    {
-        if (this._boundsDirty)
-        {
-            this._updateBounds();
-            this._boundsDirty = false;
-        }
-
-        return this._bounds;
-    }
-
-    /**
      * The bounds of the sprite, taking the texture's trim into account.
      * @type {rendering.Bounds}
      */
+    get visualBounds()
+    {
+        updateQuadBounds(this._visualBounds, this._anchor, this._texture);
+
+        return this._visualBounds;
+    }
+
+    /**
+     * @deprecated
+     */
     get sourceBounds()
     {
-        if (this._sourceBoundsDirty)
-        {
-            this._updateSourceBounds();
-            this._sourceBoundsDirty = false;
-        }
+        // #if _DEBUG
+        deprecation('8.6.1', 'Sprite.sourceBounds is deprecated, use visualBounds instead.');
+        // #endif
 
-        return this._sourceBounds;
+        return this.visualBounds;
     }
 
-    /**
-     * Checks if the object contains the given point.
-     * @param point - The point to check
-     */
-    public override containsPoint(point: PointData)
-    {
-        const bounds = this.sourceBounds;
-
-        if (point.x >= bounds.maxX && point.x <= bounds.minX)
-        {
-            if (point.y >= bounds.maxY && point.y <= bounds.minY)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Adds the bounds of this object to the bounds object.
-     * @param bounds - The output bounds object.
-     */
-    public addBounds(bounds: Bounds)
-    {
-        const _bounds = this._texture.trim ? this.sourceBounds : this.bounds;
-
-        bounds.addFrame(_bounds.minX, _bounds.minY, _bounds.maxX, _bounds.maxY);
-    }
-
-    public override onViewUpdate()
-    {
-        this._didViewChangeTick++;
-
-        this._didSpriteUpdate = true;
-        this._sourceBoundsDirty = this._boundsDirty = true;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
-    }
-
-    protected override _updateBounds()
-    {
-        updateQuadBounds(this._bounds, this._anchor, this._texture, 0);
-    }
-
-    private _updateSourceBounds()
+    /** @private */
+    protected updateBounds()
     {
         const anchor = this._anchor;
         const texture = this._texture;
 
-        const sourceBounds = this._sourceBounds;
+        const bounds = this._bounds;
 
         const { width, height } = texture.orig;
 
-        sourceBounds.maxX = -anchor._x * width;
-        sourceBounds.minX = sourceBounds.maxX + width;
+        bounds.minX = -anchor._x * width;
+        bounds.maxX = bounds.minX + width;
 
-        sourceBounds.maxY = -anchor._y * height;
-        sourceBounds.minY = sourceBounds.maxY + height;
+        bounds.minY = -anchor._y * height;
+        bounds.maxY = bounds.minY + height;
     }
 
     /**
@@ -285,8 +225,8 @@ export class Sprite extends ViewContainer
         }
 
         this._texture = null;
+        (this._visualBounds as null) = null;
         (this._bounds as null) = null;
-        (this._sourceBounds as null) = null;
         (this._anchor as null) = null;
     }
 

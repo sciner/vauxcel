@@ -1,15 +1,15 @@
 import { ExtensionType } from '../../extensions/Extensions';
 import { Texture } from '../../rendering/renderers/shared/texture/Texture';
-import { updateQuadBounds } from '../../utils/data/updateQuadBounds';
 import { BigPool } from '../../utils/pool/PoolGroup';
 import { BatchableSprite } from '../sprite/BatchableSprite';
+import { updateTextBounds } from '../text/utils/updateTextBounds';
 
 import type { InstructionSet } from '../../rendering/renderers/shared/instructions/InstructionSet';
 import type { RenderPipe } from '../../rendering/renderers/shared/instructions/RenderPipe';
 import type { Renderer } from '../../rendering/renderers/types';
 import type { Container } from '../container/Container';
 import type { HTMLText } from './HTMLText';
-import type { HTMLTextStyle } from './HtmlTextStyle';
+import type { HTMLTextStyle } from './HTMLTextStyle';
 
 export class HTMLTextPipe implements RenderPipe<HTMLText>
 {
@@ -39,6 +39,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
     {
         this._renderer = renderer;
         this._renderer.runners.resolutionChange.add(this);
+        this._renderer.renderableGC.addManagedHash(this, '_gpuText');
     }
 
     public resolutionChange()
@@ -46,6 +47,9 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         for (const i in this._gpuText)
         {
             const gpuText = this._gpuText[i];
+
+            if (!gpuText) continue;
+
             const text = gpuText.batchableSprite.renderable as HTMLText;
 
             if (text._autoResolution)
@@ -80,7 +84,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         return false;
     }
 
-    public addRenderable(htmlText: HTMLText, _instructionSet: InstructionSet)
+    public addRenderable(htmlText: HTMLText, instructionSet: InstructionSet)
     {
         const gpuText = this._getGpuText(htmlText);
 
@@ -91,7 +95,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
             this._updateText(htmlText);
         }
 
-        this._renderer.renderPipes.batch.addToBatch(batchableSprite);
+        this._renderer.renderPipes.batch.addToBatch(batchableSprite, instructionSet);
     }
 
     public updateRenderable(htmlText: HTMLText)
@@ -104,7 +108,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
             this._updateText(htmlText);
         }
 
-        batchableSprite.batcher.updateElement(batchableSprite);
+        batchableSprite._batcher.updateElement(batchableSprite);
     }
 
     public destroyRenderable(htmlText: HTMLText)
@@ -140,9 +144,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
 
         htmlText._didTextUpdate = false;
 
-        const padding = htmlText._style.padding;
-
-        updateQuadBounds(batchableSprite.bounds, htmlText._anchor, batchableSprite.texture, padding);
+        updateTextBounds(batchableSprite, htmlText);
     }
 
     private async _updateGpuText(htmlText: HTMLText)
@@ -179,9 +181,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         gpuText.textureNeedsUploading = true;
         htmlText.onViewUpdate();
 
-        const padding = htmlText._style.padding;
-
-        updateQuadBounds(batchableSprite.bounds, htmlText._anchor, batchableSprite.texture, padding);
+        updateTextBounds(batchableSprite, htmlText);
     }
 
     private _getGpuText(htmlText: HTMLText)
@@ -202,6 +202,7 @@ export class HTMLTextPipe implements RenderPipe<HTMLText>
         const batchableSprite = gpuTextData.batchableSprite;
 
         batchableSprite.renderable = htmlText;
+        batchableSprite.transform = htmlText.groupTransform;
         batchableSprite.texture = Texture.EMPTY;
         batchableSprite.bounds = { minX: 0, maxX: 1, minY: 0, maxY: 0 };
         batchableSprite.roundPixels = (this._renderer._roundPixels | htmlText._roundPixels) as 0 | 1;

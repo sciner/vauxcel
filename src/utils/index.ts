@@ -7,6 +7,7 @@ export * from './browser/isWebGPUSupported';
 export * from './browser/unsafeEvalSupported';
 export * from './canvas/getCanvasBoundingBox';
 export * from './const';
+export * from './data/clean';
 export * from './data/removeItems';
 export * from './data/uid';
 export * from './data/updateQuadBounds';

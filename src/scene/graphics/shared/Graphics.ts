@@ -1,5 +1,5 @@
 import { deprecation, v8_0_0 } from '../../../utils/logging/deprecation';
-import { ViewContainer } from '../../view/View';
+import { ViewContainer } from '../../view/ViewContainer';
 import { GraphicsContext } from './GraphicsContext';
 
 import type { ColorSource } from '../../../color/Color';
@@ -44,8 +44,6 @@ export class Graphics extends ViewContainer implements Instruction
 {
     public override readonly renderPipeId: string = 'graphics';
     public batched: boolean;
-
-    public _didGraphicsUpdate: boolean;
 
     private _context: GraphicsContext;
     private readonly _ownedContext: GraphicsContext;
@@ -111,13 +109,10 @@ export class Graphics extends ViewContainer implements Instruction
     }
 
     /**
-     * Adds the bounds of this object to the bounds object.
-     * @param bounds - The output bounds object.
+     * Graphics objects do not need to update their bounds as the context handles this.
+     * @private
      */
-    public addBounds(bounds: Bounds)
-    {
-        bounds.addBounds(this._context.bounds);
-    }
+    protected updateBounds(): void { /** */ }
 
     /**
      * Checks if the object contains the given point.
@@ -126,23 +121,6 @@ export class Graphics extends ViewContainer implements Instruction
     public override containsPoint(point: PointData)
     {
         return this._context.containsPoint(point);
-    }
-
-    protected override onViewUpdate()
-    {
-        this._didViewChangeTick++;
-
-        this._didGraphicsUpdate = true;
-
-        if (this.didViewUpdate) return;
-        this.didViewUpdate = true;
-
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-
-        if (renderGroup)
-        {
-            renderGroup.onChildViewUpdate(this);
-        }
     }
 
     /**
@@ -745,7 +723,6 @@ export class Graphics extends ViewContainer implements Instruction
     public lineStyle(width?: number, color?: ColorSource, alpha?: number): this
     {
         // #if _DEBUG
-        // eslint-disable-next-line max-len
         deprecation(v8_0_0, 'Graphics#lineStyle is no longer needed. Use Graphics#setStrokeStyle to set the stroke style.');
         // #endif
 
@@ -776,8 +753,8 @@ export class Graphics extends ViewContainer implements Instruction
         const fillStyle: Partial<FillStyle> = {};
 
         // avoid undefined assignment
-        color && (fillStyle.color = color);
-        alpha && (fillStyle.alpha = alpha);
+        if (color !== undefined) fillStyle.color = color;
+        if (alpha !== undefined) fillStyle.alpha = alpha;
 
         this.context.fillStyle = fillStyle;
 

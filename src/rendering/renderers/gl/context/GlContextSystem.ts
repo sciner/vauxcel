@@ -3,6 +3,7 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { warn } from '../../../../utils/logging/warn';
 import { type GpuPowerPreference } from '../../types';
 
+import type { ICanvas } from '../../../../environment/canvas/ICanvas';
 import type { System } from '../../shared/system/System';
 import type { WebGLRenderer } from '../WebGLRenderer';
 import type { WebGLExtensions } from './WebGLExtensions';
@@ -65,6 +66,14 @@ export interface ContextSystemOptions
     preferWebGLVersion?: 1 | 2;
 
     /**
+     * Whether to enable multi-view rendering. Set to true when rendering to multiple
+     * canvases on the dom.
+     * @default false
+     * @memberof rendering.SharedRendererOptions
+     */
+    multiView: boolean;
+
+    /**
      * WebGL depth
      */
     depth?: boolean;
@@ -111,8 +120,11 @@ export class GlContextSystem implements System<ContextSystemOptions>
          * @default 2
          */
         preferWebGLVersion: 2,
-
-        depth: false
+        /**
+         * {@link WebGLOptions.multiView}
+         * @default false
+         */
+        multiView: false
     };
 
     protected CONTEXT_UID: number;
@@ -155,6 +167,21 @@ export class GlContextSystem implements System<ContextSystemOptions>
 
     public webGLVersion: 1 | 2;
 
+    /**
+     * Whether to enable multi-view rendering. Set to true when rendering to multiple
+     * canvases on the dom.
+     * @default false
+     */
+    public multiView: boolean;
+
+    /**
+     * The canvas that the WebGL Context is rendering to.
+     * This will be the view canvas. But if multiView is enabled, this canvas will not be attached to the DOM.
+     * It will be rendered to and then copied to the target canvas.
+     * @readonly
+     */
+    public canvas: ICanvas;
+
     private _renderer: WebGLRenderer;
     private _contextLossForced: boolean;
 
@@ -193,6 +220,26 @@ export class GlContextSystem implements System<ContextSystemOptions>
     {
         options = { ...GlContextSystem.defaultOptions, ...options };
 
+        // TODO add to options
+        let multiView = this.multiView = options.multiView;
+
+        if (options.context && multiView)
+        {
+            // eslint-disable-next-line max-len
+            warn('Renderer created with both a context and multiview enabled. Disabling multiView as both cannot work together.');
+
+            multiView = false;
+        }
+
+        if (multiView)
+        {
+            this.canvas = DOMAdapter.get()
+                .createCanvas(this._renderer.canvas.width, this._renderer.canvas.height);
+        }
+        else
+        {
+            this.canvas = this._renderer.view.canvas;
+        }
         /*
          * The options passed in to create a new WebGL context.
          */
@@ -210,11 +257,31 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 alpha,
                 premultipliedAlpha,
                 antialias,
-                depth: options.depth,
                 stencil: true,
                 preserveDrawingBuffer: options.preserveDrawingBuffer,
                 powerPreference: options.powerPreference ?? 'default',
             });
+        }
+    }
+
+    public ensureCanvasSize(targetCanvas: ICanvas): void
+    {
+        if (!this.multiView)
+        {
+            if (targetCanvas !== this.canvas)
+            {
+                warn('multiView is disabled, but targetCanvas is not the main canvas');
+            }
+
+            return;
+        }
+
+        const { canvas } = this;
+
+        if (canvas.width < targetCanvas.width || canvas.height < targetCanvas.height)
+        {
+            canvas.width = Math.max(targetCanvas.width, targetCanvas.width);
+            canvas.height = Math.max(targetCanvas.height, targetCanvas.height);
         }
     }
 
@@ -251,7 +318,8 @@ export class GlContextSystem implements System<ContextSystemOptions>
     protected createContext(preferWebGLVersion: 1 | 2, options: WebGLContextAttributes): void
     {
         let gl: WebGL2RenderingContext | WebGLRenderingContext;
-        const canvas = this._renderer.view.canvas;
+
+        const canvas = this.canvas;
 
         if (preferWebGLVersion === 2)
         {
@@ -284,6 +352,16 @@ export class GlContextSystem implements System<ContextSystemOptions>
             anisotropicFiltering: gl.getExtension('EXT_texture_filter_anisotropic'),
             floatTextureLinear: gl.getExtension('OES_texture_float_linear'),
 
+            s3tc: gl.getExtension('WEBGL_compressed_texture_s3tc'),
+            s3tc_sRGB: gl.getExtension('WEBGL_compressed_texture_s3tc_srgb'), // eslint-disable-line camelcase
+            etc: gl.getExtension('WEBGL_compressed_texture_etc'),
+            etc1: gl.getExtension('WEBGL_compressed_texture_etc1'),
+            pvrtc: gl.getExtension('WEBGL_compressed_texture_pvrtc')
+                || gl.getExtension('WEBKIT_WEBGL_compressed_texture_pvrtc'),
+            atc: gl.getExtension('WEBGL_compressed_texture_atc'),
+            astc: gl.getExtension('WEBGL_compressed_texture_astc'),
+            bptc: gl.getExtension('EXT_texture_compression_bptc'),
+            rgtc: gl.getExtension('EXT_texture_compression_rgtc'),
             loseContext: gl.getExtension('WEBGL_lose_context'),
         };
 
@@ -312,9 +390,6 @@ export class GlContextSystem implements System<ContextSystemOptions>
             this.extensions = {
                 ...common,
                 colorBufferFloat: gl.getExtension('EXT_color_buffer_float'),
-                bvbi: gl.getExtension('WEBGL_draw_instanced_base_vertex_base_instance'),
-                multiDraw: gl.getExtension('WEBGL_multi_draw'),
-                multiDrawBvbi: gl.getExtension('WEBGL_multi_draw_instanced_base_vertex_base_instance'),
             };
 
             const provokeExt = gl.getExtension('WEBGL_provoking_vertex');
@@ -394,9 +469,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
         if (attributes && !attributes.stencil)
         {
             // #if _DEBUG
-            /* eslint-disable max-len, no-console */
             warn('Provided WebGL context does not have a stencil buffer, masks may not render correctly');
-            /* eslint-enable max-len, no-console */
             // #endif
         }
 
@@ -417,9 +490,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
         if (!supports.uint32Indices)
         {
             // #if _DEBUG
-            /* eslint-disable max-len, no-console */
             warn('Provided WebGL context does not support 32 index buffer, large scenes may not render correctly');
-            /* eslint-enable max-len, no-console */
             // #endif
         }
     }

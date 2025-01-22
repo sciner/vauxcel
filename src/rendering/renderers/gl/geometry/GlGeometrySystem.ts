@@ -97,6 +97,8 @@ export class GlGeometrySystem implements System
 
         this.hasVao = true;
         this.hasInstance = true;
+
+        this._renderer.renderableGC.addManagedHash(this, '_geometryVaoHash');
     }
 
     /** Sets up the renderer context and necessary buffers. */
@@ -187,7 +189,7 @@ export class GlGeometrySystem implements System
     }
 
     /** Reset and unbind any active VAO and geometry. */
-    public reset(): void
+    public resetState(): void
     {
         this.unbind();
     }

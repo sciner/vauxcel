@@ -1,16 +1,16 @@
-import {ExtensionType} from '../../../extensions/Extensions';
-import {BufferCopyOperation} from "../shared/buffer/BufferCopyOperation";
-import {TFBufferCopier} from "./buffer/utils/TFBufferCopier";
+import { ExtensionType } from '../../../extensions/Extensions';
+import { Buffer } from '../shared/buffer/Buffer';
+import { BUFFER_TYPE_EX } from './buffer/const';
+import { TFBufferCopier } from './buffer/utils/TFBufferCopier';
 
-import type {Buffer} from "../shared/buffer/Buffer";
-import type {Topology} from '../shared/geometry/const';
-import type {Geometry} from '../shared/geometry/Geometry';
-import type {MultiDrawBuffer} from "../shared/geometry/MultiDrawBuffer";
-import type {Shader} from '../shared/shader/Shader';
-import type {State} from '../shared/state/State';
-import type {System} from '../shared/system/System';
-import type {WebGLRenderer} from './WebGLRenderer';
-import {BUFFER_TYPE_EX} from "./buffer/const";
+import type { BufferCopyOperation } from '../shared/buffer/BufferCopyOperation';
+import type { Topology } from '../shared/geometry/const';
+import type { Geometry } from '../shared/geometry/Geometry';
+import type { MultiDrawBuffer } from '../shared/geometry/MultiDrawBuffer';
+import type { Shader } from '../shared/shader/Shader';
+import type { State } from '../shared/state/State';
+import type { System } from '../shared/system/System';
+import type { WebGLRenderer } from './WebGLRenderer';
 
 /**
  * The system that handles encoding commands for the WebGL.
@@ -45,15 +45,15 @@ export class GlEncoderSystem implements System
     }
 
     public draw(options: {
-        geometry: Geometry;
-        shader: Shader;
-        state?: State;
-        topology?: Topology;
-        size?: number;
-        start?: number;
-        instanceCount?: number;
-        baseInstance?: number;
-        skipSync?: boolean;
+        geometry: Geometry,
+        shader: Shader,
+        state?: State,
+        topology?: Topology,
+        size?: number,
+        start?: number,
+        instanceCount?: number,
+        baseInstance?: number,
+        skipSync?: boolean,
     })
     {
         const renderer = this._renderer;
@@ -137,7 +137,6 @@ export class GlEncoderSystem implements System
                 op.src * strideBytes, op.dst * strideBytes, op.count * strideBytes);
         }
     }
-
     public destroy()
     {
         (this._renderer as null) = null;

@@ -56,6 +56,7 @@ export class GlShaderSystem implements ShaderSystem
     constructor(renderer: WebGLRenderer)
     {
         this._renderer = renderer;
+        this._renderer.renderableGC.addManagedHash(this, '_programDataHash');
     }
 
     protected contextChange(gl: GlRenderingContext): void
@@ -69,7 +70,6 @@ export class GlShaderSystem implements ShaderSystem
          */
         this._shaderSyncFunctions = Object.create(null);
         this._activeProgram = null;
-
         this.maxTextures = getMaxTexturesPerBatch();
     }
 
@@ -95,6 +95,7 @@ export class GlShaderSystem implements ShaderSystem
             syncFunction = this._shaderSyncFunctions[shader.glProgram._key] = this._generateShaderSync(shader, this);
         }
 
+        // TODO: take into account number of TF buffers. Currently works only with interleaved
         this._renderer.buffer.nextBindBase(!!shader.glProgram.transformFeedbackVaryings);
         syncFunction(this._renderer, shader, defaultSyncData);
 
@@ -135,27 +136,28 @@ export class GlShaderSystem implements ShaderSystem
 
         const buffer = uniformGroup.buffer;
 
-        bufferSystem.updateBuffer(buffer);
+        const glBuffer = bufferSystem.updateBuffer(buffer);
 
-        const boundLocation = bufferSystem.freeLocationForBufferBase(buffer);
+        const boundLocation = bufferSystem.freeLocationForBufferBase(glBuffer);
 
         if (isBufferResource)
         {
             const { offset, size } = (uniformGroup as BufferResource);
 
+            // trivial case of buffer resource, can be cached
             if (offset === 0 && size === buffer.data.byteLength)
             {
-                bufferSystem.bindBufferBase(buffer, boundLocation);
+                bufferSystem.bindBufferBase(glBuffer, boundLocation);
             }
             else
             {
-                bufferSystem.bindBufferRange(buffer, boundLocation, offset);
+                bufferSystem.bindBufferRange(glBuffer, boundLocation, offset);
             }
         }
-        else if (bufferSystem.getLastBindBaseLocation(buffer) !== boundLocation)
+        else if (bufferSystem.getLastBindBaseLocation(glBuffer) !== boundLocation)
         {
             // confirmation that buffer isn't there yet
-            bufferSystem.bindBufferBase(buffer, boundLocation);
+            bufferSystem.bindBufferBase(glBuffer, boundLocation);
         }
 
         const uniformBlockIndex = this._activeProgram._uniformBlockData[name].index;
@@ -220,5 +222,10 @@ export class GlShaderSystem implements ShaderSystem
     public _generateShaderSync(shader: Shader, shaderSystem: GlShaderSystem): ShaderSyncFunction
     {
         return generateShaderSyncCode(shader, shaderSystem);
+    }
+
+    public resetState(): void
+    {
+        this._activeProgram = null;
     }
 }

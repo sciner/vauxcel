@@ -1,7 +1,6 @@
 import type { UboElement, UboLayout, UniformData } from '../../../shared/shader/types';
 
-export const
-    WGSL_TO_STD40_SIZE: Record<string, number> = {
+export const WGSL_TO_STD40_SIZE: Record<string, number> = {
     f32: 4,
     i32: 4,
     'vec2<f32>': 8,
@@ -71,15 +70,15 @@ export function createUboElementsSTD40(uniformData: UniformData[]): UboLayout
 
         uboElement.size = size;
 
-        const cur_offset = offset % chunkSize;
+        const curOffset = offset % chunkSize;
 
-        if (cur_offset > 0 && chunkSize - cur_offset < boundary)
+        if (curOffset > 0 && chunkSize - curOffset < boundary)
         {
-            offset += (chunkSize - cur_offset) % 16;
+            offset += (chunkSize - curOffset) % 16;
         }
         else
         {
-            offset += (size - (cur_offset % size)) % size;
+            offset += (size - (curOffset % size)) % size;
         }
 
         uboElement.offset = offset;

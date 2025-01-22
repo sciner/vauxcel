@@ -66,11 +66,6 @@ export interface ViewSystemOptions
      * @memberof rendering.SharedRendererOptions
      */
     depth?: boolean;
-    /**
-     * TODO: multiView
-     * @memberof rendering.SharedRendererOptions
-     */
-    multiView?: boolean;
 
     /**
      * Transparency of the background color, value from `0` (fully transparent) to `1` (fully opaque).
@@ -127,13 +122,11 @@ export class ViewSystem implements System<ViewSystemOptions, TypeOrBool<ViewSyst
         antialias: false,
     };
 
-    public multiView: boolean;
-
     /** The canvas element that everything is drawn to. */
     public canvas!: ICanvas;
 
     /** The texture that is used to draw the canvas to the screen. */
-    public texture: Texture;
+    public texture: Texture<CanvasSource>;
 
     /**
      * Whether CSS dimensions of canvas view should be resized to screen dimensions automatically.
@@ -141,11 +134,11 @@ export class ViewSystem implements System<ViewSystemOptions, TypeOrBool<ViewSyst
      */
     public get autoDensity(): boolean
     {
-        return (this.texture.source as CanvasSource).autoDensity;
+        return this.texture.source.autoDensity;
     }
     public set autoDensity(value: boolean)
     {
-        (this.texture.source as CanvasSource).autoDensity = value;
+        this.texture.source.autoDensity = value;
     }
 
     /** Whether to enable anti-aliasing. This may affect performance. */
@@ -205,8 +198,7 @@ export class ViewSystem implements System<ViewSystemOptions, TypeOrBool<ViewSyst
             isRoot: true,
         });
 
-        (this.texture.source as CanvasSource).transparent = options.backgroundAlpha < 1;
-        this.multiView = !!options.multiView;
+        this.texture.source.transparent = options.backgroundAlpha < 1;
         this.resolution = options.resolution;
     }
 

@@ -101,8 +101,12 @@ export interface FilterOptions
      * (default false)
      */
     blendRequired?: boolean;
-
-    autoFit?: boolean;
+    /**
+     * If this is set to true, the filter system will clip filter texture into viewport
+     * This is useful for filters that applied to whole texture.
+     * (default true)
+     */
+    clipToViewport?: boolean;
 }
 
 /** Filter options mixed with shader resources. A filter needs a shader and some resources to work. */
@@ -160,7 +164,7 @@ export class Filter extends Shader
         padding: 0,
         antialias: 'off',
         blendRequired: false,
-        autoFit: true,
+        clipToViewport: true,
         hdr: false
     };
 
@@ -206,7 +210,11 @@ export class Filter extends Shader
      */
     public blendRequired: boolean;
 
-    public autoFit: boolean;
+    /**
+     * Clip texture into viewport or not
+     * @default true
+     */
+    public clipToViewport: boolean;
 
     public clearBits = CLEAR.ALL;
 
@@ -234,7 +242,7 @@ export class Filter extends Shader
 
         this.resolution = options.resolution;
         this.blendRequired = options.blendRequired;
-        this.autoFit = options.autoFit;
+        this.clipToViewport = options.clipToViewport;
         this.hdr = options.hdr;
 
         this.addResource('uTexture', 0, 1);

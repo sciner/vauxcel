@@ -51,7 +51,10 @@ export interface RenderOptions extends ClearOptions
  */
 export interface ClearOptions
 {
-    /** The render target to render. */
+    /**
+     * The render target to render. if this target is a canvas and  you are using the WebGL renderer,
+     * please ensure you have set `multiView` to `true` on renderer.
+     */
     target?: RenderSurface;
     /** The color to clear with. */
     clearColor?: ColorSource;
@@ -66,7 +69,7 @@ const defaultRunners = [
     'destroy',
     'contextChange',
     'resolutionChange',
-    'reset',
+    'resetState',
     'renderEnd',
     'renderStart',
     'render',
@@ -77,7 +80,6 @@ const defaultRunners = [
 
 type DefaultRunners = typeof defaultRunners[number];
 type Runners = {[key in DefaultRunners]: SystemRunner} & {
-    // eslint-disable-next-line @typescript-eslint/ban-types
     [K: ({} & string) | ({} & symbol)]: SystemRunner;
 };
 
@@ -267,7 +269,6 @@ export class AbstractRenderer<
             if (deprecated)
             {
                 // #if _DEBUG
-                // eslint-disable-next-line max-len
                 deprecation(v8_0_0, 'passing a second argument is deprecated, please use render options instead');
                 // #endif
 
@@ -282,7 +283,9 @@ export class AbstractRenderer<
         {
             // TODO get rid of this
             this._lastObjectRendered = options.container;
-            options.clearColor = this.background.colorRgba;
+
+            options.clearColor ??= this.background.colorRgba;
+            options.clear ??= this.background.clearBeforeRender;
         }
 
         if (options.clearColor)
@@ -297,6 +300,10 @@ export class AbstractRenderer<
             options.container.updateLocalTransform();
             options.transform = options.container.localTransform;
         }
+
+        // lets ensure this object is a render group so we can render it!
+        // the renderer only likes to render - render groups.
+        options.container.enableRenderGroup();
 
         this.runners.prerender.emit(options);
         this.runners.renderStart.emit(options);
@@ -539,5 +546,30 @@ export class AbstractRenderer<
             throw new Error('Current environment does not allow unsafe-eval, '
                + 'please use pixi.js/unsafe-eval module to enable support.');
         }
+    }
+    /**
+     * Resets the rendering state of the renderer.
+     * This is useful when you want to use the WebGL context directly and need to ensure PixiJS's internal state
+     * stays synchronized. When modifying the WebGL context state externally, calling this method before the next Pixi
+     * render will reset all internal caches and ensure it executes correctly.
+     *
+     * This is particularly useful when combining PixiJS with other rendering engines like Three.js:
+     * ```js
+     * // Reset Three.js state
+     * threeRenderer.resetState();
+     *
+     * // Render a Three.js scene
+     * threeRenderer.render(threeScene, threeCamera);
+     *
+     * // Reset PixiJS state since Three.js modified the WebGL context
+     * pixiRenderer.resetState();
+     *
+     * // Now render Pixi content
+     * pixiRenderer.render(pixiScene);
+     * ```
+     */
+    public resetState(): void
+    {
+        this.runners.resetState.emit();
     }
 }

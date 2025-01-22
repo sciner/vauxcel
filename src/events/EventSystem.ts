@@ -53,7 +53,7 @@ export interface EventSystemOptions
  * @since 7.2.0
  * @memberof events
  */
-interface EventSystemFeatures
+export interface EventSystemFeatures
 {
     /**
      * Enables pointer events associated with pointer movement:
@@ -277,7 +277,7 @@ export class EventSystem implements System<EventSystemOptions>
      */
     public setCursor(mode: string): void
     {
-        mode = mode || 'default';
+        mode ||= 'default';
         let applyStyles = true;
 
         // offscreen canvas does not support setting styles, but cursor modes can be functions,

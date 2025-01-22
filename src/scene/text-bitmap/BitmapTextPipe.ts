@@ -33,6 +33,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
     constructor(renderer: Renderer)
     {
         this._renderer = renderer;
+        this._renderer.renderableGC.addManagedHash(this, '_gpuBitmapText');
     }
 
     public validateRenderable(bitmapText: BitmapText): boolean
@@ -134,7 +135,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
         let currentY = bitmapFont.baseLineOffset;
 
         // measure our text...
-        const bitmapTextLayout = getBitmapTextLayout(chars, style, bitmapFont);
+        const bitmapTextLayout = getBitmapTextLayout(chars, style, bitmapFont, true);
 
         let index = 0;
 

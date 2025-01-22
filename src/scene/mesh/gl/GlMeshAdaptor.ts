@@ -80,24 +80,11 @@ export class GlMeshAdaptor implements MeshAdaptor
         shader.groups[100] = renderer.globalUniforms.bindGroup;
         shader.groups[101] = meshPipe.localUniformsBindGroup;
 
-        if (mesh._multiDrawBuffer)
-        {
-            renderer.encoder.multiDraw({
-                geometry: mesh._geometry,
-                multiDrawBuffer: mesh._multiDrawBuffer,
-                shader,
-                state: mesh.state,
-            });
-        }
-        else
-        {
-            renderer.encoder.draw({
-                geometry: mesh._geometry,
-                shader,
-                state: mesh.state,
-                size: mesh.drawSize,
-            });
-        }
+        renderer.encoder.draw({
+            geometry: mesh._geometry,
+            shader,
+            state: mesh.state,
+        });
     }
 
     public destroy(): void

@@ -104,6 +104,8 @@ export class GraphicsContext extends EventEmitter<{
         matrix: null,
         /** The fill pattern to use. */
         fill: null,
+        /** If the stroke is a pixel line. */
+        pixelLine: false,
     };
 
     /** unique id for this graphics context */
@@ -1046,15 +1048,17 @@ export class GraphicsContext extends EventEmitter<{
             {
                 const data = instruction.data as StrokeInstruction['data'];
 
-                const padding = data.style.width / 2;
+                const alignment = data.style.alignment;
+
+                const outerPadding = (data.style.width * (1 - alignment));
 
                 const _bounds = data.path.bounds;
 
                 bounds.addFrame(
-                    _bounds.minX - padding,
-                    _bounds.minY - padding,
-                    _bounds.maxX + padding,
-                    _bounds.maxY + padding
+                    _bounds.minX - outerPadding,
+                    _bounds.minY - outerPadding,
+                    _bounds.maxX + outerPadding,
+                    _bounds.maxY + outerPadding
                 );
             }
         }
@@ -1103,7 +1107,9 @@ export class GraphicsContext extends EventEmitter<{
                 }
                 else
                 {
-                    hasHit = shape.strokeContains(transformedPoint.x, transformedPoint.y, (style as ConvertedStrokeStyle).width);
+                    const strokeStyle = (style as ConvertedStrokeStyle);
+
+                    hasHit = shape.strokeContains(transformedPoint.x, transformedPoint.y, strokeStyle.width, strokeStyle.alignment);
                 }
 
                 const holes = data.hole;

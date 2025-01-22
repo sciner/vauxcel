@@ -169,7 +169,6 @@ export class ExtractSystem implements System
         {
             return new Promise<string>((resolve, reject) =>
             {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 canvas.toBlob!((blob) =>
                 {
                     if (!blob)
@@ -224,14 +223,14 @@ export class ExtractSystem implements System
 
         if (target instanceof Texture || target instanceof TextureSource)
         {
-            return renderer.texture.generateCanvas(target);
+            return renderer.texture.generateCanvas(target as any);
         }
 
         const texture = renderer.textureGenerator.generateTexture(options as GenerateTextureOptions);
 
         const canvas = renderer.texture.generateCanvas(texture);
 
-        texture.destroy();
+        texture.destroy(true);
 
         return canvas;
     }
@@ -258,7 +257,7 @@ export class ExtractSystem implements System
         if (target instanceof Container)
         {
             // destroy generated texture
-            texture.destroy();
+            texture.destroy(true);
         }
 
         return pixelInfo;

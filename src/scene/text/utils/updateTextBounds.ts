@@ -4,6 +4,7 @@ import { type BatchableSprite } from '../../sprite/BatchableSprite';
 import { type AbstractText } from '../AbstractText';
 
 import type { Rectangle } from '../../../maths';
+import type { PaddingSides } from '../PaddingSides';
 
 /**
  * Updates the bounds of the given batchable sprite based on the provided text object.
@@ -21,7 +22,7 @@ export function updateTextBounds(batchableSprite: BatchableSprite, text: Abstrac
     updateQuadBounds(bounds, text._anchor, texture);
 }
 
-export function adjustTextTexture(texture: Texture, padding: number, do_trim = false)
+export function adjustTextTexture(texture: Texture, padding: PaddingSides, do_trim = false)
 {
     if (!padding && !do_trim)
     {
@@ -29,8 +30,8 @@ export function adjustTextTexture(texture: Texture, padding: number, do_trim = f
     }
     const orig = texture.frame.clone();
 
-    orig.width -= 2 * padding;
-    orig.height -= 2 * padding;
+    orig.width -= padding.vertical;
+    orig.height -= padding.horizontal;
 
     if (do_trim)
     {
@@ -45,8 +46,8 @@ export function adjustTextTexture(texture: Texture, padding: number, do_trim = f
     if (padding)
     {
         trim = trim.clone();
-        trim.x -= padding;
-        trim.y -= padding;
+        trim.x -= padding.left;
+        trim.y -= padding.top;
     }
 
     texture.setOrigTrim(orig, trim);

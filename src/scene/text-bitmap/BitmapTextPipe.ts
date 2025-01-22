@@ -2,6 +2,7 @@ import { Cache } from '../../assets/cache/Cache';
 import { ExtensionType } from '../../extensions/Extensions';
 import { BigPool } from '../../utils/pool/PoolGroup';
 import { Graphics } from '../graphics/shared/Graphics';
+import { PaddingSides } from '../text/PaddingSides';
 import { SdfShader } from '../text/sdfShader/SdfShader';
 import { BitmapFontManager } from './BitmapFontManager';
 import { getBitmapTextLayout } from './utils/getBitmapTextLayout';
@@ -13,6 +14,8 @@ import type { Renderer } from '../../rendering/renderers/types';
 import type { PoolItem } from '../../utils/pool/Pool';
 import type { Container } from '../container/Container';
 import type { BitmapText } from './BitmapText';
+
+const tempPadding = new PaddingSides();
 
 export class BitmapTextPipe implements RenderPipe<BitmapText>
 {
@@ -139,7 +142,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
 
         let index = 0;
 
-        const padding = style.padding;
+        const padding = tempPadding.copyFrom(style.padding);
         const scale = bitmapTextLayout.scale;
 
         let tx = bitmapTextLayout.width;
@@ -152,7 +155,7 @@ export class BitmapTextPipe implements RenderPipe<BitmapText>
         }
 
         context
-            .translate((-bitmapText._anchor._x * tx) - padding, (-bitmapText._anchor._y * ty) - padding)
+            .translate((-bitmapText._anchor._x * tx) - padding.left, (-bitmapText._anchor._y * ty) - padding.top)
             .scale(scale, scale);
 
         const tint = bitmapFont.applyFillAsTint ? style._fill.color : 0xFFFFFF;

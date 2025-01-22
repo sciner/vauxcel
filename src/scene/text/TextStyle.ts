@@ -19,6 +19,7 @@ import type {
     StrokeInput,
     StrokeStyle
 } from '../graphics/shared/FillTypes';
+import type { IPaddingSidesLike } from './PaddingSides';
 
 export type TextStyleAlign = 'left' | 'center' | 'right' | 'justify';
 export type TextStyleFill = string | string[] | number | number[] | CanvasGradient | CanvasPattern;
@@ -74,6 +75,8 @@ export interface TextStyleOptions
     breakWords?: boolean;
     /** Set a drop shadow for the text */
     dropShadow?: boolean | Partial<TextDropShadow>;
+    /** Set a drop shadow for the text */
+    glow?: Partial<TextDropShadow>;
     /**
      * A canvas fillstyle that will be used on the text e.g., 'red', '#00FF00'.
      * Can be an array to create a gradient, e.g., `['#000000','#FFFFFF']`
@@ -110,7 +113,7 @@ export interface TextStyleOptions
      * Occasionally some fonts are cropped. Adding some padding will prevent this from
      * happening by adding padding to all sides of the text.
      */
-    padding?: number;
+    padding?: IPaddingSidesLike;
     /** A canvas fillstyle that will be used on the text stroke, e.g., 'blue', '#FCFF00' */
     stroke?: StrokeInput;
     /**
@@ -242,6 +245,7 @@ export class TextStyle extends EventEmitter<{
     private _originalStroke: StrokeInput;
 
     private _dropShadow: TextDropShadow;
+    private _glow: TextDropShadow;
 
     private _fontFamily: string | string[];
     private _fontSize: number;
@@ -260,7 +264,7 @@ export class TextStyle extends EventEmitter<{
     private _wordWrap: boolean;
     private _wordWrapWidth: number;
 
-    private _padding: number;
+    private _padding: IPaddingSidesLike;
 
     protected _styleKey: string;
     private _trim: boolean;
@@ -305,6 +309,12 @@ export class TextStyle extends EventEmitter<{
             this._dropShadow = value ? this._createProxy({ ...TextStyle.defaultDropShadow }) : null;
         }
 
+        this.update();
+    }
+    get glow(): TextDropShadow { return this._glow; }
+    set glow(value: TextDropShadow)
+    {
+        this._glow = value;
         this.update();
     }
     /** The font family, can be a single font name, or a list of names where the first is the preferred font. */
@@ -360,8 +370,8 @@ export class TextStyle extends EventEmitter<{
      * Occasionally some fonts are cropped. Adding some padding will prevent this from happening
      * by adding padding to all sides of the text.
      */
-    get padding(): number { return this._padding; }
-    set padding(value: number) { this._padding = value; this.update(); }
+    get padding(): IPaddingSidesLike { return this._padding; }
+    set padding(value: IPaddingSidesLike) { this._padding = value; this.update(); }
 
     /** Trim transparent borders. This is an expensive operation so only use this if you have to! */
     get trim(): boolean { return this._trim; }
@@ -672,4 +682,3 @@ function convertV7Tov8Style(style: TextStyleOptions)
         };
     }
 }
-

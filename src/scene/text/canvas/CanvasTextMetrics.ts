@@ -1,9 +1,10 @@
 import { DOMAdapter } from '../../../environment/adapter';
+import { type IPaddingSidesLike, PaddingSides } from '../PaddingSides';
+import {type TextStyle, type TextStyleWhiteSpace} from '../TextStyle';
 import { fontStringFromTextStyle } from './utils/fontStringFromTextStyle';
 
 import type { ICanvas, ICanvasRenderingContext2DSettings } from '../../../environment/canvas/ICanvas';
 import type { ICanvasRenderingContext2D } from '../../../environment/canvas/ICanvasRenderingContext2D';
-import type { TextStyle, TextStyleWhiteSpace } from '../TextStyle';
 
 // The type for Intl.Segmenter is only available since TypeScript 4.7.2, so let's make a polyfill for it.
 interface ISegmentData
@@ -91,6 +92,9 @@ export class CanvasTextMetrics
 
     /** The font properties object from TextMetrics.measureFont. */
     public fontProperties: FontMetrics;
+
+    /** padding values for texture []top right bottom left] */
+    public padding?: IPaddingSidesLike;
 
     /**
      * String used for calculate font metrics.
@@ -210,7 +214,7 @@ export class CanvasTextMetrics
      * @param {FontMetrics} fontProperties - the font properties object from TextMetrics.measureFont
      */
     constructor(text: string, style: TextStyle, width: number, height: number, lines: string[], lineWidths: number[],
-        lineHeight: number, maxLineWidth: number, fontProperties: FontMetrics)
+        lineHeight: number, maxLineWidth: number, fontProperties: FontMetrics, padding?: IPaddingSidesLike)
     {
         this.text = text;
         this.style = style;
@@ -221,6 +225,7 @@ export class CanvasTextMetrics
         this.lineHeight = lineHeight;
         this.maxLineWidth = maxLineWidth;
         this.fontProperties = fontProperties;
+        this.padding = padding;
     }
 
     /**
@@ -274,22 +279,26 @@ export class CanvasTextMetrics
 
         const strokeWidth = style._stroke?.width || 0;
 
-        let width = maxLineWidth + strokeWidth;
+        const width = maxLineWidth + strokeWidth;
+        let padding: IPaddingSidesLike = 0;
 
-        if (style.dropShadow)
+        const { dropShadow, glow } = style;
+
+        // TODO: separate metrics and shadow padding
+        if (dropShadow || glow)
         {
-            width += style.dropShadow.distance;
+            // TODO: merge paddings of dropShadow and glow
+            const commonShadow = (dropShadow?.distance > 0 || !glow) ? dropShadow : glow;
+            const blur = Math.max((dropShadow?.blur || 0), (glow?.blur || 0));
+
+            // eslint-disable-next-line max-len
+            padding = PaddingSides.fromDistanceRotation(commonShadow.distance, commonShadow.angle, blur);
         }
 
         const lineHeight = style.lineHeight || fontProperties.fontSize;
 
-        let height = Math.max(lineHeight, fontProperties.fontSize + (strokeWidth))
+        const height = Math.max(lineHeight, fontProperties.fontSize + (strokeWidth))
             + ((lines.length - 1) * (lineHeight + style.leading));
-
-        if (style.dropShadow)
-        {
-            height += style.dropShadow.distance;
-        }
 
         const measurements = new CanvasTextMetrics(
             text,
@@ -300,7 +309,8 @@ export class CanvasTextMetrics
             lineWidths,
             lineHeight + style.leading,
             maxLineWidth,
-            fontProperties
+            fontProperties,
+            padding
         );
 
         // CanvasTextMetrics._measurementCache[textKey] = measurements;

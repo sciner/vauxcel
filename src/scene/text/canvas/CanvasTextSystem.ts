@@ -6,7 +6,6 @@ import { TexturePool } from '../../../rendering/renderers/shared/texture/Texture
 import { deprecation } from '../../../utils/logging/deprecation';
 import { TextStyle } from '../TextStyle';
 import { getPo2TextureFromSource } from '../utils/getPo2TextureFromSource';
-import { adjustTextTexture } from '../utils/updateTextBounds';
 import { CanvasTextMetrics } from './CanvasTextMetrics';
 import { fontStringFromTextStyle } from './utils/fontStringFromTextStyle';
 import { getCanvasFillStyle } from './utils/getCanvasFillStyle';
@@ -18,12 +17,16 @@ import type { Texture } from '../../../rendering/renderers/shared/texture/Textur
 import type { Renderer } from '../../../rendering/renderers/types';
 import type { TextOptions } from '../AbstractText';
 import type { Text } from '../Text';
+import { PaddingSides } from '../PaddingSides';
+import { adjustTextTexture } from '../utils/updateTextBounds';
 
 interface CanvasAndContext
 {
     canvas: ICanvas;
     context: ICanvasRenderingContext2D;
 }
+
+const tempPad = new PaddingSides();
 
 /**
  * System plugin to the renderer to manage canvas text.
@@ -57,9 +60,9 @@ export class CanvasTextSystem implements System
     public getTextureSize(text: string, resolution: number, style: TextStyle): { width: number, height: number }
     {
         const measured = CanvasTextMetrics.measureText(text || ' ', style);
-
-        let width = Math.ceil(Math.ceil((Math.max(1, measured.width) + (style.padding * 2))) * resolution);
-        let height = Math.ceil(Math.ceil((Math.max(1, measured.height) + (style.padding * 2))) * resolution);
+        const padding = tempPad.copyFrom(style.padding || measured.padding).ceil();
+        let width = Math.ceil(Math.ceil((Math.max(1, measured.width) + padding.horizontal)) * resolution);
+        let height = Math.ceil(Math.ceil((Math.max(1, measured.height) + padding.vertical)) * resolution);
 
         width = Math.ceil((width) - 1e-6);
         height = Math.ceil((height) - 1e-6);
@@ -105,7 +108,7 @@ export class CanvasTextSystem implements System
             options as {text: string, style: TextStyle, resolution?: number}
         );
 
-        this._renderer.texture.initSource(texture._source);
+        this._renderer.texture.bind(texture._source);
 
         CanvasPool.returnCanvasAndContext(canvasAndContext);
 
@@ -117,23 +120,21 @@ export class CanvasTextSystem implements System
         const { text, style } = options;
 
         const resolution = options.resolution ?? this._renderer.resolution;
-
-        // create a canvas with the word hello on it
         const measured = CanvasTextMetrics.measureText(text || ' ', style);
-
-        const width = Math.ceil(Math.ceil((Math.max(1, measured.width) + (style.padding * 2))) * resolution);
-        const height = Math.ceil(Math.ceil((Math.max(1, measured.height) + (style.padding * 2))) * resolution);
+        const padding = tempPad.copyFrom(style.padding || measured.padding).ceil();
+        const width = Math.ceil(Math.ceil((Math.max(1, measured.width) + padding.horizontal)) * resolution);
+        const height = Math.ceil(Math.ceil((Math.max(1, measured.height) + padding.vertical)) * resolution);
 
         const canvasAndContext = CanvasPool.getOptimalCanvasAndContext(width, height);
 
         // create a texture from the canvas
         const { canvas } = canvasAndContext;
 
-        this.renderTextToCanvas(text, style, resolution, canvasAndContext);
+        this.renderTextToCanvas(text, style, resolution, padding, canvasAndContext);
 
         const texture = getPo2TextureFromSource(canvas, width, height, resolution);
 
-        adjustTextTexture(texture, style.padding, style.trim);
+        adjustTextTexture(texture, padding, style.trim);
 
         return { texture, canvasAndContext };
     }
@@ -201,9 +202,11 @@ export class CanvasTextSystem implements System
      * @param text
      * @param style
      * @param resolution
+     * @param padding
      * @param canvasAndContext
      */
-    public renderTextToCanvas(text: string, style: TextStyle, resolution: number, canvasAndContext: CanvasAndContext): void
+    public renderTextToCanvas(text: string, style: TextStyle, resolution: number, padding: PaddingSides,
+        canvasAndContext: CanvasAndContext): void
     {
         const { canvas, context } = canvasAndContext;
 
@@ -243,6 +246,7 @@ export class CanvasTextSystem implements System
 
         // require 2 passes if a shadow; the first to draw the drop shadow, the second to draw the text
         const passesCount = style.dropShadow ? 2 : 1;
+        const glow = style.glow;
 
         // For v4, we drew text at the colours of the drop shadow underneath the normal text. This gave the correct zIndex,
         // but features such as alpha and shadowblur did not look right at all, since we were using actual text as a shadow.
@@ -259,7 +263,7 @@ export class CanvasTextSystem implements System
         {
             const isShadowPass = style.dropShadow && i === 0;
             // we only want the drop shadow, so put text way off-screen
-            const dsOffsetText = isShadowPass ? Math.ceil(Math.max(1, height) + (style.padding * 2)) : 0;
+            const dsOffsetText = isShadowPass ? Math.ceil(Math.max(1, height) + padding.vertical) : 0;
             const dsOffsetShadow = dsOffsetText * resolution;
 
             if (isShadowPass)
@@ -269,9 +273,23 @@ export class CanvasTextSystem implements System
                 // Therefore we'll set the styles to be a plain black whilst generating this drop shadow
                 context.fillStyle = 'black';
                 context.strokeStyle = 'black';
+            }
+            else
+            {
+                context.fillStyle = style._fill ? getCanvasFillStyle(style._fill, context) : null;
 
-                const shadowOptions = style.dropShadow;
+                if (style._stroke?.width)
+                {
+                    context.strokeStyle = getCanvasFillStyle(style._stroke, context);
+                }
 
+                context.shadowColor = 'black';
+            }
+
+            const shadowOptions = isShadowPass ? style.dropShadow : glow;
+
+            if (shadowOptions)
+            {
                 const dropShadowColor = shadowOptions.color;
                 const dropShadowAlpha = shadowOptions.alpha;
 
@@ -286,17 +304,6 @@ export class CanvasTextSystem implements System
                 context.shadowBlur = dropShadowBlur;
                 context.shadowOffsetX = Math.cos(shadowOptions.angle) * dropShadowDistance;
                 context.shadowOffsetY = (Math.sin(shadowOptions.angle) * dropShadowDistance) + dsOffsetShadow;
-            }
-            else
-            {
-                context.fillStyle = style._fill ? getCanvasFillStyle(style._fill, context) : null;
-
-                if (style._stroke?.width)
-                {
-                    context.strokeStyle = getCanvasFillStyle(style._stroke, context);
-                }
-
-                context.shadowColor = 'black';
             }
 
             let linePositionYShift = (lineHeight - fontProperties.fontSize) / 2;
@@ -329,8 +336,8 @@ export class CanvasTextSystem implements System
                         lines[i],
                         style,
                         canvasAndContext,
-                        linePositionX + style.padding,
-                        linePositionY + style.padding - dsOffsetText,
+                        linePositionX + padding.left,
+                        linePositionY + padding.top - dsOffsetText,
                         true
                     );
                 }
@@ -341,8 +348,8 @@ export class CanvasTextSystem implements System
                         lines[i],
                         style,
                         canvasAndContext,
-                        linePositionX + style.padding,
-                        linePositionY + style.padding - dsOffsetText
+                        linePositionX + padding.left,
+                        linePositionY + padding.top - dsOffsetText,
                     );
                 }
             }

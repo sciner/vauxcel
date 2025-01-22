@@ -21,6 +21,7 @@ import type { PoolItem } from '../../utils/pool/Pool';
 import type { HTMLTextOptions } from './HTMLText';
 import type { FontCSSStyleOptions } from './utils/loadFontCSS';
 import { adjustTextTexture } from '../text/utils/updateTextBounds';
+import { PaddingSides } from '../text/PaddingSides';
 
 interface HTMLTextTexture
 {
@@ -28,6 +29,8 @@ interface HTMLTextTexture
     usageCount: number,
     promise: Promise<Texture>,
 }
+
+const tempPad = new PaddingSides();
 
 /**
  * System plugin to the renderer to manage HTMLText
@@ -95,8 +98,6 @@ export class HTMLTextSystem implements System
             {
                 this._activeTextures[textKey].texture = texture;
 
-                adjustTextTexture(texture, style.padding);
-
                 return texture;
             });
 
@@ -123,9 +124,9 @@ export class HTMLTextSystem implements System
             HTMLTextStyle.defaultTextStyle as {fontWeight: string, fontStyle: string}
         );
         const measured = measureHtmlText(text, style, fontCSS, htmlTextData);
-
-        const width = Math.ceil(Math.ceil((Math.max(1, measured.width) + (style.padding * 2))) * resolution);
-        const height = Math.ceil(Math.ceil((Math.max(1, measured.height) + (style.padding * 2))) * resolution);
+        const padding = tempPad.copyFrom(style.padding);
+        const width = Math.ceil(Math.ceil((Math.max(1, measured.width) + padding.horizontal)) * resolution);
+        const height = Math.ceil(Math.ceil((Math.max(1, measured.height) + padding.vertical)) * resolution);
 
         const image = htmlTextData.image;
 
@@ -153,6 +154,8 @@ export class HTMLTextSystem implements System
             image.height - uvSafeOffset,
             resolution
         );
+
+        adjustTextTexture(texture, padding);
 
         if (this._createCanvas)
         {

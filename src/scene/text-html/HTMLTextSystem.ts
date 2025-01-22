@@ -20,6 +20,7 @@ import type { Texture } from '../../rendering/renderers/shared/texture/Texture';
 import type { PoolItem } from '../../utils/pool/Pool';
 import type { HTMLTextOptions } from './HTMLText';
 import type { FontCSSStyleOptions } from './utils/loadFontCSS';
+import { adjustTextTexture } from '../text/utils/updateTextBounds';
 
 interface HTMLTextTexture
 {
@@ -93,6 +94,8 @@ export class HTMLTextSystem implements System
             .then((texture) =>
             {
                 this._activeTextures[textKey].texture = texture;
+
+                adjustTextTexture(texture, style.padding);
 
                 return texture;
             });

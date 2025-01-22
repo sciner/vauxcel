@@ -2,11 +2,9 @@ import { ObservablePoint } from '../../maths/point/ObservablePoint';
 import { deprecation, v8_0_0 } from '../../utils/logging/deprecation';
 import { ViewContainer } from '../view/ViewContainer';
 
-import type { Size } from '../../maths/misc/Size';
 import type { PointData } from '../../maths/point/PointData';
 import type { View } from '../../rendering/renderers/shared/view/View';
 import type { ContainerOptions } from '../container/Container';
-import type { Optional } from '../container/container-mixins/measureMixin';
 import type { DestroyOptions } from '../container/destroyTypes';
 import type { HTMLTextStyle, HTMLTextStyleOptions } from '../text-html/HTMLTextStyle';
 import type { TextStyle, TextStyleOptions } from './TextStyle';
@@ -229,65 +227,6 @@ export abstract class AbstractText<
 
         this._style.on('update', this.onViewUpdate, this);
         this.onViewUpdate();
-    }
-
-    /** The width of the sprite, setting this will actually modify the scale to achieve the value set. */
-    override get width(): number
-    {
-        return Math.abs(this.scale.x) * this.bounds.width;
-    }
-
-    override set width(value: number)
-    {
-        this._setWidth(value, this.bounds.width);
-    }
-
-    /** The height of the sprite, setting this will actually modify the scale to achieve the value set. */
-    override get height(): number
-    {
-        return Math.abs(this.scale.y) * this.bounds.height;
-    }
-
-    override set height(value: number)
-    {
-        this._setHeight(value, this.bounds.height);
-    }
-
-    /**
-     * Retrieves the size of the Text as a [Size]{@link Size} object.
-     * This is faster than get the width and height separately.
-     * @param out - Optional object to store the size in.
-     * @returns - The size of the Text.
-     */
-    public override getSize(out?: Size): Size
-    {
-        out ||= {} as Size;
-        out.width = Math.abs(this.scale.x) * this.bounds.width;
-        out.height = Math.abs(this.scale.y) * this.bounds.height;
-
-        return out;
-    }
-
-    /**
-     * Sets the size of the Text to the specified width and height.
-     * This is faster than setting the width and height separately.
-     * @param value - This can be either a number or a [Size]{@link Size} object.
-     * @param height - The height to set. Defaults to the value of `width` if not provided.
-     */
-    public override setSize(value: number | Optional<Size, 'height'>, height?: number)
-    {
-        if (typeof value === 'object')
-        {
-            height = value.height ?? value.width;
-            value = value.width;
-        }
-        else
-        {
-            height ??= value;
-        }
-
-        value !== undefined && this._setWidth(value, this.bounds.width);
-        height !== undefined && this._setHeight(height, this.bounds.height);
     }
 
     /**

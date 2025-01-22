@@ -3,10 +3,10 @@ import { ExtensionType } from '../../../extensions/Extensions';
 import { nextPow2 } from '../../../maths/misc/pow2';
 import { CanvasPool } from '../../../rendering/renderers/shared/texture/CanvasPool';
 import { TexturePool } from '../../../rendering/renderers/shared/texture/TexturePool';
-import { getCanvasBoundingBox } from '../../../utils/canvas/getCanvasBoundingBox';
 import { deprecation } from '../../../utils/logging/deprecation';
 import { TextStyle } from '../TextStyle';
 import { getPo2TextureFromSource } from '../utils/getPo2TextureFromSource';
+import { adjustTextTexture } from '../utils/updateTextBounds';
 import { CanvasTextMetrics } from './CanvasTextMetrics';
 import { fontStringFromTextStyle } from './utils/fontStringFromTextStyle';
 import { getCanvasFillStyle } from './utils/getCanvasFillStyle';
@@ -133,14 +133,7 @@ export class CanvasTextSystem implements System
 
         const texture = getPo2TextureFromSource(canvas, width, height, resolution);
 
-        if (style.trim)
-        {
-            const trimmed = getCanvasBoundingBox(canvas, resolution);
-
-            texture.frame.copyFrom(trimmed);
-
-            texture.updateUvs();
-        }
+        adjustTextTexture(texture, style.padding, style.trim);
 
         return { texture, canvasAndContext };
     }

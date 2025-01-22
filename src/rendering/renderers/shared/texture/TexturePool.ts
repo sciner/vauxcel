@@ -172,6 +172,7 @@ export class TexturePoolClass
         texture.frame.width = frameWidth;
         texture.frame.height = frameHeight;
 
+        texture.setOrigTrim();
         texture.updateUvs();
 
         this._poolKeyHash[texture.uid] = key;

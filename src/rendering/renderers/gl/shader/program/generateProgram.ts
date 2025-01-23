@@ -53,7 +53,19 @@ export function generateProgram(gl: GlRenderingContext, program: GlProgram): GlP
 
     if (!gl.getProgramParameter(webGLProgram, gl.LINK_STATUS))
     {
+        let rep: string[] = null;
+
+        if (program.compileErrorHandler)
+        {
+            rep = [];
+        }
+
         logProgramError(gl, webGLProgram, glVertShader, glFragShader);
+
+        if (program.compileErrorHandler)
+        {
+            program.compileErrorHandler(rep);
+        }
     }
 
     // GLSL 1.00: bind attributes sorted by name in ascending order

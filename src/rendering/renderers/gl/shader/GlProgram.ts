@@ -136,12 +136,20 @@ export class GlProgram
     public _uniformBlockData: Record<string, GlUniformBlockData>;
     /** details on how to use this program with transform feedback */
     public transformFeedbackVaryings?: {names: string[], bufferMode: 'separate' | 'interleaved'};
+
+    /** throws error for buffer resources that dont exist when making uniform sync code */
+    public reportMissingBufferResources = true;
     /**
      * the key that identifies the program via its source vertex + fragment
      * @internal
      * @ignore
      */
     public readonly _key: number;
+
+    /**
+     * reports problem if there's an error
+     */
+    public compileErrorHandler: (report: string[]) => void;
 
     /**
      * Creates a shiny new GlProgram. Used by WebGL renderer.

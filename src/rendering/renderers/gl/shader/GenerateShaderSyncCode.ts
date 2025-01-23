@@ -33,6 +33,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
 
     let addedTextreSystem = false;
     let textureCount = 0;
+    const { glProgram } = shader;
 
     const programData = shaderSystem._getProgramData(shader.glProgram);
 
@@ -48,23 +49,13 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
         {
             const resource = group.resources[j];
 
+            let blockResName: string = undefined;
+
             if (resource instanceof UniformGroup)
             {
                 if (resource.ubo)
                 {
-                    const resName = shader._uniformBindMap[i][Number(j)];
-
-                    if (resName)
-                    {
-                        funcFragments.push(`
-                            res_name = s._uniformBindMap[${i}][${j}];
-                            sS.bindUniformBlock(
-                                resources[${j}],
-                                '${resName}',
-                                ${shader.glProgram._uniformBlockData[resName].index}
-                            );
-                        `);
-                    }
+                    blockResName = shader._uniformBindMap[i][Number(j)];
                 }
                 else
                 {
@@ -75,18 +66,7 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
             }
             else if (resource instanceof BufferResource)
             {
-                const resName = shader._uniformBindMap[i][Number(j)];
-
-                if (resName)
-                {
-                    funcFragments.push(`
-                        sS.bindUniformBlock(
-                            resources[${j}],
-                            '${resName}',
-                            ${shader.glProgram._uniformBlockData[resName].index}
-                        );
-                    `);
-                }
+                blockResName = shader._uniformBindMap[i][Number(j)];
             }
             else if (resource instanceof TextureSource)
             {
@@ -111,6 +91,27 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
                     `);
 
                     textureCount++;
+                }
+            }
+
+            if (blockResName)
+            {
+                const block_data = shader.glProgram._uniformBlockData[blockResName];
+
+                if (block_data)
+                {
+                    funcFragments.push(`
+                                res_name = s._uniformBindMap[${i}][${j}];
+                                sS.bindUniformBlock(
+                                    resources[${j}],
+                                    '${blockResName}',
+                                    ${block_data.index}
+                                );
+                            `);
+                }
+                else if (glProgram.reportMissingBufferResources)
+                {
+                    throw new Error(`Shader missing buffer resource ${blockResName}`);
                 }
             }
         }

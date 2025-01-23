@@ -4,7 +4,7 @@
  * @param gl - the WebGLContext
  * @param shader - the shader to log errors for
  */
-function logPrettyShaderError(gl: WebGLRenderingContext, shader: WebGLShader): void
+function logPrettyShaderError(gl: WebGLRenderingContext, shader: WebGLShader, out_report?: string[]): void
 {
     const shaderSrc = gl.getShaderSource(shader)
         .split('\n')
@@ -12,8 +12,12 @@ function logPrettyShaderError(gl: WebGLRenderingContext, shader: WebGLShader): v
 
     const shaderLog = gl.getShaderInfoLog(shader);
     const splitShader = shaderLog.split('\n');
-
     const dedupe: Record<number, boolean> = {};
+
+    if (out_report)
+    {
+        out_report.push(...splitShader);
+    }
 
     const lineNumbers = splitShader.map((line) => parseFloat(line.replace(/^ERROR\: 0\:([\d]+)\:.*$/, '$1')))
         .filter((n) =>
@@ -57,26 +61,30 @@ function logPrettyShaderError(gl: WebGLRenderingContext, shader: WebGLShader): v
  * @param program - the WebGL program to display errors for
  * @param vertexShader  - the fragment WebGL shader program
  * @param fragmentShader - the vertex WebGL shader program
+ * @param out_report
  * @private
  */
 export function logProgramError(
     gl: WebGLRenderingContext,
     program: WebGLProgram,
     vertexShader: WebGLShader,
-    fragmentShader: WebGLShader
-): void
+    fragmentShader: WebGLShader,
+    out_report?: string[]
+)
 {
     // if linking fails, then log and cleanup
     if (!gl.getProgramParameter(program, gl.LINK_STATUS))
     {
         if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS))
         {
-            logPrettyShaderError(gl, vertexShader);
+            out_report?.push('PIXI PROBLEM WITH VERTEX SHADER');
+            logPrettyShaderError(gl, vertexShader, out_report);
         }
 
         if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS))
         {
-            logPrettyShaderError(gl, fragmentShader);
+            out_report?.push('PIXI PROBLEM WITH FRAGMENT SHADER');
+            logPrettyShaderError(gl, fragmentShader, out_report);
         }
 
         console.error('PixiJS Error: Could not initialize shader.');
@@ -84,7 +92,11 @@ export function logProgramError(
         // if there is a program info log, log it
         if (gl.getProgramInfoLog(program) !== '')
         {
-            console.warn('PixiJS Warning: gl.getProgramInfoLog()', gl.getProgramInfoLog(program));
+            const s = gl.getProgramInfoLog(program);
+
+            out_report?.push('PIXI PROBLEM WITH LINKAGE');
+            out_report?.push(s);
+            console.warn('PixiJS Warning: gl.getProgramInfoLog()', s);
         }
     }
 }

@@ -77,13 +77,16 @@ export function generateShaderSyncCode(shader: Shader, shaderSystem: GlShaderSys
             {
                 const resName = shader._uniformBindMap[i][Number(j)];
 
-                funcFragments.push(`
-                    sS.bindUniformBlock(
-                        resources[${j}],
-                        '${resName}',
-                        ${shader.glProgram._uniformBlockData[resName].index}
-                    );
-                `);
+                if (resName)
+                {
+                    funcFragments.push(`
+                        sS.bindUniformBlock(
+                            resources[${j}],
+                            '${resName}',
+                            ${shader.glProgram._uniformBlockData[resName].index}
+                        );
+                    `);
+                }
             }
             else if (resource instanceof TextureSource)
             {

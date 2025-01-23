@@ -60,7 +60,7 @@ export function generateProgram(gl: GlRenderingContext, program: GlProgram): GlP
             rep = [];
         }
 
-        logProgramError(gl, webGLProgram, glVertShader, glFragShader);
+        logProgramError(gl, webGLProgram, glVertShader, glFragShader, rep);
 
         if (program.compileErrorHandler)
         {

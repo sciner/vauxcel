@@ -124,7 +124,9 @@ export class GlContextSystem implements System<ContextSystemOptions>
          * {@link WebGLOptions.multiView}
          * @default false
          */
-        multiView: false
+        multiView: false,
+
+        depth: false
     };
 
     protected CONTEXT_UID: number;
@@ -257,6 +259,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 alpha,
                 premultipliedAlpha,
                 antialias,
+                depth: options.depth,
                 stencil: true,
                 preserveDrawingBuffer: options.preserveDrawingBuffer,
                 powerPreference: options.powerPreference ?? 'default',
@@ -390,6 +393,9 @@ export class GlContextSystem implements System<ContextSystemOptions>
             this.extensions = {
                 ...common,
                 colorBufferFloat: gl.getExtension('EXT_color_buffer_float'),
+                bvbi: gl.getExtension('WEBGL_draw_instanced_base_vertex_base_instance'),
+                multiDraw: gl.getExtension('WEBGL_multi_draw'),
+                multiDrawBvbi: gl.getExtension('WEBGL_multi_draw_instanced_base_vertex_base_instance'),
             };
 
             const provokeExt = gl.getExtension('WEBGL_provoking_vertex');

@@ -267,7 +267,10 @@ export class Texture<TextureSourceType extends TextureSource = TextureSource> ex
 
         this._source = value;
 
-        value.on('resize', this.update, this);
+        if (this.dynamic)
+        {
+            value.on('resize', this.update, this);
+        }
 
         this.emit('update', this);
     }

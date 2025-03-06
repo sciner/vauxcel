@@ -1,5 +1,5 @@
 import { TextureSource } from './sources/TextureSource';
-import { Texture } from './Texture';
+import { Texture, type TextureOptions } from './Texture';
 
 import type { TextureSourceOptions } from './sources/TextureSource';
 
@@ -13,8 +13,15 @@ export class RenderTexture extends Texture
     public static create(options: TextureSourceOptions): RenderTexture
     {
         return new RenderTexture({
-            source: new TextureSource(options)
+            source: new TextureSource(options),
         });
+    }
+
+    constructor(opt: TextureOptions)
+    {
+        super(opt);
+
+        this.dynamic = true;
     }
 
     /**

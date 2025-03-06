@@ -14,7 +14,8 @@ export function getCanvasTexture(canvas: ICanvas, options?: CanvasSourceOptions)
             source: new CanvasSource({
                 resource: canvas,
                 ...options,
-            })
+            }),
+            dynamic: true
         });
 
         const onDestroy = () =>

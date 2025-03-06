@@ -19,9 +19,7 @@ export class RenderTexture extends Texture
 
     constructor(opt: TextureOptions)
     {
-        super(opt);
-
-        this.dynamic = true;
+        super({ ...opt, dynamic: true });
     }
 
     /**

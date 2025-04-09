@@ -13,4 +13,5 @@ export class GlRenderTarget
     public msaaRenderBuffer: WebGLRenderbuffer[] = [];
     public depthStencilRenderBuffer: WebGLRenderbuffer;
     public attachedDepthTexture: WebGLTexture;
+    public attachedDepthTextureLayer = -1;
 }

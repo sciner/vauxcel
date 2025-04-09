@@ -178,9 +178,14 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
             renderTarget.depthStencilTexture.source.sampleCount = gpuRenderTarget.msaa ? 4 : 1;
         }
 
-        const depthTexture
-            = (renderTargetSystem.renderTarget === renderTarget ? renderTargetSystem.attachedDepthTexture : null)
-            || renderTarget.depthStencilTexture;
+        let depthTexture: TextureSource<any> = null;
+        let depthTextureLayer = -1;
+
+        if (renderTargetSystem.renderTarget === renderTarget)
+        {
+            depthTexture = renderTargetSystem.attachedDepthTexture;
+            depthTextureLayer = renderTargetSystem.attachedDepthTextureLayer;
+        }
 
         if (depthTexture)
         {
@@ -188,10 +193,20 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
             const stencilLoadOp = (clear & CLEAR.STENCIL ? 'clear' : 'load') as GPULoadOp;
             const depthLoadOp = (clear & CLEAR.DEPTH ? 'clear' : 'load') as GPULoadOp;
 
+            let view_options: GPUTextureViewDescriptor;
+
+            if (depthTextureLayer >= 0)
+            {
+                view_options = {
+                    baseArrayLayer: depthTextureLayer,
+                    arrayLayerCount: 1
+                };
+            }
+
             depthStencilAttachment = {
                 view: this._renderer.texture
                     .getGpuSource(depthTexture.source)
-                    .createView(),
+                    .createView(view_options),
                 stencilStoreOp: hasStencil ? 'store' : undefined,
                 stencilLoadOp: hasStencil ? stencilLoadOp : undefined,
                 depthClearValue: 1.0,

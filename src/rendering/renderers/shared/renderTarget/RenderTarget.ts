@@ -75,6 +75,8 @@ export class RenderTarget
     public colorTextures: TextureSource[] = [];
     /** the stencil and depth buffer will right to this texture in WebGPU */
     public depthStencilTexture: TextureSource;
+    /** current selected depth texture layer. -1 for 2d textures, must be >= 0 to use with texture array or 3d textures! */
+    public depthStencilTextureLayer = -1;
     /** if true, will ensure a stencil buffer is added. For WebGPU, this will automatically create a depthStencilTexture */
     public stencil: boolean;
     /** if true, will ensure a depth buffer is added. For WebGPU, this will automatically create a depthStencilTexture */
@@ -94,6 +96,27 @@ export class RenderTarget
     constructor(descriptor: RenderTargetOptions = {})
     {
         descriptor = { ...RenderTarget.defaultOptions, ...descriptor };
+
+        if (!descriptor.width)
+        {
+            let copyFrom: { width: number, height: number, resolution: number} = null;
+
+            if (typeof descriptor.colorTextures === 'object')
+            {
+                copyFrom = descriptor.colorTextures[0].source;
+            }
+            else if (typeof descriptor.depthStencilTexture === 'object')
+            {
+                copyFrom = descriptor.depthStencilTexture.source;
+            }
+
+            if (copyFrom)
+            {
+                descriptor.width = copyFrom.width;
+                descriptor.height = copyFrom.height;
+                descriptor.resolution = copyFrom.resolution;
+            }
+        }
 
         this.stencil = descriptor.stencil;
         this.depth = descriptor.depth;

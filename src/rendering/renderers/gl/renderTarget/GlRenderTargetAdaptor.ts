@@ -80,6 +80,7 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
         const source = renderTarget.colorTexture;
         const gpuRenderTarget = renderTargetSystem.getGpuRenderTarget(renderTarget);
         const depthTexture = renderTargetSystem.attachedDepthTexture;
+        const depthTextureLayer = renderTargetSystem.attachedDepthTextureLayer;
 
         let viewPortY = viewport.y;
 
@@ -140,12 +141,22 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
         {
             const glTex = this._renderer.texture.getGlTexForDepth(depthTexture);
 
-            if (gpuRenderTarget.attachedDepthTexture !== glTex)
+            if (gpuRenderTarget.attachedDepthTexture !== glTex
+                || gpuRenderTarget.attachedDepthTextureLayer !== depthTextureLayer)
             {
                 gpuRenderTarget.attachedDepthTexture = glTex;
+                gpuRenderTarget.attachedDepthTextureLayer = depthTextureLayer;
+
+                if (depthTextureLayer >= 0)
+                {
+                    gl.framebufferTextureLayer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, glTex.texture, 0, depthTextureLayer);
+                }
+                else
+                {
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D,
+                        glTex.texture, 0);
+                }
                 // TODO: DEPTH_STENCIL_ATTACHMENT case!
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D,
-                    glTex.texture, 0);
             }
         }
 

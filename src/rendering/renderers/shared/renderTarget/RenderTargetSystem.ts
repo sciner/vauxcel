@@ -192,6 +192,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     private readonly _renderer: Renderer;
 
     public attachedDepthTexture: TextureSource = null;
+    public attachedDepthTextureLayer = -1;
 
     constructor(renderer: Renderer)
     {
@@ -322,7 +323,16 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
             !renderTarget.isRoot
         );
 
-        this.attachedDepthTexture = renderTarget.depthStencilTexture || depthTexture;
+        if (renderTarget.depthStencilTexture)
+        {
+            this.attachedDepthTexture = renderTarget.depthStencilTexture;
+            this.attachedDepthTextureLayer = renderTarget.depthStencilTextureLayer;
+        }
+        else
+        {
+            this.attachedDepthTexture = depthTexture;
+            this.attachedDepthTextureLayer = -1;
+        }
 
         this.attachedDepthTexture?.resize(renderTarget.pixelWidth, renderTarget.pixelHeight);
 

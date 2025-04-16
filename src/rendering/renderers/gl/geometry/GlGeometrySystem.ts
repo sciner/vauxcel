@@ -571,7 +571,8 @@ export class GlGeometrySystem implements System
 
         if (bvbi)
         {
-            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getDrawSize(), instanceCount, baseInstance);
+            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getDrawSize(),
+                instanceCount, baseInstance);
 
             return this;
         }
@@ -637,16 +638,23 @@ export class GlGeometrySystem implements System
         const program = renderer.shader._activeProgram;
         const gl_draw_mode = topologyToGlMap[geometry.topology];
         const { offsets, counts, instanceCounts, baseInstances, count } = mdb;
+        const indexed = !!geometry.indexBuffer;
+        let byteSize = 0;
+        let glType = 0;
+
+        if (indexed)
+        {
+            byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
+            glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
+        }
+
 
         if (!geometry.instanced)
         {
             const { multiDraw } = renderer.context.extensions;
 
-            if (geometry.indexBuffer)
+            if (indexed)
             {
-                const byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
-                const glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
-
                 if (multiDraw)
                 {
                     multiDraw.multiDrawElementsWEBGL(
@@ -687,17 +695,32 @@ export class GlGeometrySystem implements System
 
         const { multiDrawBvbi } = renderer.context.extensions;
 
-
         if (multiDrawBvbi)
         {
-            multiDrawBvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
-                gl_draw_mode,
-                offsets, 0,
-                counts, 0,
-                instanceCounts, 0,
-                baseInstances, 0,
-                count,
-            );
+            if (indexed)
+            {
+                multiDrawBvbi.multiDrawElementsInstancedBaseVertexBaseInstanceWEBGL(
+                    gl_draw_mode,
+                    counts, 0,
+                    glType,
+                    offsets, 0,
+                    instanceCounts, 0,
+                    offsets, 0,
+                    baseInstances, 0,
+                    count,
+                );
+            }
+            else
+            {
+                multiDrawBvbi.multiDrawArraysInstancedBaseInstanceWEBGL(
+                    gl_draw_mode,
+                    offsets, 0,
+                    counts, 0,
+                    instanceCounts, 0,
+                    baseInstances, 0,
+                    count,
+                );
+            }
 
             return;
         }
@@ -711,6 +734,8 @@ export class GlGeometrySystem implements System
         if (attribSync.bufSyncCount === 0)
         {
             renderer.buffer.bind(geometry.buffers[attribSync.bufFirstIndex]);
+
+
             for (let i = 0; i < count; i++)
             {
                 if (gps.emulateBaseInstance !== baseInstances[i])
@@ -718,7 +743,14 @@ export class GlGeometrySystem implements System
                     gps.emulateBaseInstance = baseInstances[i];
                     attribSync.syncFunc(gl, gps.instLocations, baseInstances[i]);
                 }
-                gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+                if (indexed)
+                {
+                    gl.drawElementsInstanced(gl_draw_mode, counts[i], glType, 0, instanceCounts[i]);
+                }
+                else
+                {
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+                }
             }
         }
         else
@@ -734,7 +766,14 @@ export class GlGeometrySystem implements System
                     this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstances[i],
                         bufferSystem, buffers, this._activeBB);
                 }
-                gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+                if (indexed)
+                {
+                    gl.drawElementsInstanced(gl_draw_mode, counts[i], glType, 0, instanceCounts[i]);
+                }
+                else
+                {
+                    gl.drawArraysInstanced(gl_draw_mode, 0, counts[i], instanceCounts[i]);
+                }
             }
         }
     }

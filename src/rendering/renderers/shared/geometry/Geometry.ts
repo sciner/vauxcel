@@ -164,6 +164,10 @@ export class Geometry extends EventEmitter<{
                 this.buffers.push(this.indexBuffer);
             }
         }
+        else if (proto.indexBuffer)
+        {
+            this.indexBuffer = proto.indexBuffer;
+        }
         for (const i in options.attributes)
         {
             const attr = options.attributes[i];

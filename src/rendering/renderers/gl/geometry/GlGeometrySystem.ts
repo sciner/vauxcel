@@ -561,23 +561,39 @@ export class GlGeometrySystem implements System
 
     public drawBI(topology?: Topology, size?: number, start?: number, instanceCount?: number, baseInstance?: number): this
     {
+        const { gl } = this._renderer;
         const geometry = this._activeGeometry;
-
         const glTopology = topologyToGlMap[geometry.topology || topology];
-
         const { bvbi } = this._renderer.context.extensions;
+        const indexed = !!geometry.indexBuffer;
+        let byteSize = 0;
+        let glType = 0;
+
+        if (indexed)
+        {
+            byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
+            glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
+        }
 
         instanceCount ||= geometry.instanceCount;
 
         if (bvbi)
         {
-            bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getDrawSize(),
-                instanceCount, baseInstance);
+            if (indexed)
+            {
+                bvbi.drawElementsInstancedBaseVertexBaseInstanceWEBGL(glTopology, size || geometry.getDrawSize(), glType,
+                    start || 0, instanceCount, 0, baseInstance);
+            }
+            else
+            {
+                bvbi.drawArraysInstancedBaseInstanceWEBGL(glTopology, start || 0, size || geometry.getDrawSize(),
+                    instanceCount, baseInstance);
+            }
 
             return this;
         }
 
-        const { gl, buffer } = this._renderer;
+        const { buffer } = this._renderer;
         const gps = this._activeGPS;
         const program = this._renderer.shader._activeProgram;
         const attribSync = this.getGlAttributeBaseCallback(geometry);
@@ -601,7 +617,14 @@ export class GlGeometrySystem implements System
                 gps.emulateBaseInstance = baseInstance;
                 attribSync.syncFunc(gl, gps.instLocations, baseInstance);
             }
-            gl.drawArraysInstanced(glTopology, start, size, instanceCount);
+            if (indexed)
+            {
+                gl.drawElementsInstanced(glTopology, size, glType, 0, instanceCount);
+            }
+            else
+            {
+                gl.drawArraysInstanced(glTopology, 0, size, instanceCount);
+            }
         }
         else
         {
@@ -613,7 +636,14 @@ export class GlGeometrySystem implements System
                 this._activeBB = attribSync.syncFunc(gl, gps.instLocations, baseInstance,
                     buffer, buffers, this._activeBB);
             }
-            gl.drawArraysInstanced(glTopology, start, size, instanceCount);
+            if (indexed)
+            {
+                gl.drawElementsInstanced(glTopology, size, glType, 0, instanceCount);
+            }
+            else
+            {
+                gl.drawArraysInstanced(glTopology, 0, size, instanceCount);
+            }
         }
 
         return this;
@@ -647,7 +677,6 @@ export class GlGeometrySystem implements System
             byteSize = geometry.indexBuffer.data.BYTES_PER_ELEMENT;
             glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT;
         }
-
 
         if (!geometry.instanced)
         {

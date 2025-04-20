@@ -187,6 +187,12 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
             depthTextureLayer = renderTargetSystem.attachedDepthTextureLayer;
         }
 
+        if (!depthTexture)
+        {
+            depthTexture = renderTarget.depthStencilTexture;
+            depthTextureLayer = renderTarget.depthStencilTextureLayer;
+        }
+
         if (depthTexture)
         {
             const hasStencil = depthTexture?.format === 'depth24plus-stencil8';

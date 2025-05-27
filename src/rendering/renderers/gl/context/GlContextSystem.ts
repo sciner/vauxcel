@@ -282,7 +282,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
     {
         const cc = this.extensions.clipControl;
         const renderTargetSystem = this._renderer.renderTarget;
-        let clip_space = this.force_clip_space ?? CLIP_SPACE.UPPER_LEFT_ZO;
+        let clip_space = this.force_clip_space ?? CLIP_SPACE.LOWER_LEFT_NO;
 
         if (cc)
         {
@@ -293,6 +293,10 @@ export class GlContextSystem implements System<ContextSystemOptions>
             else if (clip_space === CLIP_SPACE.UPPER_LEFT_ZO)
             {
                 cc.clipControlEXT(cc.UPPER_LEFT_EXT, cc.ZERO_TO_ONE_EXT);
+            }
+            else if (clip_space === CLIP_SPACE.UPPER_LEFT_NO)
+            {
+                cc.clipControlEXT(cc.UPPER_LEFT_EXT, cc.NEGATIVE_ONE_TO_ONE_EXT);
             }
         }
         else

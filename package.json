@@ -1,6 +1,6 @@
 {
   "name": "@sciner/pixi",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "author": "Ivan Popelyshev + PixiJS Team",
   "main": "lib/index.js",
   "module": "lib/index.mjs",

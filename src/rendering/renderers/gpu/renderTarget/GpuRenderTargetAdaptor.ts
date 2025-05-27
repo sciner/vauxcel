@@ -215,7 +215,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
                     .createView(view_options),
                 stencilStoreOp: hasStencil ? 'store' : undefined,
                 stencilLoadOp: hasStencil ? stencilLoadOp : undefined,
-                depthClearValue: 1.0,
+                depthClearValue: this._renderer.state._reverseDepth ? 0.0 : 1.0,
                 depthLoadOp,
                 depthStoreOp: 'store',
             };

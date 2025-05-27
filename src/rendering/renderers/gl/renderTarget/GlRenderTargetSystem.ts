@@ -29,6 +29,6 @@ export class GlRenderTargetSystem extends RenderTargetSystem<GlRenderTarget>
 
     shouldFlipY(isRoot: boolean)
     {
-        return (this.clip_space !== CLIP_SPACE.UPPER_LEFT_ZO) !== isRoot;
+        return (this.clip_space <= CLIP_SPACE.LOWER_LEFT_ZO) !== isRoot;
     }
 }

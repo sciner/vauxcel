@@ -17,4 +17,5 @@ export class GpuRenderTarget
     public height: number;
     public hdr: 0 | 1 | 2 = 0;
     public descriptor: GPURenderPassDescriptor;
+    public flipY = false;
 }

@@ -262,10 +262,9 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
 
     public initGpuRenderTarget(renderTarget: RenderTarget): GpuRenderTarget
     {
-        // always false for WebGPU
-        renderTarget.isRoot = true;
-
         const gpuRenderTarget = new GpuRenderTarget();
+
+        gpuRenderTarget.flipY = false;
 
         // create a context...
         // is a canvas...

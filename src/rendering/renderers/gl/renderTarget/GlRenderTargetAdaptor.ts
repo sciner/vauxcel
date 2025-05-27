@@ -84,9 +84,9 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
 
         let viewPortY = viewport.y;
 
-        this._renderer.state.setSwapWinding(!renderTarget.isRoot);
+        this._renderer.state.setSwapWinding(gpuRenderTarget.flipY);
 
-        if (renderTarget.isRoot)
+        if (!gpuRenderTarget.flipY)
         {
             // /TODO this is the same logic?
             viewPortY = source.pixelHeight - viewport.height;
@@ -198,6 +198,8 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
 
         const glRenderTarget = new GlRenderTarget();
 
+        glRenderTarget.flipY = this._renderTargetSystem.shouldFlipY(renderTarget.isRoot);
+
         // we are rendering to the main canvas..
         const colorTexture = renderTarget.colorTexture;
 
@@ -284,13 +286,19 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
             }
         }
 
-        const toggleDepth = ((clear & CLEAR.DEPTH) > 0
-            && (_renderTarget.depth || renderTargetSystem.attachedDepthTexture)
-            && !this._renderer.state._last_depth_mask);
+        const hasDepth = (clear & CLEAR.DEPTH) > 0
+            && (_renderTarget.depth || renderTargetSystem.attachedDepthTexture);
+
+        const toggleDepth = hasDepth && !this._renderer.state._last_depth_mask;
+        const revZ = hasDepth && this._renderer.state._reverseDepth;
 
         if (toggleDepth)
         {
             gl.depthMask(true);
+        }
+        if (revZ)
+        {
+            gl.clearDepth(0.0);
         }
 
         gl.clear(clear);
@@ -298,6 +306,10 @@ export class GlRenderTargetAdaptor implements RenderTargetAdaptor<GlRenderTarget
         if (toggleDepth)
         {
             gl.depthMask(false);
+        }
+        if (revZ)
+        {
+            gl.clearDepth(1.0);
         }
     }
 

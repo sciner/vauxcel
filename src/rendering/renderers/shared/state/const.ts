@@ -70,3 +70,4 @@ export enum STENCIL_MODES
  */
 export type CULL_MODES = 'none' | 'back' | 'front';
 
+export type DEPTH_COMPARE_MODE = GPUCompareFunction | 'z-near' | 'z-near-equal' | 'z-far' | 'z-far-equal';

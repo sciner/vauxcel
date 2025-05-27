@@ -1,10 +1,12 @@
 import { Matrix } from '../../../../maths/matrix/Matrix';
 import { Rectangle } from '../../../../maths/shapes/Rectangle';
+import type { CLEAR_OR_BOOL } from '../../gl/const';
 import { CLEAR } from '../../gl/const';
 import { calculateProjection } from '../../gpu/renderTarget/calculateProjection';
 import { SystemRunner } from '../system/SystemRunner';
 import { CanvasSource } from '../texture/sources/CanvasSource';
 import { TextureSource } from '../texture/sources/TextureSource';
+import type { BindableTexture } from '../texture/Texture';
 import { Texture } from '../texture/Texture';
 import { getCanvasTexture } from '../texture/utils/getCanvasTexture';
 import { isRenderingToScreen } from './isRenderingToScreen';
@@ -12,12 +14,11 @@ import { RenderTarget } from './RenderTarget';
 
 import type { RgbaArray } from '../../../../color/Color';
 import type { ICanvas } from '../../../../environment/canvas/ICanvas';
-import type { CLEAR_OR_BOOL } from '../../gl/const';
 import type { GlRenderTarget } from '../../gl/GlRenderTarget';
 import type { GpuRenderTarget } from '../../gpu/renderTarget/GpuRenderTarget';
 import type { Renderer } from '../../types';
 import type { System } from '../system/System';
-import type { BindableTexture } from '../texture/Texture';
+import { CLIP_SPACE } from './const';
 
 /**
  * A render surface is a texture, canvas, or render target
@@ -193,6 +194,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
 
     public attachedDepthTexture: TextureSource = null;
     public attachedDepthTextureLayer = -1;
+    public clip_space = CLIP_SPACE.UPPER_LEFT_ZO;
 
     constructor(renderer: Renderer)
     {
@@ -320,7 +322,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
             0, 0,
             viewport.width / source.resolution,
             viewport.height / source.resolution,
-            !renderTarget.isRoot
+            gpuRenderTarget.flipY
         );
 
         if (renderTarget.depthStencilTexture)
@@ -577,11 +579,16 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
         this.renderSurface = null;
     }
 
+    shouldFlipY(_isRoot: boolean)
+    {
+        return false;
+    }
+
     /**
      * clear renderTarget in case renderPass ended  after something
      */
     public unbind()
     {
-        this.resetState()
+        this.resetState();
     }
 }

@@ -19,6 +19,7 @@ export interface WebGLExtensions
 
     // webgl1 EXT_sRGB
     srgb?: EXT_sRGB;
+    clipControl?: any;
 
 }
 /* eslint-enable camelcase */

@@ -1,6 +1,7 @@
 import { DOMAdapter } from '../../../../environment/adapter';
 import { ExtensionType } from '../../../../extensions/Extensions';
 import { warn } from '../../../../utils/logging/warn';
+import { CLIP_SPACE } from '../../shared/renderTarget/const';
 import { type GpuPowerPreference } from '../../types';
 
 import type { ICanvas } from '../../../../environment/canvas/ICanvas';
@@ -77,6 +78,11 @@ export interface ContextSystemOptions
      * WebGL depth
      */
     depth?: boolean;
+
+    /**
+     * force particular clip-space for WebGL
+     */
+    clip_space?: CLIP_SPACE;
 }
 
 /**
@@ -186,6 +192,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
 
     private _renderer: WebGLRenderer;
     private _contextLossForced: boolean;
+    private force_clip_space: CLIP_SPACE;
 
     /** @param renderer - The renderer this System works for. */
     constructor(renderer: WebGLRenderer)
@@ -216,11 +223,15 @@ export class GlContextSystem implements System<ContextSystemOptions>
     {
         this.gl = gl;
         this._renderer.gl = gl;
+
+        this.detectClipSpace();
     }
 
     public init(options: ContextSystemOptions): void
     {
         options = { ...GlContextSystem.defaultOptions, ...options };
+
+        this.force_clip_space = options.clip_space;
 
         // TODO add to options
         let multiView = this.multiView = options.multiView;
@@ -265,6 +276,30 @@ export class GlContextSystem implements System<ContextSystemOptions>
                 powerPreference: options.powerPreference ?? 'default',
             });
         }
+    }
+
+    private detectClipSpace()
+    {
+        const cc = this.extensions.clipControl;
+        const renderTargetSystem = this._renderer.renderTarget;
+        let clip_space = this.force_clip_space ?? CLIP_SPACE.UPPER_LEFT_ZO;
+
+        if (cc)
+        {
+            if (clip_space === CLIP_SPACE.LOWER_LEFT_ZO)
+            {
+                cc.clipControlEXT(cc.LOWER_LEFT_EXT, cc.ZERO_TO_ONE_EXT);
+            }
+            else if (clip_space === CLIP_SPACE.UPPER_LEFT_ZO)
+            {
+                cc.clipControlEXT(cc.UPPER_LEFT_EXT, cc.ZERO_TO_ONE_EXT);
+            }
+        }
+        else
+        {
+            clip_space = CLIP_SPACE.LOWER_LEFT_NO;
+        }
+        renderTargetSystem.clip_space = clip_space;
     }
 
     public ensureCanvasSize(targetCanvas: ICanvas): void
@@ -366,6 +401,7 @@ export class GlContextSystem implements System<ContextSystemOptions>
             bptc: gl.getExtension('EXT_texture_compression_bptc'),
             rgtc: gl.getExtension('EXT_texture_compression_rgtc'),
             loseContext: gl.getExtension('WEBGL_lose_context'),
+            clipControl: gl.getExtension('EXT_clip_control'),
         };
 
         if (this.webGLVersion === 1)

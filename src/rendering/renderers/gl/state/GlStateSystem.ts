@@ -1,8 +1,9 @@
 import { ExtensionType } from '../../../../extensions/Extensions';
+import { compareReverseZ } from '../../shared/state/compareReverseZ';
 import { State } from '../../shared/state/State';
 import { mapWebGLBlendModesToPixi } from './mapWebGLBlendModesToPixi';
 
-import type { BLEND_MODES, CULL_MODES } from '../../shared/state/const';
+import type { BLEND_MODES, CULL_MODES, DEPTH_COMPARE_MODE } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GlRenderingContext } from '../context/GlRenderingContext';
 
@@ -39,7 +40,7 @@ export class GlStateSystem implements System
      */
     public depthBias = 0;
     public depthBiasSlopeScale = 0;
-    private _depthCompare: GPUCompareFunction = 'less-equal';
+    private _depthCompare: DEPTH_COMPARE_MODE = 'z-near-equal';
 
     /**
      * Blend mode
@@ -79,6 +80,7 @@ export class GlStateSystem implements System
     protected defaultState: State;
 
     _swapWinding = false;
+    _reverseDepth = false;
 
     constructor()
     {
@@ -364,6 +366,21 @@ export class GlStateSystem implements System
         this.setFrontFace(State.isStateClockwiseFrontFace(this.stateId));
     }
 
+    public setReverseDepth(value: boolean)
+    {
+        if (this._reverseDepth === value)
+        {
+            return;
+        }
+
+        this._reverseDepth = value;
+
+        if (this._depthCompare[0] === 'z')
+        {
+            this.setGlDepthFunc();
+        }
+    }
+
     public getCullMode(state: State): CULL_MODES
     {
         if (!state.culling)
@@ -374,7 +391,7 @@ export class GlStateSystem implements System
         return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
     }
 
-    set depthCompare(value: GPUCompareFunction)
+    set depthCompare(value: DEPTH_COMPARE_MODE)
     {
         if (this._depthCompare === value)
         {
@@ -383,12 +400,28 @@ export class GlStateSystem implements System
         this._depthCompare = value;
 
         this.setDepthMask((this.stateId & (1 << DEPTH_MASK)) > 0);
-        this.gl.depthFunc(value === 'equal' ? this.gl.EQUAL : this.gl.LEQUAL);
+        this.setGlDepthFunc();
     }
 
-    get depthCompare()
+    get depthCompare(): DEPTH_COMPARE_MODE
     {
         return this._depthCompare;
+    }
+
+    private setGlDepthFunc()
+    {
+        const value = compareReverseZ(this._depthCompare, this._reverseDepth);
+        const gl = this.gl;
+
+        // TODO: other modes
+        if (value === 'equal')
+        {
+            gl.depthFunc(gl.EQUAL);
+
+            return;
+        }
+
+        gl.depthFunc(this._reverseDepth ? gl.GEQUAL : gl.LEQUAL);
     }
 
     /**

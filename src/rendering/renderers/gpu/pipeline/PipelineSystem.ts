@@ -283,12 +283,14 @@ export class PipelineSystem implements System
         // only apply if the texture has stencil or depth
         if (this._depthStencilAttachment)
         {
+            const compare = stateSystem.getGpuCompareMode();
+
             // mask states..
             descriptor.depthStencil = {
                 ...this._stencilState,
                 format: this._depthStencilAttachment === 1 ? 'depth32float' : 'depth24plus-stencil8',
-                depthWriteEnabled: state.depthMask && stateSystem.depthCompare !== 'equal',
-                depthCompare: state.depthTest ? stateSystem.depthCompare : 'always',
+                depthWriteEnabled: state.depthMask && compare !== 'equal',
+                depthCompare: state.depthTest ? compare : 'always',
                 depthBias: state._depthBiasValue,
                 depthBiasSlopeScale: state._depthBiasSlopeScale,
             };

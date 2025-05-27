@@ -545,11 +545,11 @@ export class GlTextureSystem implements System, CanvasGenerator
         const renderer = this._renderer;
 
         const renderTarget = renderer.renderTarget.getRenderTarget(texture);
-        const glRenterTarget = renderer.renderTarget.getGpuRenderTarget(renderTarget);
+        const glRenderTarget = renderer.renderTarget.getGpuRenderTarget(renderTarget);
 
         const gl = renderer.gl;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, glRenterTarget.resolveTargetFramebuffer);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, glRenderTarget.resolveTargetFramebuffer);
 
         gl.readPixels(
             x,
@@ -566,7 +566,7 @@ export class GlTextureSystem implements System, CanvasGenerator
         const w2 = new Uint8Array(len);
 
         // flip Y!
-        if (renderTarget.isRoot)
+        if (!glRenderTarget.flipY)
         {
             for (let y = 0; y < height >> 1; y++)
             {

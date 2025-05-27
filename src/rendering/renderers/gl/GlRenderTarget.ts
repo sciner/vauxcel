@@ -14,4 +14,5 @@ export class GlRenderTarget
     public depthStencilRenderBuffer: WebGLRenderbuffer;
     public attachedDepthTexture: WebGLTexture;
     public attachedDepthTextureLayer = -1;
+    public flipY = false;
 }

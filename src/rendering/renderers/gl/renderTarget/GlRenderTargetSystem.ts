@@ -4,6 +4,7 @@ import { GlRenderTargetAdaptor } from './GlRenderTargetAdaptor';
 
 import type { GlRenderTarget } from '../GlRenderTarget';
 import type { WebGLRenderer } from '../WebGLRenderer';
+import { CLIP_SPACE } from '../../shared/renderTarget/const';
 
 /**
  * The WebGL adaptor for the render target system. Allows the Render Target System to be used with the WebGl renderer
@@ -24,5 +25,10 @@ export class GlRenderTargetSystem extends RenderTargetSystem<GlRenderTarget>
         super(renderer);
 
         this.adaptor.init(renderer, this);
+    }
+
+    shouldFlipY(isRoot: boolean)
+    {
+        return (this.clip_space !== CLIP_SPACE.UPPER_LEFT_ZO) !== isRoot;
     }
 }

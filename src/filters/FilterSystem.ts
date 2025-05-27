@@ -607,7 +607,7 @@ export class FilterSystem implements System
             outputTexture[0] = outputSize[0] = renderTarget.width;
             outputTexture[1] = outputSize[1] = renderTarget.height;
         }
-        outputTexture[2] = renderTarget.isRoot ? -1 : 1;
+        outputTexture[2] = renderer.renderTarget.shouldFlipY(renderTarget.isRoot) ? 1 : -1;
         outputSize[1] *= outputTexture[2];
         outputSize[2] = 1.0 / outputSize[0];
         outputSize[3] = 1.0 / outputSize[1];

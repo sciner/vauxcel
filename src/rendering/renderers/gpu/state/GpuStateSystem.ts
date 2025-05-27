@@ -2,10 +2,11 @@ import { ExtensionType } from '../../../../extensions/Extensions';
 import { State } from '../../shared/state/State';
 import {GpuBlendModesToPixi, GpuCompareToPixi} from './GpuBlendModesToPixi';
 
-import type { BLEND_MODES, CULL_MODES } from '../../shared/state/const';
+import type { BLEND_MODES, CULL_MODES, DEPTH_COMPARE_MODE } from '../../shared/state/const';
 import type { System } from '../../shared/system/System';
 import type { GPU } from '../GpuDeviceSystem';
 import type {WebGPURenderer} from "../WebGPURenderer";
+import { compareReverseZ } from '../../shared/state/compareReverseZ';
 
 /**
  * System plugin to the renderer to manage WebGL state machines.
@@ -45,8 +46,8 @@ export class GpuStateSystem implements System
     protected defaultState: State;
 
     _swapWinding = false;
-
-    _depthCompare: GPUCompareFunction = 'less-equal';
+    _reverseDepth = false;
+    private _depthCompare: DEPTH_COMPARE_MODE = 'z-near-equal';
 
     _renderer: WebGPURenderer;
 
@@ -90,6 +91,26 @@ export class GpuStateSystem implements System
         this._swapWinding = value;
     }
 
+    public setReverseDepth(value: boolean)
+    {
+        if (this._reverseDepth === value)
+        {
+            return;
+        }
+
+        this._reverseDepth = value;
+
+        if (this._depthCompare[0] === 'z')
+        {
+            this._renderer.pipeline.setDepthCompareKey(GpuCompareToPixi[this.getGpuCompareMode()]);
+        }
+    }
+
+    public getGpuCompareMode(): GPUCompareFunction
+    {
+        return compareReverseZ(this._depthCompare, this._reverseDepth);
+    }
+
     public getCullMode(state: State): CULL_MODES
     {
         if (!state.culling)
@@ -100,7 +121,7 @@ export class GpuStateSystem implements System
         return (state.clockwiseFrontFace !== this._swapWinding) ? 'front' : 'back';
     }
 
-    set depthCompare(value: GPUCompareFunction)
+    set depthCompare(value: DEPTH_COMPARE_MODE)
     {
         if (this._depthCompare === value)
         {
@@ -108,10 +129,10 @@ export class GpuStateSystem implements System
         }
         this._depthCompare = value;
 
-        this._renderer.pipeline.setDepthCompareKey(GpuCompareToPixi[value]);
+        this._renderer.pipeline.setDepthCompareKey(GpuCompareToPixi[this.getGpuCompareMode()]);
     }
 
-    get depthCompare()
+    get depthCompare(): DEPTH_COMPARE_MODE
     {
         return this._depthCompare;
     }

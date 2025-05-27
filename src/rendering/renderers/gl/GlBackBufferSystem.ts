@@ -144,9 +144,10 @@ export class GlBackBufferSystem implements System<GlBackBufferOptions>
      */
     protected renderStart(options: RenderOptions)
     {
-        const renderTarget = this._renderer.renderTarget.getRenderTarget(options.target);
+        const renderTargetSystem = this._renderer.renderTarget;
+        const renderTarget = renderTargetSystem.getRenderTarget(options.target);
 
-        this._useBackBufferThisRender = this.useBackBuffer && !!renderTarget.isRoot;
+        this._useBackBufferThisRender = this.useBackBuffer && !renderTargetSystem.shouldFlipY(renderTarget.isRoot);
 
         if (this._useBackBufferThisRender)
         {

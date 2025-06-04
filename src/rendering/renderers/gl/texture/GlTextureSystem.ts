@@ -566,7 +566,7 @@ export class GlTextureSystem implements System, CanvasGenerator
         const w2 = new Uint8Array(len);
 
         // flip Y!
-        if (!glRenderTarget.flipY)
+        if (glRenderTarget.flipY)
         {
             for (let y = 0; y < height >> 1; y++)
             {

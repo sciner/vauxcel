@@ -14,7 +14,7 @@ import type { WebGPURenderer } from '../WebGPURenderer';
 /**
  * The WebGPU adaptor for the render target system. Allows the Render Target System to
  * be used with the WebGPU renderer
- * @memberof rendering
+ * @category rendering
  * @ignore
  */
 export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarget>
@@ -262,6 +262,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
 
     public initGpuRenderTarget(renderTarget: RenderTarget): GpuRenderTarget
     {
+        // always true for WebGPU
         const gpuRenderTarget = new GpuRenderTarget();
 
         gpuRenderTarget.flipY = false;
@@ -270,7 +271,7 @@ export class GpuRenderTargetAdaptor implements RenderTargetAdaptor<GpuRenderTarg
         // is a canvas...
         renderTarget.colorTextures.forEach((colorTexture, i) =>
         {
-            if (CanvasSource.test(colorTexture.resource))
+            if (colorTexture instanceof CanvasSource)
             {
                 const context = colorTexture.resource.getContext(
                     'webgpu'

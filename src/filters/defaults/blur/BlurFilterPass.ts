@@ -10,7 +10,8 @@ import type { BlurFilterOptions } from './BlurFilter';
 
 /**
  * Options for BlurFilterPass
- * @memberof filters
+ * @category filters
+ * @internal
  */
 export interface BlurFilterPassOptions extends BlurFilterOptions
 {
@@ -20,7 +21,16 @@ export interface BlurFilterPassOptions extends BlurFilterOptions
 
 /**
  * The BlurFilterPass applies a horizontal or vertical Gaussian blur to an object.
- * @memberof filters
+ * @category filters
+ * @advanced
+ * @example
+ * import { BlurFilterPass } from 'pixi.js';
+ *
+ * const filter = new BlurFilterPass({ horizontal: true, strength: 8 });
+ * sprite.filters = filter;
+ *
+ * // update blur
+ * filter.blur = 16;
  */
 export class BlurFilterPass extends Filter
 {

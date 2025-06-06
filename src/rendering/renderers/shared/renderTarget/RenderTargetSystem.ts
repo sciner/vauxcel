@@ -1,31 +1,32 @@
 import { Matrix } from '../../../../maths/matrix/Matrix';
 import { Rectangle } from '../../../../maths/shapes/Rectangle';
-import type { CLEAR_OR_BOOL } from '../../gl/const';
 import { CLEAR } from '../../gl/const';
 import { calculateProjection } from '../../gpu/renderTarget/calculateProjection';
 import { SystemRunner } from '../system/SystemRunner';
 import { CanvasSource } from '../texture/sources/CanvasSource';
 import { TextureSource } from '../texture/sources/TextureSource';
-import type { BindableTexture } from '../texture/Texture';
 import { Texture } from '../texture/Texture';
 import { getCanvasTexture } from '../texture/utils/getCanvasTexture';
+import { CLIP_SPACE } from './const';
 import { isRenderingToScreen } from './isRenderingToScreen';
 import { RenderTarget } from './RenderTarget';
 
 import type { RgbaArray } from '../../../../color/Color';
 import type { ICanvas } from '../../../../environment/canvas/ICanvas';
+import type { CLEAR_OR_BOOL } from '../../gl/const';
 import type { GlRenderTarget } from '../../gl/GlRenderTarget';
 import type { GpuRenderTarget } from '../../gpu/renderTarget/GpuRenderTarget';
 import type { Renderer } from '../../types';
 import type { System } from '../system/System';
-import { CLIP_SPACE } from './const';
+import type { BindableTexture } from '../texture/Texture';
 
 /**
  * A render surface is a texture, canvas, or render target
- * @memberof rendering
+ * @category rendering
  * @see environment.ICanvas
- * @see rendering.Texture
- * @see rendering.RenderTarget
+ * @see Texture
+ * @see RenderTarget
+ * @advanced
  */
 export type RenderSurface = ICanvas | BindableTexture | RenderTarget;
 
@@ -148,7 +149,8 @@ export interface RenderTargetAdaptor<RENDER_TARGET extends GlRenderTarget | GpuR
  *
  * // draw something!
  * ```
- * @memberof rendering
+ * @category rendering
+ * @advanced
  */
 export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRenderTarget> implements System
 {
@@ -434,11 +436,36 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
         }
 
         return this._renderSurfaceToRenderTargetHash.get(renderSurface)
-        ?? this._initRenderTarget(renderSurface);
+            ?? this._initRenderTarget(renderSurface);
     }
 
     /**
-     * Copies a render surface to another texture
+     * Copies a render surface to another texture.
+     *
+     * NOTE:
+     * for sourceRenderSurfaceTexture, The render target must be something that is written too by the renderer
+     *
+     * The following is not valid:
+     * @example
+     * const canvas = document.createElement('canvas')
+     * canvas.width = 200;
+     * canvas.height = 200;
+     *
+     * const ctx = canvas2.getContext('2d')!
+     * ctx.fillStyle = 'red'
+     * ctx.fillRect(0, 0, 200, 200);
+     *
+     * const texture = RenderTexture.create({
+     *   width: 200,
+     *   height: 200,
+     * })
+     * const renderTarget = renderer.renderTarget.getRenderTarget(canvas2);
+     *
+     * renderer.renderTarget.copyToTexture(renderTarget,texture, {x:0,y:0},{width:200,height:200},{x:0,y:0});
+     *
+     * The best way to copy a canvas is to create a texture from it. Then render with that.
+     *
+     * Parsing in a RenderTarget canvas context (with a 2d context)
      * @param sourceRenderSurfaceTexture - the render surface to copy from
      * @param destinationTexture - the texture to copy to
      * @param originSrc - the origin of the copy
@@ -540,7 +567,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
                 colorTextures: [renderSurface],
             });
 
-            if (CanvasSource.test(renderSurface.source.resource))
+            if (renderSurface.source instanceof CanvasSource)
             {
                 renderTarget.isRoot = true;
             }
@@ -570,7 +597,7 @@ export class RenderTargetSystem<RENDER_TARGET extends GlRenderTarget | GpuRender
     public getGpuRenderTarget(renderTarget: RenderTarget)
     {
         return this._gpuRenderTargetHash[renderTarget.uid]
-        || (this._gpuRenderTargetHash[renderTarget.uid] = this.adaptor.initGpuRenderTarget(renderTarget));
+            || (this._gpuRenderTargetHash[renderTarget.uid] = this.adaptor.initGpuRenderTarget(renderTarget));
     }
 
     public resetState(): void

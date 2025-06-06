@@ -1,10 +1,10 @@
 import { DOMAdapter } from '../../../environment/adapter';
-import { type IPaddingSidesLike, PaddingSides } from '../PaddingSides';
-import {type TextStyle, type TextStyleWhiteSpace} from '../TextStyle';
 import { fontStringFromTextStyle } from './utils/fontStringFromTextStyle';
 
 import type { ICanvas, ICanvasRenderingContext2DSettings } from '../../../environment/canvas/ICanvas';
 import type { ICanvasRenderingContext2D } from '../../../environment/canvas/ICanvasRenderingContext2D';
+import type { TextStyle, TextStyleWhiteSpace } from '../TextStyle';
+import { type IPaddingSidesLike, PaddingSides } from '../PaddingSides';
 
 // The type for Intl.Segmenter is only available since TypeScript 4.7.2, so let's make a polyfill for it.
 interface ISegmentData
@@ -29,11 +29,12 @@ interface IIntl
 
 /**
  * A number, or a string containing a number.
- * @memberof text
+ * @category text
  * @typedef {object} FontMetrics
  * @property {number} ascent - Font ascent
  * @property {number} descent - Font descent
  * @property {number} fontSize - Font size
+ * @advanced
  */
 export interface FontMetrics
 {
@@ -53,7 +54,7 @@ const contextSettings: ICanvasRenderingContext2DSettings = {
 /**
  * The TextMetrics object represents the measurement of a block of text with a specified style.
  * @example
- * import { TextMetrics, TextStyle } from 'pixi.js';
+ * import { CanvasTextMetrics, TextStyle } from 'pixi.js';
  *
  * const style = new TextStyle({
  *     fontFamily: 'Arial',
@@ -61,8 +62,9 @@ const contextSettings: ICanvasRenderingContext2DSettings = {
  *     fill: 0xff1010,
  *     align: 'center',
  * });
- * const textMetrics = TextMetrics.measureText('Your text', style);
- * @memberof text
+ * const textMetrics = CanvasTextMetrics.measureText('Your text', style);
+ * @category text
+ * @advanced
  */
 export class CanvasTextMetrics
 {
@@ -128,7 +130,20 @@ export class CanvasTextMetrics
         {
             const segmenter = new (Intl as IIntl).Segmenter();
 
-            return (s: string) => [...segmenter.segment(s)].map((x) => x.segment);
+            return (s: string) =>
+            {
+                const segments = segmenter.segment(s);
+                const result = [];
+
+                let i = 0;
+
+                for (const segment of segments)
+                {
+                    result[i++] = (segment.segment);
+                }
+
+                return result;
+            };
         }
 
         return (s: string) => [...s];
@@ -148,7 +163,7 @@ export class CanvasTextMetrics
     {
         let result = CanvasTextMetrics._experimentalLetterSpacingSupported;
 
-        if (result !== undefined)
+        if (result === undefined)
         {
             const proto = DOMAdapter.get().getCanvasRenderingContext2D().prototype;
 
@@ -168,7 +183,7 @@ export class CanvasTextMetrics
      */
     public static experimentalLetterSpacing = false;
 
-    /** Cache of {@see TextMetrics.FontMetrics} objects. */
+    /** Cache of {@link TextMetrics.FontMetrics} objects. */
     private static _fonts: Record<string, FontMetrics> = {};
 
     /** Cache of new line chars. */
@@ -200,8 +215,6 @@ export class CanvasTextMetrics
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private static __context: ICanvasRenderingContext2D;
 
-    private static readonly _measurementCache: Record<string, CanvasTextMetrics> = {};
-
     /**
      * @param text - the text that was measured
      * @param style - the style that was measured
@@ -212,6 +225,7 @@ export class CanvasTextMetrics
      * @param lineHeight - the measured line height for this style
      * @param maxLineWidth - the maximum line width for all measured lines
      * @param {FontMetrics} fontProperties - the font properties object from TextMetrics.measureFont
+     * @param padding - four-side paddings, calculated from shadow and filters
      */
     constructor(text: string, style: TextStyle, width: number, height: number, lines: string[], lineWidths: number[],
         lineHeight: number, maxLineWidth: number, fontProperties: FontMetrics, padding?: IPaddingSidesLike)
@@ -243,13 +257,6 @@ export class CanvasTextMetrics
         wordWrap: boolean = style.wordWrap,
     ): CanvasTextMetrics
     {
-        const textKey = `${text}:${style.styleKey}`;
-
-        // TODO - if we find this starts to go nuts with memory, we can remove the cache
-        // or instead just stick a usage tick that we increment each time we return it.
-        // if some are not used, we can just tidy them up!
-        if (CanvasTextMetrics._measurementCache[textKey]) return CanvasTextMetrics._measurementCache[textKey];
-
         const font = fontStringFromTextStyle(style);
         const fontProperties = CanvasTextMetrics.measureFont(font);
 
@@ -312,8 +319,6 @@ export class CanvasTextMetrics
             fontProperties,
             padding
         );
-
-        // CanvasTextMetrics._measurementCache[textKey] = measurements;
 
         return measurements;
     }

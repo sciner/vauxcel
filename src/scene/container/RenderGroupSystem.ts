@@ -19,7 +19,8 @@ const tempMatrix = new Matrix();
 /**
  * The view system manages the main canvas that is attached to the DOM.
  * This main role is to deal with how the holding the view reference and dealing with how it is resized.
- * @memberof rendering
+ * @category rendering
+ * @internal
  */
 export class RenderGroupSystem implements System
 {
@@ -143,8 +144,7 @@ export class RenderGroupSystem implements System
                     bounds.width,
                     bounds.height,
                     resolution,
-                    antialias,
-                    false
+                    antialias
                 );
 
                 renderGroup._textureBounds ||= new Bounds();
@@ -171,7 +171,7 @@ export class RenderGroupSystem implements System
         const renderer = this._renderer;
         const renderPipes = renderer.renderPipes;
 
-        renderGroup.runOnRender();
+        renderGroup.runOnRender(renderer);
 
         renderGroup.instructionSet.renderPipes = renderPipes;
 

@@ -15,6 +15,7 @@ const tempPadding = new PaddingSides();
  * @param fontStyleCSS - The font css to use
  * @param htmlTextRenderData - The HTMLTextRenderData to write the SVG to
  * @returns - The size of the text
+ * @internal
  */
 export function measureHtmlText(
     text: string,

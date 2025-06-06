@@ -1,6 +1,7 @@
 import { nextPow2, type Size } from '../../../../maths/index.js';
 import { TextureSource } from './sources/TextureSource';
 import { Texture } from './Texture';
+import { TextureStyle } from './TextureStyle';
 
 import type { TextureSourceOptions } from './sources/TextureSource';
 
@@ -10,17 +11,19 @@ let count = 0;
  * Texture pool, used by FilterSystem and plugins.
  *
  * Stores collection of temporary pow2 or screen-sized renderTextures
- * Can use screen-size adjustments in case of big textures
  *
  * If you use custom RenderTexturePool for your filters, you can use methods
  * `getFilterTexture` and `returnFilterTexture` same as in default pool
- * @memberof rendering
- * @name TexturePool
+ * @category rendering
+ * @advanced
  */
 export class TexturePoolClass
 {
     /** The default options for texture pool */
     public textureOptions: TextureSourceOptions;
+
+    /** The default texture style for the pool */
+    public textureStyle: TextureStyle;
 
     /**
      * Allow renderTextures of the same size as screen, not just pow2
@@ -65,6 +68,7 @@ export class TexturePoolClass
         this._texturePool = {};
         this.textureOptions = textureOptions || {};
         this.enableFullScreen = false;
+        this.textureStyle = new TextureStyle(this.textureOptions);
     }
 
     /**
@@ -112,41 +116,41 @@ export class TexturePoolClass
      * @returns The new render texture.
      */
     public getOptimalTexture(frameWidth: number, frameHeight: number, resolution = 1,
-        antialias: boolean, hdr: boolean, ignoreScreen = false): Texture
+        antialias: boolean, hdr: boolean = false, ignoreScreen = false): Texture
     {
-        let width = Math.ceil((frameWidth * resolution) - 1e-6);
-        let height = Math.ceil((frameHeight * resolution) - 1e-6);
+        let po2Width = Math.ceil((frameWidth * resolution) - 1e-6);
+        let po2Height = Math.ceil((frameHeight * resolution) - 1e-6);
 
         let screenWidth = this._pixelsWidth;
         let screenHeight = this._pixelsHeight;
 
         let sign: number;
 
-        if (ignoreScreen || width <= this.screenThreshold || height <= this.screenThreshold
-            || width > screenWidth || height > screenHeight)
+        if (ignoreScreen || po2Width <= this.screenThreshold || po2Height <= this.screenThreshold
+            || po2Width > screenWidth || po2Height > screenHeight)
         {
-            width = nextPow2(width);
-            height = nextPow2(height);
+            po2Width = nextPow2(po2Width);
+            po2Height = nextPow2(po2Height);
             sign = 1;
         }
         else
         {
             const factor = this.screenSizeFactor;
 
-            while (width <= Math.ceil(screenWidth / factor))
+            while (po2Width <= Math.ceil(screenWidth / factor))
             {
                 screenWidth = Math.ceil(screenWidth / factor);
             }
-            while (height <= Math.ceil(screenHeight / factor))
+            while (po2Height <= Math.ceil(screenHeight / factor))
             {
                 screenHeight = Math.ceil(screenHeight / factor);
             }
-            width = screenWidth;
-            height = screenHeight;
+            po2Width = screenWidth;
+            po2Height = screenHeight;
             sign = -1;
         }
 
-        const key = sign * ((width << 16) + (height << 2) + (antialias ? 1 : 0) + (hdr ? 2 : 0));
+        const key = sign * ((po2Width << 16) + (po2Height << 2) + (antialias ? 1 : 0) + (hdr ? 2 : 0));
 
         if (!this._texturePool[key])
         {
@@ -157,14 +161,14 @@ export class TexturePoolClass
 
         if (!texture)
         {
-            texture = this.createTexture(width, height, antialias, hdr);
+            texture = this.createTexture(po2Width, po2Height, antialias, hdr);
         }
 
         texture.source._resolution = resolution;
-        texture.source.width = width / resolution;
-        texture.source.height = height / resolution;
-        texture.source.pixelWidth = width;
-        texture.source.pixelHeight = height;
+        texture.source.width = po2Width / resolution;
+        texture.source.height = po2Height / resolution;
+        texture.source.pixelWidth = po2Width;
+        texture.source.pixelHeight = po2Height;
 
         // fit the layout to the requested original size
         texture.frame.x = 0;
@@ -194,13 +198,21 @@ export class TexturePoolClass
     }
 
     /**
-     * Place a render texture back into the pool.
+     * Place a render texture back into the pool. Optionally reset the style of the texture to the default texture style.
+     * useful if you modified the style of the texture after getting it from the pool.
      * @param renderTexture - The renderTexture to free
+     * @param resetStyle - Whether to reset the style of the texture to the default texture style
      */
-    public returnTexture(renderTexture: Texture): void
+    public returnTexture(renderTexture: Texture, resetStyle = false): void
     {
         const key = this._poolKeyHash[renderTexture.uid];
         const arr = this._texturePool[key];
+
+        // we can skip the copy if we don't need to reset the style
+        if (resetStyle)
+        {
+            renderTexture.source.style = this.textureStyle;
+        }
 
         if (arr)
         {
@@ -285,4 +297,9 @@ export class TexturePoolClass
     }
 }
 
+/**
+ * The default texture pool instance.
+ * @category rendering
+ * @advanced
+ */
 export const TexturePool = new TexturePoolClass();

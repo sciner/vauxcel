@@ -786,7 +786,7 @@ export class FilterSystem implements System
                 bounds.height,
                 flip.source._resolution,
                 false,
-                false
+                filters[1].hdr
             );
 
             // get another texture that we will render the next filter too

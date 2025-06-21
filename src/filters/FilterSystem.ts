@@ -515,7 +515,7 @@ export class FilterSystem implements System
             bounds.height,
             backgroundResolution,
             false,
-            false
+            lastRenderSurface.colorTexture.source.isHdr()
         );
 
         let x = bounds.minX;

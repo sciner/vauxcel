@@ -550,6 +550,8 @@ export abstract class Batcher
                 continue;
             }
 
+            // TODO: check again in execute?
+            source.checkUpdate();
             source._batchTick = BATCH_TICK;
 
             if (textureBatch.count >= maxTextures || breakRequired)

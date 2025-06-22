@@ -1,8 +1,5 @@
 import { Color } from '../../../color/Color';
-import { Rectangle } from '../../../maths/shapes/Rectangle';
-import { Texture } from '../../../rendering';
 import { type CanvasAndContext, CanvasPool } from '../../../rendering/renderers/shared/texture/CanvasPool';
-import { getCanvasBoundingBox } from '../../../utils/canvas/getCanvasBoundingBox';
 import { PaddingSides } from '../PaddingSides';
 import { CanvasTextMetrics } from './CanvasTextMetrics';
 import { fontStringFromTextStyle } from './utils/fontStringFromTextStyle';
@@ -81,37 +78,6 @@ class CanvasTextGeneratorClass
             canvasAndContext,
             width, height, padding
         };
-    }
-
-    public adjustTextTexture(texture: Texture, padding: PaddingSides, do_trim = false)
-    {
-        if (!padding && !do_trim)
-        {
-            return;
-        }
-        const orig = texture.frame.clone();
-
-        orig.width -= padding.vertical;
-        orig.height -= padding.horizontal;
-
-        if (do_trim)
-        {
-            const trimmed = getCanvasBoundingBox(texture.source.resource, texture.source.resolution);
-
-            texture.frame.copyFrom(trimmed);
-            texture.updateUvs();
-        }
-
-        let trim: Rectangle = texture.frame;
-
-        if (padding)
-        {
-            trim = trim.clone();
-            trim.x -= padding.left;
-            trim.y -= padding.top;
-        }
-
-        texture.setOrigTrim(orig, trim);
     }
 
     /**

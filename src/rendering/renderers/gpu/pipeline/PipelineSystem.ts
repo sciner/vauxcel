@@ -23,6 +23,13 @@ const topologyStringToId = {
     'triangle-strip': 4,
 };
 
+// depth attachment variants, 2 bits of the global pipe key: 0 - none
+const depthFormatToKey: Partial<Record<GPUTextureFormat, number>> = {
+    depth32float: 1,
+    depth16unorm: 2,
+    'depth24plus-stencil8': 3,
+};
+
 function getProgKey(
     geometryLayout: number,
     shaderKey: number,
@@ -64,7 +71,7 @@ function getGlobalStateKey(
     hdr: number
 ): number
 {
-    if ((renderTarget & 1) === 0)
+    if (renderTarget === 0)
     {
         stencilStateId = 0;
     }
@@ -127,6 +134,7 @@ export class PipelineSystem implements System
     private _colorMask = 0b1111;
     private _multisampleCount = 1;
     private _depthStencilAttachment: number = 0;
+    private _depthStencilFormat: GPUTextureFormat = 'depth32float';
     private _hdr: 0 | 1 | 2;
 
     constructor(renderer: WebGPURenderer)
@@ -155,9 +163,16 @@ export class PipelineSystem implements System
     {
         this._multisampleCount = renderTarget.msaaSamples;
 
-        this._depthStencilAttachment = renderTarget.descriptor.depthStencilAttachment ? (
-            1 | (renderTarget.descriptor.depthStencilAttachment.stencilLoadOp ? 2 : 0)
-        ) : 0;
+        if (renderTarget.descriptor.depthStencilAttachment)
+        {
+            // pipeline depth format must match the actual attached depth texture
+            this._depthStencilFormat = renderTarget.depthFormat ?? 'depth32float';
+            this._depthStencilAttachment = depthFormatToKey[this._depthStencilFormat] ?? 1;
+        }
+        else
+        {
+            this._depthStencilAttachment = 0;
+        }
         this._hdr = renderTarget.hdr;
 
         this._updatePipeHash();
@@ -221,7 +236,7 @@ export class PipelineSystem implements System
             }
         }
 
-        const depthCompareKey = (this._depthStencilAttachment & 1) ? this._depthCompareKey : 0;
+        const depthCompareKey = this._depthStencilAttachment !== 0 ? this._depthCompareKey : 0;
 
         // now we have set the Ids - the key is different...
         // eslint-disable-next-line max-len
@@ -288,7 +303,7 @@ export class PipelineSystem implements System
             // mask states..
             descriptor.depthStencil = {
                 ...this._stencilState,
-                format: this._depthStencilAttachment === 1 ? 'depth32float' : 'depth24plus-stencil8',
+                format: this._depthStencilFormat,
                 depthWriteEnabled: state.depthMask && compare !== 'equal',
                 depthCompare: state.depthTest ? compare : 'always',
                 depthBias: state._depthBiasValue,

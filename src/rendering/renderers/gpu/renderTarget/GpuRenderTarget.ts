@@ -17,5 +17,7 @@ export class GpuRenderTarget
     public height: number;
     public hdr: 0 | 1 | 2 = 0;
     public descriptor: GPURenderPassDescriptor;
+    /** format of the actual depth texture attached to the pass, if any */
+    public depthFormat: GPUTextureFormat;
     public flipY = false;
 }

@@ -5,11 +5,14 @@ import jscc from 'rollup-plugin-jscc';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import { string } from 'rollup-plugin-string';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import webworker from '@pixi/webworker-plugins/rollup-plugin';
-import repo from './package.json' assert { type: 'json' };
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
+
+// JSON import via require: works on any Node version, unlike import-assertion syntax
+const repo = createRequire(import.meta.url)('./package.json');
 
 const bundleTarget = 'es2017';
 const moduleTarget = 'es2020';

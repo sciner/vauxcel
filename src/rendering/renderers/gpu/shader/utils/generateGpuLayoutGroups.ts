@@ -74,11 +74,14 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         }
 
         type = group.type;
+        // samplers are visible to the vertex stage too: WGSL allows
+        // textureSampleLevel / textureSampleCompareLevel in vertex shaders
+        // (only implicit-LOD textureSample* variants are fragment-only)
         if (type === 'sampler')
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT,
+                visibility: compute_flag,
                 sampler: {
                     type: 'filtering'
                 }
@@ -89,7 +92,7 @@ export function generateGpuLayoutGroups({ groups }: StructsAndGroups): ProgramPi
         {
             layout[group.group].push({
                 binding: group.binding,
-                visibility: ShaderStage.FRAGMENT,
+                visibility: compute_flag,
                 sampler: {
                     type: 'comparison'
                 }

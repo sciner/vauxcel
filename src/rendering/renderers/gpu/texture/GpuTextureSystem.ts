@@ -88,7 +88,9 @@ export class GpuTextureSystem implements System, CanvasGenerator
                     usage |= GPUTextureUsage.RENDER_ATTACHMENT;
                 }
             }
-            else
+            // gpuRenderAttachment = false: texture is never a render target. AMD Polaris
+            // corrupts r16sint textures created with RENDER_ATTACHMENT (bits 4-7 read as 0)
+            else if (source.gpuRenderAttachment !== false)
             {
                 usage |= GPUTextureUsage.RENDER_ATTACHMENT;
             }
